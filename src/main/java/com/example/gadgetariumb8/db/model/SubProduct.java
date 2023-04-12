@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,16 +22,17 @@ import static jakarta.persistence.CascadeType.*;
 @AllArgsConstructor
 public class SubProduct {
     @Id
-    @SequenceGenerator(name = "sub_product_gen", sequenceName = "sub_product_seq", allocationSize = 1)
+    @SequenceGenerator(name = "sub_product_gen", sequenceName = "sub_product_seq")
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sub_product_gen")
     private Long id;
     private String colour;
     @ElementCollection
-    private List<String> images;
+    private List<String> images = new ArrayList<>();
+
     private BigDecimal price;
     private int quantity;
     @ElementCollection
-    private Map<String, String> characteristics;
+    private Map<String, String> characteristics = new LinkedHashMap<>();
     @ManyToOne(cascade = {REFRESH, PERSIST, MERGE, DETACH})
     @JoinColumn(name = "product_id")
     private Product product;

@@ -16,10 +16,10 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class Discount {
     @Id
-    @SequenceGenerator(name = "discount_gen", sequenceName = "discount_seq", allocationSize = 1)
+    @SequenceGenerator(name = "discount_gen", sequenceName = "discount_seq")
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "discount_gen")
     private Long id;
-    private int percent;
+    private byte percent;
     private LocalDate dateOfStart;
     private LocalDate dateOfFinish;
 }

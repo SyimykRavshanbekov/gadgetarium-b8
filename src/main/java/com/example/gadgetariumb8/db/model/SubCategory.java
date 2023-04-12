@@ -16,7 +16,7 @@ import static jakarta.persistence.CascadeType.*;
 @AllArgsConstructor
 public class SubCategory {
     @Id
-    @SequenceGenerator(name = "sub_category_gen", sequenceName = "sub_category_seq", allocationSize = 1)
+    @SequenceGenerator(name = "sub_category_gen", sequenceName = "sub_category_seq")
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sub_category_gen")
     private Long id;
     private String name;

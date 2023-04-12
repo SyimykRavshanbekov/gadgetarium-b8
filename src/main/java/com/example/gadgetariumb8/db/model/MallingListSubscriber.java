@@ -16,9 +16,8 @@ import java.util.List;
 @AllArgsConstructor
 public class MallingListSubscriber {
     @Id
-    @SequenceGenerator(name = "malling_list_subscriber_gen",sequenceName = "malling_list_subscriber_seq",allocationSize = 1)
+    @SequenceGenerator(name = "malling_list_subscriber_gen",sequenceName = "malling_list_subscriber_seq")
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "malling_list_subscriber_gen")
     private Long id;
-    @ElementCollection
-    private List<String> usersEmails;
+    private String userEmail;
 }

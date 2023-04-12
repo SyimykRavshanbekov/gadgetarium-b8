@@ -23,7 +23,7 @@ import static jakarta.persistence.CascadeType.*;
 @AllArgsConstructor
 public class User {
     @Id
-    @SequenceGenerator(name = "user_gen", sequenceName = "user_seq", allocationSize = 1)
+    @SequenceGenerator(name = "user_gen", sequenceName = "user_seq")
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_gen")
     private Long id;
     private String firstName;
@@ -49,7 +49,7 @@ public class User {
     @ElementCollection
     @Cascade({CascadeType.ALL})
     private Map<SubProduct, Integer> basket = new LinkedHashMap<>();
-    @OneToMany(cascade = {REFRESH, DETACH, MERGE, PERSIST}, orphanRemoval = true)
+    @OneToMany(cascade = {REFRESH, DETACH, MERGE, PERSIST})
     @JoinColumn(name = "user_id")
     private List<Order> order = new ArrayList<>();
     @OneToOne(cascade = ALL, orphanRemoval = true)

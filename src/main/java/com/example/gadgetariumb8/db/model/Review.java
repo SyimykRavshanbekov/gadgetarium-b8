@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static jakarta.persistence.CascadeType.*;
@@ -18,14 +19,14 @@ import static jakarta.persistence.CascadeType.*;
 @AllArgsConstructor
 public class Review {
     @Id
-    @SequenceGenerator(name = "review_gen", sequenceName = "review_seq", allocationSize = 1)
+    @SequenceGenerator(name = "review_gen", sequenceName = "review_seq")
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "review_gen")
     private Long id;
     private String commentary;
     private int grade;
     private String answer;
     @ElementCollection
-    private List<String> images;
+    private List<String> images = new ArrayList<>();
     @ManyToOne(cascade = {REFRESH, PERSIST, MERGE, DETACH}, fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
     private Product product;

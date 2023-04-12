@@ -16,7 +16,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class MallingList {
     @Id
-    @SequenceGenerator(name = "malling_list_gen", sequenceName = "malling_list_seq", allocationSize = 1)
+    @SequenceGenerator(name = "malling_list_gen", sequenceName = "malling_list_seq")
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "malling_list_gen")
     private Long id;
     private String image;

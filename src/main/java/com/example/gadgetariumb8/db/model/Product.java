@@ -20,7 +20,7 @@ import static jakarta.persistence.CascadeType.*;
 @AllArgsConstructor
 public class Product {
     @Id
-    @SequenceGenerator(name = "product_gen", sequenceName = "product_seq", allocationSize = 1)
+    @SequenceGenerator(name = "product_gen", sequenceName = "product_seq")
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "product_gen")
     private Long id;
     private int guarantee;
@@ -34,6 +34,7 @@ public class Product {
     private String itemNumber;
     @OneToMany(cascade = ALL, fetch = FetchType.EAGER, mappedBy = "product", orphanRemoval = true)
     private List<Review> reviews = new ArrayList<>();
+
     @ManyToOne(cascade = {DETACH, MERGE, REFRESH, PERSIST})
     @JoinColumn(name = "sub_category_id")
     private SubCategory subCategory;
@@ -42,7 +43,8 @@ public class Product {
     private Brand brand;
     @OneToMany(cascade = ALL, fetch = FetchType.EAGER, mappedBy = "product", orphanRemoval = true)
     private List<SubProduct> subProducts = new ArrayList<>();
-    @OneToOne(cascade = ALL)
+
+    @OneToOne(cascade = ALL, orphanRemoval = true)
     @JoinColumn(name = "discount_id")
     private Discount discount;
 }

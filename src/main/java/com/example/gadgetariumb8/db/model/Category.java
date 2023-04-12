@@ -14,7 +14,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class Category {
     @Id
-    @SequenceGenerator(name = "category_gen", sequenceName = "category_seq",allocationSize = 1)
+    @SequenceGenerator(name = "category_gen", sequenceName = "category_seq")
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "category_gen")
     private Long id;
     private String name;

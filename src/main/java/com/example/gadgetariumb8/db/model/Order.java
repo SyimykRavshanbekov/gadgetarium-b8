@@ -23,7 +23,7 @@ import static jakarta.persistence.CascadeType.*;
 @AllArgsConstructor
 public class Order {
     @Id
-    @SequenceGenerator(name = "order_gen", sequenceName = "order_seq", allocationSize = 1)
+    @SequenceGenerator(name = "order_gen", sequenceName = "order_seq")
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "order_gen")
     private Long id;
     private LocalDate date;
@@ -37,7 +37,8 @@ public class Order {
     @JoinTable(name = "orders_sub_products",
             joinColumns = @JoinColumn(name = "order_id"),
             inverseJoinColumns = @JoinColumn(name = "sub_products_id"))
-    private List<SubProduct> subProducts = new ArrayList<>();
+    private List<SubProduct> subProducts= new ArrayList<>();
+
     @ManyToOne(cascade = ALL)
     @JoinColumn(name = "customer_id")
     private Customer customer;
