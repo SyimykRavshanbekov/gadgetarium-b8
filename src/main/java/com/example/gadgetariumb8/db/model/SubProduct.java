@@ -2,6 +2,7 @@ package com.example.gadgetariumb8.db.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
@@ -15,6 +16,7 @@ import static jakarta.persistence.CascadeType.DETACH;
 @Setter
 @Entity
 @Table(name = "sub_products")
+@NoArgsConstructor
 public class SubProduct {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sub_product_seq")
@@ -33,5 +35,10 @@ public class SubProduct {
     @JoinColumn(name = "product_id")
     private Product product;
 
+    public SubProduct(String colour,  BigDecimal price, int quantity) {
+        this.colour = colour;
+        this.price = price;
+        this.quantity = quantity;
 
+    }
 }

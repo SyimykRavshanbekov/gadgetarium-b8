@@ -2,6 +2,7 @@ package com.example.gadgetariumb8.db.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
@@ -10,6 +11,7 @@ import java.time.LocalDate;
 @Setter
 @Entity
 @Table(name = "discounts")
+@NoArgsConstructor
 public class Discount {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "discount_seq")
@@ -19,4 +21,10 @@ public class Discount {
     private int percent;
     private LocalDate dateOfStart;
     private LocalDate dateOfFinish;
+
+    public Discount(int percent, LocalDate dateOfStart, LocalDate dateOfFinish) {
+        this.percent = percent;
+        this.dateOfStart = dateOfStart;
+        this.dateOfFinish = dateOfFinish;
+    }
 }

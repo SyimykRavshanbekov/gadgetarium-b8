@@ -2,10 +2,11 @@ package com.example.gadgetariumb8.db.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
-import org.springframework.beans.Mergeable;
+import org.hibernate.annotations.Fetch;
 
 
 import java.util.ArrayList;
@@ -15,12 +16,14 @@ import java.util.List;
 import java.util.Map;
 
 import static jakarta.persistence.CascadeType.*;
+import static jakarta.persistence.FetchType.EAGER;
 
 
 @Getter
 @Setter
 @Entity
 @Table(name = "users")
+@NoArgsConstructor
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_seq")
@@ -37,7 +40,6 @@ public class User {
     @JoinTable(name = "users_favorites",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "favorites_id"))
-
     private List<Product> favorites = new ArrayList<>();
 
     @ManyToMany(cascade = ALL)
@@ -52,9 +54,9 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "comparisons_id"))
     private List<SubProduct> comparisons = new ArrayList<>();
     @ElementCollection
-    @Cascade(CascadeType.ALL)
-    private Map<SubProduct,Integer> basket=new LinkedHashMap<>();
-    @OneToMany(cascade = {REFRESH,DETACH,MERGE,PERSIST}, orphanRemoval = true)
+    @Cascade({CascadeType.ALL})
+    private Map<SubProduct, Integer> basket = new LinkedHashMap<>();
+    @OneToMany(cascade = {REFRESH, DETACH, MERGE, PERSIST}, orphanRemoval = true)
     @JoinColumn(name = "user_id")
     private List<Order> order = new ArrayList<>();
 
@@ -63,4 +65,11 @@ public class User {
     @JoinColumn(name = "user_info_id")
     private UserInfo userInfo;
 
+    public User(String firstName, String lastName, String image, String phoneNumber, String address) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.image = image;
+        this.phoneNumber = phoneNumber;
+        this.address = address;
+    }
 }

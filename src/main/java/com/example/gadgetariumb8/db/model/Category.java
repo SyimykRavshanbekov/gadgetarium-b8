@@ -2,12 +2,14 @@ package com.example.gadgetariumb8.db.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
 @Entity
 @Table(name = "categories")
+@NoArgsConstructor
 public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "category_seq")
@@ -16,4 +18,7 @@ public class Category {
     private Long id;
     private String name;
 
+    public Category(String name) {
+        this.name = name;
+    }
 }

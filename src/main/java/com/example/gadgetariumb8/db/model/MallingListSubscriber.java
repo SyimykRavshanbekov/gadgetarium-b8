@@ -2,6 +2,7 @@ package com.example.gadgetariumb8.db.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
@@ -10,6 +11,7 @@ import java.util.List;
 @Setter
 @Entity
 @Table(name = "malling_list_subscribers")
+@NoArgsConstructor
 public class MallingListSubscriber {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "malling_list_subscriber_seq")
@@ -18,5 +20,6 @@ public class MallingListSubscriber {
     private Long id;
     @ElementCollection
     private List<String>usersEmails;
+
 
 }
