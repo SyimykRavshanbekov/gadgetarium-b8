@@ -1,6 +1,7 @@
 package com.example.gadgetariumb8.db.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,6 +13,7 @@ import java.time.LocalDate;
 @Entity
 @Table(name = "malling_list")
 @NoArgsConstructor
+@AllArgsConstructor
 
 public class MallingList {
 
@@ -27,11 +29,5 @@ public class MallingList {
     private LocalDate dateOfStart;
     private LocalDate dateOfFinish;
 
-    public MallingList(String image, String name, String description, LocalDate dateOfStart, LocalDate dateOfFinish) {
-        this.image = image;
-        this.name = name;
-        this.description = description;
-        this.dateOfStart = dateOfStart;
-        this.dateOfFinish = dateOfFinish;
-    }
+
 }

@@ -1,6 +1,7 @@
 package com.example.gadgetariumb8.db.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -13,6 +14,8 @@ import static jakarta.persistence.CascadeType.*;
 @Entity
 @Table(name = "sub_categories")
 @NoArgsConstructor
+@AllArgsConstructor
+
 public class SubCategory {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sub_category_seq")
@@ -25,7 +28,4 @@ public class SubCategory {
     @JoinColumn(name = "category_id")
     private Category category;
 
-    public SubCategory(String name) {
-        this.name = name;
-    }
 }

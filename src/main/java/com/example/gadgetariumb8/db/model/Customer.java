@@ -1,6 +1,7 @@
 package com.example.gadgetariumb8.db.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -10,6 +11,7 @@ import lombok.Setter;
 @Entity
 @Table(name = "customers")
 @NoArgsConstructor
+@AllArgsConstructor
 
 public class Customer {
     @Id
@@ -23,11 +25,5 @@ public class Customer {
     private String phoneNumber;
     private String address;
 
-    public Customer(String firstName, String lastName, String email, String phoneNumber, String address) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-        this.phoneNumber = phoneNumber;
-        this.address = address;
-    }
+
 }

@@ -1,6 +1,7 @@
 package com.example.gadgetariumb8.db.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -14,6 +15,8 @@ import static jakarta.persistence.CascadeType.*;
 @Entity
 @Table(name = "reviews")
 @NoArgsConstructor
+@AllArgsConstructor
+
 public class Review {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "review_seq")
@@ -27,16 +30,12 @@ public class Review {
     private String answer;
     @ElementCollection
     private List<String> images;
-    @ManyToOne(cascade = {REFRESH, PERSIST, MERGE, DETACH},fetch = FetchType.LAZY)
+    @ManyToOne(cascade = {REFRESH, PERSIST, MERGE, DETACH}, fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
     private Product product;
     @ManyToOne(cascade = {REFRESH, PERSIST, MERGE, DETACH})
     @JoinColumn(name = "user_id")
     private User user;
 
-    public Review(String commentary, int grade, String answer) {
-        this.commentary = commentary;
-        this.grade = grade;
-        this.answer = answer;
-    }
+
 }
