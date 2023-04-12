@@ -22,8 +22,10 @@ public class UserInfo {
     private Long id;
     private String email;
     private String password;
+
     @Enumerated(EnumType.STRING)
     private Role role;
+
     @OneToOne(cascade = ALL, mappedBy = "userInfo", orphanRemoval = true)
     private User user;
 }

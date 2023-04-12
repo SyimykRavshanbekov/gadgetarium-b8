@@ -24,13 +24,15 @@ public class SubProduct {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sub_product_gen")
     private Long id;
     private String colour;
+    private BigDecimal price;
+    private int quantity;
+
     @ElementCollection
     private List<String> images;
 
-    private BigDecimal price;
-    private int quantity;
     @ElementCollection
     private Map<String, String> characteristics;
+
     @ManyToOne(cascade = {REFRESH, PERSIST, MERGE, DETACH})
     @JoinColumn(name = "product_id")
     private Product product;

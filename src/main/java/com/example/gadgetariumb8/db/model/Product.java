@@ -31,15 +31,18 @@ public class Product {
     private String description;
     private double rating;
     private String itemNumber;
+
     @OneToMany(cascade = ALL, fetch = FetchType.EAGER, mappedBy = "product", orphanRemoval = true)
     private List<Review> reviews;
 
     @ManyToOne(cascade = {DETACH, MERGE, REFRESH, PERSIST})
     @JoinColumn(name = "sub_category_id")
     private SubCategory subCategory;
+
     @ManyToOne(cascade = {DETACH, MERGE, REFRESH, PERSIST})
     @JoinColumn(name = "brand_id")
     private Brand brand;
+
     @OneToMany(cascade = ALL, fetch = FetchType.EAGER, mappedBy = "product", orphanRemoval = true)
     private List<SubProduct> subProducts;
 

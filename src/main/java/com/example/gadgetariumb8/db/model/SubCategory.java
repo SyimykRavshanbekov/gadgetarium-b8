@@ -20,6 +20,7 @@ public class SubCategory {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sub_category_gen")
     private Long id;
     private String name;
+
     @ManyToOne(cascade = {REFRESH, PERSIST, MERGE, DETACH})
     @JoinColumn(name = "category_id")
     private Category category;
