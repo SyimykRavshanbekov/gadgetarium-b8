@@ -6,8 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
-
 @Getter
 @Setter
 @Entity
@@ -16,7 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 public class MallingListSubscriber {
     @Id
-    @SequenceGenerator(name = "malling_list_subscriber_gen",sequenceName = "malling_list_subscriber_seq")
+    @SequenceGenerator(name = "malling_list_subscriber_gen", sequenceName = "malling_list_subscriber_seq")
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "malling_list_subscriber_gen")
     private Long id;
     private String userEmail;

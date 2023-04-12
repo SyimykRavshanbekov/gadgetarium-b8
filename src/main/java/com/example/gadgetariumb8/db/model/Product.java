@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 import static jakarta.persistence.CascadeType.*;
@@ -33,7 +32,7 @@ public class Product {
     private double rating;
     private String itemNumber;
     @OneToMany(cascade = ALL, fetch = FetchType.EAGER, mappedBy = "product", orphanRemoval = true)
-    private List<Review> reviews = new ArrayList<>();
+    private List<Review> reviews;
 
     @ManyToOne(cascade = {DETACH, MERGE, REFRESH, PERSIST})
     @JoinColumn(name = "sub_category_id")
@@ -42,7 +41,7 @@ public class Product {
     @JoinColumn(name = "brand_id")
     private Brand brand;
     @OneToMany(cascade = ALL, fetch = FetchType.EAGER, mappedBy = "product", orphanRemoval = true)
-    private List<SubProduct> subProducts = new ArrayList<>();
+    private List<SubProduct> subProducts;
 
     @OneToOne(cascade = ALL, orphanRemoval = true)
     @JoinColumn(name = "discount_id")

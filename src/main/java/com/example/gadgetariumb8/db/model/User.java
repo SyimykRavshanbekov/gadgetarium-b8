@@ -8,8 +8,6 @@ import lombok.Setter;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -35,23 +33,23 @@ public class User {
     @JoinTable(name = "users_favorites",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "favorites_id"))
-    private List<Product> favorites = new ArrayList<>();
+    private List<Product> favorites;
     @ManyToMany(cascade = ALL)
     @JoinTable(name = "users_last_views",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "last_views_id"))
-    private List<Product> lastViews = new ArrayList<>();
+    private List<Product> lastViews;
     @ManyToMany(cascade = ALL)
     @JoinTable(name = "users_comparisons",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "comparisons_id"))
-    private List<SubProduct> comparisons = new ArrayList<>();
+    private List<SubProduct> comparisons;
     @ElementCollection
     @Cascade({CascadeType.ALL})
-    private Map<SubProduct, Integer> basket = new LinkedHashMap<>();
+    private Map<SubProduct, Integer> basket;
     @OneToMany(cascade = {REFRESH, DETACH, MERGE, PERSIST})
     @JoinColumn(name = "user_id")
-    private List<Order> order = new ArrayList<>();
+    private List<Order> order;
     @OneToOne(cascade = ALL, orphanRemoval = true)
     @JoinColumn(name = "user_info_id")
     private UserInfo userInfo;

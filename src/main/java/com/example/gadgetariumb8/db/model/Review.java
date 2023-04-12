@@ -26,7 +26,7 @@ public class Review {
     private int grade;
     private String answer;
     @ElementCollection
-    private List<String> images = new ArrayList<>();
+    private List<String> images;
     @ManyToOne(cascade = {REFRESH, PERSIST, MERGE, DETACH}, fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
     private Product product;

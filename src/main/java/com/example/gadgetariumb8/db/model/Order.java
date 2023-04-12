@@ -37,7 +37,7 @@ public class Order {
     @JoinTable(name = "orders_sub_products",
             joinColumns = @JoinColumn(name = "order_id"),
             inverseJoinColumns = @JoinColumn(name = "sub_products_id"))
-    private List<SubProduct> subProducts= new ArrayList<>();
+    private List<SubProduct> subProducts;
 
     @ManyToOne(cascade = ALL)
     @JoinColumn(name = "customer_id")

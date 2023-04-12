@@ -7,8 +7,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -27,12 +25,12 @@ public class SubProduct {
     private Long id;
     private String colour;
     @ElementCollection
-    private List<String> images = new ArrayList<>();
+    private List<String> images;
 
     private BigDecimal price;
     private int quantity;
     @ElementCollection
-    private Map<String, String> characteristics = new LinkedHashMap<>();
+    private Map<String, String> characteristics;
     @ManyToOne(cascade = {REFRESH, PERSIST, MERGE, DETACH})
     @JoinColumn(name = "product_id")
     private Product product;
