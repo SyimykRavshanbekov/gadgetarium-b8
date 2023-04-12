@@ -12,18 +12,14 @@ import lombok.Setter;
 @Table(name = "customers")
 @NoArgsConstructor
 @AllArgsConstructor
-
 public class Customer {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "customer_seq")
-    @SequenceGenerator(name = "customer_seq")
-    @Column(name = "id", nullable = false)
+    @SequenceGenerator(name = "customer_gen",sequenceName = "customer_seq",allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "customer_gen")
     private Long id;
     private String firstName;
     private String lastName;
     private String email;
     private String phoneNumber;
     private String address;
-
-
 }

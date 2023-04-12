@@ -12,15 +12,11 @@ import lombok.Setter;
 @Table(name = "brands")
 @NoArgsConstructor
 @AllArgsConstructor
-
 public class Brand {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "brand_seq")
-    @SequenceGenerator(name = "brand_seq")
-    @Column(name = "id", nullable = false)
+    @SequenceGenerator(name = "brand_gen", sequenceName = "brand_seq",allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "brand_gen")
     private Long id;
     private String name;
     private String logo;
-
-
 }

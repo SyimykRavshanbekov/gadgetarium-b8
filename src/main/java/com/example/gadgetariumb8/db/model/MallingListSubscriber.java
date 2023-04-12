@@ -14,15 +14,11 @@ import java.util.List;
 @Table(name = "malling_list_subscribers")
 @NoArgsConstructor
 @AllArgsConstructor
-
 public class MallingListSubscriber {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "malling_list_subscriber_seq")
-    @SequenceGenerator(name = "malling_list_subscriber_seq")
-    @Column(name = "id", nullable = false)
+    @SequenceGenerator(name = "malling_list_subscriber_gen",sequenceName = "malling_list_subscriber_seq",allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "malling_list_subscriber_gen")
     private Long id;
     @ElementCollection
     private List<String> usersEmails;
-
-
 }

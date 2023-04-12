@@ -14,16 +14,12 @@ import java.time.LocalDate;
 @Table(name = "discounts")
 @NoArgsConstructor
 @AllArgsConstructor
-
 public class Discount {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "discount_seq")
-    @SequenceGenerator(name = "discount_seq")
-    @Column(name = "id", nullable = false)
+    @SequenceGenerator(name = "discount_gen", sequenceName = "discount_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "discount_gen")
     private Long id;
     private int percent;
     private LocalDate dateOfStart;
     private LocalDate dateOfFinish;
-
-
 }

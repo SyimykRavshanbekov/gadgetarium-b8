@@ -15,38 +15,32 @@ import java.util.Map;
 
 import static jakarta.persistence.CascadeType.*;
 
-
 @Getter
 @Setter
 @Entity
 @Table(name = "users")
 @NoArgsConstructor
 @AllArgsConstructor
-
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_seq")
-    @SequenceGenerator(name = "user_seq")
-    @Column(name = "id", nullable = false)
+    @SequenceGenerator(name = "user_gen", sequenceName = "user_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_gen")
     private Long id;
     private String firstName;
     private String lastName;
     private String image;
     private String phoneNumber;
     private String address;
-
     @ManyToMany(cascade = ALL)
     @JoinTable(name = "users_favorites",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "favorites_id"))
     private List<Product> favorites = new ArrayList<>();
-
     @ManyToMany(cascade = ALL)
     @JoinTable(name = "users_last_views",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "last_views_id"))
     private List<Product> lastViews = new ArrayList<>();
-
     @ManyToMany(cascade = ALL)
     @JoinTable(name = "users_comparisons",
             joinColumns = @JoinColumn(name = "user_id"),
@@ -58,11 +52,7 @@ public class User {
     @OneToMany(cascade = {REFRESH, DETACH, MERGE, PERSIST}, orphanRemoval = true)
     @JoinColumn(name = "user_id")
     private List<Order> order = new ArrayList<>();
-
-
     @OneToOne(cascade = ALL, orphanRemoval = true)
     @JoinColumn(name = "user_info_id")
     private UserInfo userInfo;
-
-
 }

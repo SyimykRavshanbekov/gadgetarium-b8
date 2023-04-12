@@ -16,15 +16,11 @@ import static jakarta.persistence.CascadeType.*;
 @Table(name = "reviews")
 @NoArgsConstructor
 @AllArgsConstructor
-
 public class Review {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "review_seq")
-    @SequenceGenerator(name = "review_seq")
-    @Column(name = "id", nullable = false)
+    @SequenceGenerator(name = "review_gen", sequenceName = "review_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "review_gen")
     private Long id;
-
-
     private String commentary;
     private int grade;
     private String answer;
@@ -36,6 +32,4 @@ public class Review {
     @ManyToOne(cascade = {REFRESH, PERSIST, MERGE, DETACH})
     @JoinColumn(name = "user_id")
     private User user;
-
-
 }

@@ -14,20 +14,14 @@ import java.time.LocalDate;
 @Table(name = "malling_list")
 @NoArgsConstructor
 @AllArgsConstructor
-
 public class MallingList {
-
-
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "malling_list_seq")
-    @SequenceGenerator(name = "malling_list_seq")
-    @Column(name = "id", nullable = false)
+    @SequenceGenerator(name = "malling_list_gen", sequenceName = "malling_list_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "malling_list_gen")
     private Long id;
     private String image;
     private String name;
     private String description;
     private LocalDate dateOfStart;
     private LocalDate dateOfFinish;
-
-
 }

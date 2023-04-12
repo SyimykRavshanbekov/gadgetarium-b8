@@ -20,11 +20,9 @@ import static jakarta.persistence.CascadeType.*;
 @AllArgsConstructor
 public class SubProduct {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sub_product_seq")
-    @SequenceGenerator(name = "sub_product_seq")
-    @Column(name = "id", nullable = false)
+    @SequenceGenerator(name = "sub_product_gen", sequenceName = "sub_product_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sub_product_gen")
     private Long id;
-
     private String colour;
     @ElementCollection
     private List<String> images;
@@ -35,6 +33,4 @@ public class SubProduct {
     @ManyToOne(cascade = {REFRESH, PERSIST, MERGE, DETACH})
     @JoinColumn(name = "product_id")
     private Product product;
-
-
 }
