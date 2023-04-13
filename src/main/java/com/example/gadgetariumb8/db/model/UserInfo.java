@@ -2,10 +2,13 @@ package com.example.gadgetariumb8.db.model;
 
 import com.example.gadgetariumb8.db.model.enums.Role;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Collection;
+import java.util.List;
 
 import static jakarta.persistence.CascadeType.ALL;
 
@@ -15,7 +18,8 @@ import static jakarta.persistence.CascadeType.ALL;
 @Table(name = "users_info")
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserInfo {
+@Builder
+public class UserInfo implements UserDetails {
     @Id
     @SequenceGenerator(name = "user_info_gen", sequenceName = "user_info_seq")
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_info_gen")
@@ -28,4 +32,38 @@ public class UserInfo {
 
     @OneToOne(cascade = ALL, mappedBy = "userInfo", orphanRemoval = true)
     private User user;
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority(this.role.name()));
+    }
+
+    @Override
+    public String getUsername() {
+        return this.email;
+    }
+    @Override
+    public String getPassword(){
+        return this.password;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
 }
