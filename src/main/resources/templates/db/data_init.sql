@@ -49,11 +49,13 @@ values (1,'azimbek1@gmail.com');
 insert into orders_sub_products (order_id,sub_products_id)
 values (1,1);
 
-insert into review_images (review_id,images)
-values (1,link);
-
 insert into reviews (id,answer,commentary,grade,product_id,user_id)
 values (1,'answer','commentary',5,1,1);
+
+insert into review_images (review_id,images)
+values (1,'link');
+
+
 
 insert into sub_product_characteristics(sub_product_id,characteristics,characteristics_key)
 values (1,'characteristics',1);
