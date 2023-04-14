@@ -1,4 +1,4 @@
-package com.example.gadgetariumb8.dto.request;
+package com.example.gadgetariumb8.db.dto.request;
 
 /**
  * @author kurstan

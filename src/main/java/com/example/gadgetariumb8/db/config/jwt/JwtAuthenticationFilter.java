@@ -1,4 +1,4 @@
-package com.example.gadgetariumb8.config;
+package com.example.gadgetariumb8.db.config.jwt;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

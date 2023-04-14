@@ -1,15 +1,16 @@
 package com.example.gadgetariumb8.db.service.impl;
 
-import com.example.gadgetariumb8.config.JwtService;
+import com.example.gadgetariumb8.db.config.jwt.JwtService;
 import com.example.gadgetariumb8.db.model.User;
 import com.example.gadgetariumb8.db.model.UserInfo;
 import com.example.gadgetariumb8.db.model.enums.Role;
 import com.example.gadgetariumb8.db.repository.UserInfoRepository;
 import com.example.gadgetariumb8.db.repository.UserRepository;
 import com.example.gadgetariumb8.db.service.AuthenticationService;
-import com.example.gadgetariumb8.dto.request.AuthenticateRequest;
-import com.example.gadgetariumb8.dto.request.RegisterRequest;
-import com.example.gadgetariumb8.dto.response.AuthenticationResponse;
+import com.example.gadgetariumb8.db.dto.request.AuthenticateRequest;
+import com.example.gadgetariumb8.db.dto.request.RegisterRequest;
+import com.example.gadgetariumb8.db.dto.response.AuthenticationResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
  * @created at 13.04.2023 10:01
  */
 @Service
+@RequiredArgsConstructor
 public class AuthenticationServiceImpl implements AuthenticationService {
 
     private final UserInfoRepository userInfoRepository;
@@ -27,14 +29,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
-
-    public AuthenticationServiceImpl(UserInfoRepository userInfoRepository, UserRepository userRepository, JwtService jwtService, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager) {
-        this.userInfoRepository = userInfoRepository;
-        this.userRepository = userRepository;
-        this.jwtService = jwtService;
-        this.passwordEncoder = passwordEncoder;
-        this.authenticationManager = authenticationManager;
-    }
 
     @Override
     public AuthenticationResponse register(RegisterRequest request) {

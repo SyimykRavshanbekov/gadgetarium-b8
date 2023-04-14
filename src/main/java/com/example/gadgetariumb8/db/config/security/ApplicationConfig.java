@@ -1,4 +1,4 @@
-package com.example.gadgetariumb8.config;
+package com.example.gadgetariumb8.db.config.security;
 
 import com.example.gadgetariumb8.db.repository.UserInfoRepository;
 import lombok.RequiredArgsConstructor;

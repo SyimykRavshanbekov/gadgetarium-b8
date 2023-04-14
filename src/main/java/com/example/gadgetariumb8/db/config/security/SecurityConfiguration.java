@@ -1,5 +1,6 @@
-package com.example.gadgetariumb8.config;
+package com.example.gadgetariumb8.db.config.security;
 
+import com.example.gadgetariumb8.db.config.jwt.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,7 +32,7 @@ public class SecurityConfiguration {
                 .requestMatchers("/api/auth/**")
                 .permitAll()
                 .anyRequest()
-                .authenticated()
+                .permitAll()
                 .and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)

@@ -1,10 +1,11 @@
-package com.example.gadgetariumb8.config;
+package com.example.gadgetariumb8.db.config.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -20,8 +21,8 @@ import java.util.function.Function;
  */
 @Service
 public class JwtService {
-
-    private static final String SECRET_KEY = "66556A586E3272357538782F4125442A472D4B6150645367566B597033733676";
+    @Value("${jwt.secret-key}")
+    private String SECRET_KEY;
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
