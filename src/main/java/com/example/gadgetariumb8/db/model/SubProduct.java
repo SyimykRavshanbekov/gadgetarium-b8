@@ -1,10 +1,7 @@
 package com.example.gadgetariumb8.db.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -18,6 +15,7 @@ import static jakarta.persistence.CascadeType.*;
 @Table(name = "sub_products")
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class SubProduct {
     @Id
     @SequenceGenerator(name = "sub_product_gen", sequenceName = "sub_product_seq")
