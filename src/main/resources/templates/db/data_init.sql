@@ -1,10 +1,10 @@
 insert into users_info(id,email,password,role)
-values (1,'azimbek1@gmail.com','azimbek11','ADMIN');
-values (2,'altyn1@gmail.com','altyn11','USER');
+values (1,'azimbek1@gmail.com','azimbek11','ADMIN'),
+       (2,'altyn1@gmail.com','altyn11','USER');
 
 insert into users(id, address, first_name, image, last_name, phone_number, user_info_id)
-VALUES (1,'Гражданская 119','Азимбек','https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.gq.com%2Fstory%2Fgoogle-year-in-review-how-to-use-beard-balm&psig=AOvVaw2wR_05BCDqn8l80ZN_ADDj&ust=1681554690507000&source=images&cd=vfe&ved=0CBEQjRxqFwoTCKiW08GVqf4CFQAAAAAdAAAAABAE','Абдивалиев','+996 222 899 897',1);
-VALUES (2,'Чуй 119','Алтын','https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.vectorstock.com%2Froyalty-free-vector%2Fflat-business-man-user-profile-avatar-icon-vector-4333097&psig=AOvVaw30QAJsJjj4dRNu9W_t2loH&ust=1681554360765000&source=images&cd=vfe&ved=0CBEQjRxqFwoTCID--aSUqf4CFQAAAAAdAAAAABAI','Шакиров','+996 770 098 908',2);
+VALUES (1,'Гражданская 119','Азимбек','https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8M3x8dXNlcnxlbnwwfHwwfHw%3D&w=1000&q=80','Абдивалиев','+996 222 899 897',1),
+       (2,'Чуй 119','Алтын','https://thumbs.dreamstime.com/b/portrait-chubby-young-man-against-gray-background-portrait-chubby-young-man-against-gray-background-154513213.jpg','Шакиров','+996 770 098 908',2);
 
 insert into customers (id,address,email,first_name,last_name,phone_number)
 values (1,'Московский Фучика 268/3','azimbek279@gmail.com','Азимбек','Абдивалиев','+996 777 87 78 87'),
@@ -14,11 +14,11 @@ values (1,'Московский Фучика 268/3','azimbek279@gmail.com','Аз
        (5,'Фучика 543','chris@gmail.com','Крис','Хрисов','+996 777 87 78 87');
 
 insert into brands(id,logo,name)
-values (1,'https://www.google.com/url?sa=i&url=https%3A%2F%2Fsvetofor.info%2Fapple%2F&psig=AOvVaw2U6CFQPsaNh-QCWQa8hzCJ&ust=1681554713604000&source=images&cd=vfe&ved=0CBEQjRxqFwoTCMjv8syVqf4CFQAAAAAdAAAAABAe','Apple'),
-       (2,'https://www.google.com/url?sa=i&url=https%3A%2F%2Fcommons.wikimedia.org%2Fwiki%2FFile%3ASamsung_Logo.svg&psig=AOvVaw2_36sInRaxJTrkJrXGAqZ8&ust=1681554751523000&source=images&cd=vfe&ved=0CBEQjRxqFwoTCJi6096Vqf4CFQAAAAAdAAAAABAJ','Samsung'),
-       (3,'https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.vecteezy.com%2Fvector-art%2F16680500-acer-logo-vector-editorial-logo&psig=AOvVaw2QQjwW6q-dSi8IQkbrM0e1&ust=1681554779062000&source=images&cd=vfe&ved=0CBEQjRxqFwoTCPjU7OuVqf4CFQAAAAAdAAAAABAE','Acer'),
-       (4,'https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.asus.com%2F&psig=AOvVaw14cPajGIGCfvnn3qnqom1E&ust=1681554791063000&source=images&cd=vfe&ved=0CBEQjRxqFwoTCLjewvGVqf4CFQAAAAAdAAAAABAE','Asus'),
-       (5,'https://www.google.com/url?sa=i&url=https%3A%2F%2Fcommons.wikimedia.org%2Fwiki%2FFile%3AXiaomi_logo.svg&psig=AOvVaw08265G1pdaasKAK5RRk1kR&ust=1681554813311000&source=images&cd=vfe&ved=0CBEQjRxqFwoTCOjxv_yVqf4CFQAAAAAdAAAAABAJ','Xiaomi');
+values (1,'https://alchemyimmersive.com/wp-content/uploads/sites/4/2020/04/apple-logo-transparent.png','Apple'),
+       (2,'https://1000logos.net/wp-content/uploads/2017/06/Samsung-Logo-2.png','Samsung'),
+       (3,'https://static.vecteezy.com/system/resources/previews/016/680/500/original/acer-logo-editorial-logo-free-vector.jpg','Acer'),
+       (4,'https://logos-world.net/wp-content/uploads/2020/07/Asus-Logo.png','Asus'),
+       (5,'https://1000logos.net/wp-content/uploads/2021/08/Xiaomi-logo.png','Xiaomi');
 
 insert into categories(id,name)
 values (1,'Смартфон'),
@@ -92,11 +92,11 @@ values (1,'answer','commentary',5,1,1),
        (5,'answer','commentary',5,5,1);
 
 insert into review_images (review_id,images)
-values (1,'https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.ixbt.com%2Fnews%2F2021%2F09%2F15%2Fv-kakih-regionah-mira-samye-dorogie-i-deshjovye-iphone-13.html&psig=AOvVaw2ScW-tvbzdDxOwGC0hw0Qg&ust=1681554986902000&source=images&cd=vfe&ved=0CBEQjRxqFwoTCOCi-s6Wqf4CFQAAAAAdAAAAABAI'),
-       (2,'https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.tomsguide.com%2Freviews%2Fapple-watch-7&psig=AOvVaw1UgdnZs99i7zSvwIwjdY51&ust=1681555078484000&source=images&cd=vfe&ved=0CBEQjRxqFwoTCLi_0vqWqf4CFQAAAAAdAAAAABAE'),
-       (3,'https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.ixbt.com%2Fnews%2F2020%2F10%2F28%2Fasus-vga-expertbook-p2451.html&psig=AOvVaw0LDmeY1sQ0KKuAyoA72gj4&ust=1681555111679000&source=images&cd=vfe&ved=0CBEQjRxqFwoTCKD2vIqXqf4CFQAAAAAdAAAAABAE'),
-       (4,'https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.digitaltrends.com%2Fcomputing%2Fapple-macbook-air-m2-review%2F&psig=AOvVaw3IoccmJpr9iiLze6QnAnle&ust=1681555133848000&source=images&cd=vfe&ved=0CBEQjRxqFwoTCMCGoZWXqf4CFQAAAAAdAAAAABAE'),
-       (5,'https://www.google.com/url?sa=i&url=https%3A%2F%2Fsoftech.kg%2Fnoutbuk-acer-extensa-15-6-i5-1035g1-10th-gen-intel-uhd-graphics-8512gb-ssd&psig=AOvVaw32Hz4xHvtqJtmXids3fGEZ&ust=1681555148467000&source=images&cd=vfe&ved=0CBEQjRxqFwoTCKi-_JuXqf4CFQAAAAAdAAAAABAE');
+values (1,'https://yt3.googleusercontent.com/ytc/AGIKgqNoNRD8Y7-ydomwccOXCRsrtM3SVG1veHCKxN5IOg=s900-c-k-c0x00ffffff-no-rj'),
+       (2,'https://bobbystore.kg/wa-data/public/shop/img/bez_nazvaniya_10.png'),
+       (3,'https://images.acer.com/is/image/acer/Spin-5-SP513-55N-FP-Bakclit-Steel-Gray-01a-1?$Product-Cards-XL$'),
+       (4,'https://gudini.kg/image/cache/catalog/Apple/Watch%20Series%208/1115-800x800.jpg'),
+       (5,'https://m.media-amazon.com/images/I/71TPda7cwUL._SL1500_.jpg');
 
 insert into sub_product_characteristics(sub_product_id,characteristics,characteristics_key)
 values (1,'characteristics',1),
@@ -106,11 +106,11 @@ values (1,'characteristics',1),
        (5,'characteristics',1);
 
 insert into sub_product_images (sub_product_id,images)
-values (1,'https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.grover.com%2Fus-en%2Fproducts%2Fapple-smartphone-iphone-12-pro-max-256gb-us&psig=AOvVaw0ZseWjKllmdVReEqe5f_b0&ust=1681555207585000&source=images&cd=vfe&ved=0CBEQjRxqFwoTCLiMpriXqf4CFQAAAAAdAAAAABAE'),
-       (2,'https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.amazon.in%2FApple-MacBook-Chip-13-inch-256GB%2Fdp%2FB08N5T6CZ6&psig=AOvVaw1ZsqHYN6Kb9MgiLTAafp_A&ust=1681555223328000&source=images&cd=vfe&ved=0CBEQjRxqFwoTCJDQ4L-Xqf4CFQAAAAAdAAAAABAJ'),
-       (3,'https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.acer.com%2Fau-en%2Flaptops&psig=AOvVaw2IlsqAzIQqX68O8gq_uhtO&ust=1681555240580000&source=images&cd=vfe&ved=0CBEQjRxqFwoTCJD_4seXqf4CFQAAAAAdAAAAABAE'),
-       (4,'https://www.google.com/url?sa=i&url=https%3A%2F%2Fbobbystore.kg%2Fnoutbuki_asus_vivobook_15x_oled_x1503z_i585suw1_90nb0wy1_m008v0%2F&psig=AOvVaw1d_HJOgpanzGiOC9ZaWnpl&ust=1681555251707000&source=images&cd=vfe&ved=0CBEQjRxqFwoTCMCLns2Xqf4CFQAAAAAdAAAAABAJ'),
-       (5,'https://www.google.com/url?sa=i&url=https%3A%2F%2Fgudini.kg%2Fapple-watch-series-8-45mm-aluminium-case-gps-sport-band-midnight&psig=AOvVaw22GgK5uT74V6vvFxvxPGZ-&ust=1681555278244000&source=images&cd=vfe&ved=0CBEQjRxqFwoTCNiV8dmXqf4CFQAAAAAdAAAAABAE');
+values (1,'https://login.kg/image/cache/catalog/new/Phones/Apple/iPhone%2014/Pro-Pro%20Max/1-500x500.jpg'),
+       (2,'https://www.litech.kg/storage/products/November2022/FCnalG4PX0ZYoq5EqmbH.jpg'),
+       (3,'https://mstore.kg/wp-content/uploads/2022/02/часы.png'),
+       (4,'https://login.kg/image/cache/catalog/new/Phones/Apple/iPhone%2014/Pro-Pro%20Max/1-500x500.jpg'),
+       (5,'https://m.media-amazon.com/images/I/71TPda7cwUL._SL1500_.jpg');
 
 insert into user_basket (user_id,basket,basket_key)
 values (1,1,1),
