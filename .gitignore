@@ -33,3 +33,6 @@ build/
 .vscode/
 src/main/resources/application-altyn.properties
 /src/main/resources/application-kutman.properties
+
+
+src/main/resources/application-azimbek.properties
