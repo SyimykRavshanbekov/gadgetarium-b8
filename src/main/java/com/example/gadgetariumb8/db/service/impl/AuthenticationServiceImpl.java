@@ -55,7 +55,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .userInfo(userInfo)
                 .build();
         userRepository.save(user);
-        log.info(String.format("User %s is saved!", userInfo.getEmail()));
+        log.info(String.format("User %s successfully saved!", userInfo.getEmail()));
         String token = jwtService.generateToken(userInfo);
 
         return AuthenticationResponse.builder()
@@ -83,7 +83,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                         request.password()
                 )
         );
-
+        log.info(String.format("User %s authenticated successfully", userInfo.getEmail()));
         String token = jwtService.generateToken(userInfo);
 
         return AuthenticationResponse.builder()
