@@ -19,7 +19,7 @@ public record RegisterRequest(
         @Size(min = 2, max = 33, message = "last name must be between 2 and 33 characters")
         String lastName,
         @NotBlank(message = "phone number should not be empty")
-        @PhoneNumberValid(message = "Phone number should start with +996 and consist of 13 characters!")
+        @PhoneNumberValid(message = "Phone number should start with +996, consist of 13 characters and must be valid!")
         String phoneNumber,
         @NotBlank(message = "email should not be empty")
         @Email(message = "Write valid email!")
