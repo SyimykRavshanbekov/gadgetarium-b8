@@ -1,5 +1,6 @@
 package com.example.gadgetariumb8.db.config.security;
 
+import com.example.gadgetariumb8.db.exception.exceptions.NotFoundException;
 import com.example.gadgetariumb8.db.repository.UserInfoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -26,8 +27,8 @@ public class ApplicationConfig {
 
     @Bean
     public UserDetailsService userDetailsService() {
-        return username -> userRepository.findByEmail(username).get();
-        //To do find user by email. If user not found, throw NotFoundException
+        return username -> userRepository.findByEmail(username)
+                .orElseThrow(()-> new NotFoundException(String.format("User by email %s is not found!", username)));
     }
 
     @Bean
