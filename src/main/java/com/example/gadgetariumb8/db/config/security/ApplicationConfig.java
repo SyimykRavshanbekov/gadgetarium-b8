@@ -13,8 +13,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.NoSuchElementException;
-
 /**
  * @author kurstan
  * @created at 03.04.2023 6:38
@@ -28,7 +26,7 @@ public class ApplicationConfig {
     @Bean
     public UserDetailsService userDetailsService() {
         return username -> userRepository.findByEmail(username)
-                .orElseThrow(()-> new NotFoundException(String.format("User by email %s is not found!", username)));
+                .orElseThrow(() -> new NotFoundException(String.format("User by email %s is not found!", username)));
     }
 
     @Bean

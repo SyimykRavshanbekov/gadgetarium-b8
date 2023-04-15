@@ -72,10 +72,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public AuthenticationResponse authenticate(AuthenticateRequest request) {
 
         UserInfo userInfo = userInfoRepository.findByEmail(request.email())
-            .orElseThrow(()-> {
-                log.error(String.format("User with email %s does not exists", request.email()));
-                throw new BadCredentialException(String.format("User with email %s does not exists", request.email()));
-            });
+                .orElseThrow(() -> {
+                    log.error(String.format("User with email %s does not exists", request.email()));
+                    throw new BadCredentialException(String.format("User with email %s does not exists", request.email()));
+                });
         if (!passwordEncoder.matches(request.password(), userInfo.getPassword())) {
             log.error("Password does not match");
             throw new BadRequestException("Password does not match");

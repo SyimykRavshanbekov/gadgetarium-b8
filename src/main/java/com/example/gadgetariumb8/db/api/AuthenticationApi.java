@@ -27,13 +27,13 @@ public class AuthenticationApi {
 
     @Operation(summary = "Register a new user", description = "This method validates the request and creates a new user.")
     @PostMapping("/sign-up")
-    public AuthenticationResponse signUp(@RequestBody  @Valid RegisterRequest request){
+    public AuthenticationResponse signUp(@RequestBody @Valid RegisterRequest request) {
         return authenticationService.register(request);
     }
 
     @Operation(summary = "Authenticate a user", description = "This method validates the request and authenticates a user.")
     @PostMapping("/sign-in")
-    public AuthenticationResponse signIn(@RequestBody @Valid AuthenticateRequest request){
+    public AuthenticationResponse signIn(@RequestBody @Valid AuthenticateRequest request) {
         return authenticationService.authenticate(request);
     }
 }
