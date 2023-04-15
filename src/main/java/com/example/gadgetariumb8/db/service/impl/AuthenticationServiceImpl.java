@@ -41,7 +41,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             log.error(String.format("User with email %s is already exists", request.email()));
             throw new AlreadyExistException(String.format("User with email %s is already exists", request.email()));
         }
-
+        String split = request.email().split("@")[0];
+        if (split.equals(request.password())) {
+            throw new BadRequestException("Create a stronger password");
+        }
         UserInfo userInfo = UserInfo.builder()
                 .email(request.email())
                 .password(passwordEncoder.encode(request.password()))
