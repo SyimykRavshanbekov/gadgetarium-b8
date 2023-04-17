@@ -47,6 +47,7 @@ public class GlobalExceptionHandler {
                 .build();
     }
 
+    @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     public ExceptionResponse methodArgumentNotValid(MethodArgumentNotValidException exception) {
         return ExceptionResponse.builder()
