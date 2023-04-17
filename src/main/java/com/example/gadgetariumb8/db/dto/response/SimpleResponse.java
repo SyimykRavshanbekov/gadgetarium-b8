@@ -9,6 +9,6 @@ import org.springframework.http.HttpStatus;
 @AllArgsConstructor
 @Builder
 public class SimpleResponse {
-    private HttpStatus status;
     private String description;
+    private HttpStatus status;
 }
