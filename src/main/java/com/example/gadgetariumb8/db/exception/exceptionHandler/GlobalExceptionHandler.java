@@ -72,4 +72,14 @@ public class GlobalExceptionHandler {
                 .message(exception.getMessage())
                 .build();
     }
+
+    @ExceptionHandler(MessageSendingException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public ExceptionResponse messageSending(MessageSendingException exception){
+        return ExceptionResponse.builder()
+                .httpStatus(HttpStatus.BAD_REQUEST)
+                .exceptionClassName(exception.getClass().getSimpleName())
+                .message(exception.getMessage())
+                .build();
+    }
 }

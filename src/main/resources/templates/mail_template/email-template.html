@@ -1,0 +1,89 @@
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ru">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Java Techie Mail</title>
+  <style>
+    .main{
+      margin: 20px 10px;
+      background-color: #FFFFFF;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.15);
+      border: 1px solid #5E5E5E;
+      border-radius: 6px;
+      min-height: auto;
+      width: 500px;
+
+    }
+    .image-holder{
+      width: 500px;
+      height: 130px;
+      font-size: 48px;
+      background-color: #1A1A25;
+      border-radius: 6px 6px 0 0;
+    }
+    .image{
+      width: 210px;
+      height: 40px;
+        padding: 45px 145px;
+    }
+    .container{
+      padding: 10px 45px;
+    }
+    .text-header{
+        font-family: 'Inter',sans-serif;
+        font-style: normal;
+        font-weight: 800;
+        font-size: 20px;
+        line-height: 120%;
+    }
+    .header-text{
+        font-family: 'Inter',sans-serif;
+        font-style: normal;
+        font-weight: 700;
+        font-size: 16px;
+        line-height: 150%;
+        color: #1A1A25;
+    }
+    .description{
+        font-family: 'Inter',sans-serif;
+        font-style: normal;
+        font-weight: 400;
+        font-size: 16px;
+        line-height: 150%;
+        color: #384255;
+    }
+  </style>
+</head>
+
+<body style="padding: 0; margin: 0; color: black">
+      <div class="main">
+            <div class = "image-holder">
+              <img src="https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__480.jpg" alt="" class="image">
+            </div>
+            <div class="container">
+              <div class="text-header">
+                <br>Здравствуйте!<br> У нас есть новости для вас ;)<br>
+              </div>
+              <div>
+                  <div>
+                      <p class="header-text">Название рассылки:</p>
+                      <p class="description">${name}</p>
+                  </div>
+                  <div>
+                      <p class="header-text">Описание рассылки:</p>
+                      <p class="description">${description}</p>
+                  </div>
+                  <div>
+                      <img src="${image}" alt="" style="width: 410px">
+                  </div>
+                  <br>
+                  <hr>
+                  <div>
+                      <p class="date-header"><span style="color:#1A1A25;">Дата начала акции:</span> ${start}</p>
+                      <p class="date-header"><span style="color:#1A1A25;">Дата окончания акции:</span> ${finish}</p>
+                  </div>
+
+              </div>
+            </div>
+      </div>
+</body>
+</html>
