@@ -46,13 +46,13 @@ public class Product {
 
     @OneToMany(cascade = ALL, fetch = FetchType.EAGER, mappedBy = "product", orphanRemoval = true)
     private List<SubProduct> subProducts;
-
     public void addSubProduct(SubProduct subProduct) {
         if (subProducts ==  null){
             subProducts = new ArrayList<>();
         }
         subProducts.add(subProduct);
     }
+
     @OneToOne(cascade = ALL, orphanRemoval = true)
     @JoinColumn(name = "discount_id")
     private Discount discount;
