@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -22,14 +23,22 @@ public class SubProduct {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sub_product_gen")
     private Long id;
     private String colour;
+
     private BigDecimal price;
     private int quantity;
 
     @ElementCollection
+    @Column(length = 10000)
     private List<String> images;
 
     @ElementCollection
     private Map<String, String> characteristics;
+    public void addCharacteristics(Map<String, String> ch) {
+        if (characteristics == null) {
+            characteristics = new HashMap<>();
+        }
+        characteristics.putAll(ch);
+    }
 
     @ManyToOne(cascade = {REFRESH, PERSIST, MERGE, DETACH})
     @JoinColumn(name = "product_id")
