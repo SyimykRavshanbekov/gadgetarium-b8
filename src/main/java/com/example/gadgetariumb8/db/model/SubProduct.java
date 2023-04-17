@@ -33,11 +33,13 @@ public class SubProduct {
 
     @ElementCollection
     private Map<String, String> characteristics;
-    public void addCharacteristics(Map<String, String> ch) {
-        if (characteristics == null) {
-            characteristics = new HashMap<>();
+
+    public void addCharacteristics(Map<String, String> characteristics) {
+
+        if (this.characteristics == null) {
+            this.characteristics = new HashMap<>();
         }
-        characteristics.putAll(ch);
+        this.characteristics.putAll(characteristics);
     }
 
     @ManyToOne(cascade = {REFRESH, PERSIST, MERGE, DETACH})

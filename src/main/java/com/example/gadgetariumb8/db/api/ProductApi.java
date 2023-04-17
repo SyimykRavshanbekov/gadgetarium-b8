@@ -1,8 +1,9 @@
 package com.example.gadgetariumb8.db.api;
 
+import com.example.gadgetariumb8.db.dto.request.ProductRequest;
+import com.example.gadgetariumb8.db.dto.response.SimpleResponse;
 import com.example.gadgetariumb8.db.service.ProductService;
-import com.example.gadgetariumb8.dto.request.ProductRequest;
-import com.example.gadgetariumb8.dto.response.SimpleResponse;
+import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,9 +20,9 @@ public class ProductApi {
         this.productService = productService;
     }
 
-    @PostMapping()
+    @PostMapping
     @PreAuthorize("hasAuthority('ADMIN')")
-    public SimpleResponse saveProduct(@RequestBody ProductRequest productRequest){
+    public SimpleResponse saveProduct(@RequestBody @Valid ProductRequest productRequest) {
         return productService.saveProduct(productRequest);
     }
 }
