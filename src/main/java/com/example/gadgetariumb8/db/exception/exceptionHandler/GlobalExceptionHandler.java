@@ -2,6 +2,8 @@ package com.example.gadgetariumb8.db.exception.exceptionHandler;
 
 import com.example.gadgetariumb8.db.exception.exceptions.*;
 import com.example.gadgetariumb8.db.exception.exceptionResponse.ExceptionResponse;
+import com.example.gadgetariumb8.db.exception.exceptions.BadCredentialException;
+import com.example.gadgetariumb8.db.exception.exceptions.NotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -23,6 +25,7 @@ public class GlobalExceptionHandler {
                 .build();
     }
 
+
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(value = HttpStatus.NOT_FOUND)
     public ExceptionResponse notFound(NotFoundException exception) {
@@ -32,6 +35,7 @@ public class GlobalExceptionHandler {
                 .message(exception.getMessage())
                 .build();
     }
+
 
     @ExceptionHandler(AlreadyExistException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
@@ -43,7 +47,6 @@ public class GlobalExceptionHandler {
                 .build();
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     public ExceptionResponse methodArgumentNotValid(MethodArgumentNotValidException exception) {
         return ExceptionResponse.builder()
@@ -52,6 +55,7 @@ public class GlobalExceptionHandler {
                 .message(Objects.requireNonNull(exception.getFieldError()).getDefaultMessage())
                 .build();
     }
+
 
     @ExceptionHandler(BadCredentialException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
