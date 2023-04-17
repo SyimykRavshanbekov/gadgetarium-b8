@@ -3,6 +3,7 @@ package com.example.gadgetariumb8.db.config.security;
 import com.example.gadgetariumb8.db.exception.exceptions.NotFoundException;
 import com.example.gadgetariumb8.db.repository.UserInfoRepository;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -55,5 +56,10 @@ public class ApplicationConfig{
         FreeMarkerConfigurationFactoryBean bean=new FreeMarkerConfigurationFactoryBean();
         bean.setTemplateLoaderPath("classpath:/templates/mail_template");
         return bean;
+    }
+
+    @Bean
+    public ModelMapper modelMapper(){
+        return new ModelMapper();
     }
 }
