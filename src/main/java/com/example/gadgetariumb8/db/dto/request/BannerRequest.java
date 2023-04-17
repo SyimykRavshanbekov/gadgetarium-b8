@@ -11,6 +11,6 @@ import java.util.List;
 public class BannerRequest {
 
     @NotEmpty(message = "Should not be empty")
-    @Size(min = 1, max = 4, message = "Should contain 1 to 4 elements")
+    @Size(min = 1, max = 6, message = "Should contain 1 to 6 elements")
     List<String> bannerList;
 }

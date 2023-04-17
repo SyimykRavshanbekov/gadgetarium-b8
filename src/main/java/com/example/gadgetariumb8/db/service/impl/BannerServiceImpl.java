@@ -17,7 +17,7 @@ public class BannerServiceImpl implements BannerService {
 
     @Override
     public SimpleResponse saveBanners(BannerRequest request) {
-        if (bannerRepository.findAll().size() > 4) {
+        if (bannerRepository.findAll().size() > 6) {
             for (String banner : request.getBannerList()) {
                 if (!banner.isBlank()) {
                     bannerRepository.save(new Banner(banner));
@@ -27,7 +27,7 @@ public class BannerServiceImpl implements BannerService {
             }
             return new SimpleResponse("The banner is well preserved!", HttpStatus.OK);
         } else {
-            throw new BadRequestException("Banners size > 4!");
+            throw new BadRequestException("Quantity of banners should not exceed 6!");
         }
     }
 }

@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,6 +22,7 @@ public class BannerApi {
 
     @PostMapping
     @Operation(summary = "Save banner", description = "This method save banners")
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
     public SimpleResponse saveBanner(@RequestBody @Valid BannerRequest request) {
         return bannerServices.saveBanners(request);
     }
