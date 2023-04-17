@@ -27,8 +27,11 @@ public class Product {
     private String name;
     private LocalDate dateOfIssue;
     private LocalDate createdAt;
+    @Column(length = 10000)
     private String video;
+    @Column(length = 10000)
     private String PDF;
+    @Column(length = 1000)
     private String description;
     private double rating;
     private String itemNumber;
@@ -46,8 +49,9 @@ public class Product {
 
     @OneToMany(cascade = ALL, fetch = FetchType.EAGER, mappedBy = "product", orphanRemoval = true)
     private List<SubProduct> subProducts;
+
     public void addSubProduct(SubProduct subProduct) {
-        if (subProducts ==  null){
+        if (subProducts == null) {
             subProducts = new ArrayList<>();
         }
         subProducts.add(subProduct);
