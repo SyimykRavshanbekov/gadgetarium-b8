@@ -6,10 +6,6 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-/**
- * @author kurstan
- * @created at 13.04.2023 10:06
- */
 public record RegisterRequest(
         @NotBlank(message = "first name should not be empty")
         @Size(min = 2, max = 33, message = "first name must be between 2 and 33 characters")

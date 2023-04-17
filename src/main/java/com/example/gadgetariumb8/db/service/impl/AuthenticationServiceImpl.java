@@ -20,10 +20,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-/**
- * @author kurstan
- * @created at 13.04.2023 10:01
- */
 @Service
 @RequiredArgsConstructor
 @Slf4j

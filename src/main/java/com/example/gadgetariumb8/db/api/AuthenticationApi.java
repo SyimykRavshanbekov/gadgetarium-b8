@@ -8,13 +8,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-/**
- * @author kurstan
- * @created at 13.04.2023 10:02
- */
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
