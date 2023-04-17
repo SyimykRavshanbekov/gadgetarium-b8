@@ -1,10 +1,7 @@
 package com.example.gadgetariumb8.db.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
@@ -19,6 +16,7 @@ import static jakarta.persistence.CascadeType.*;
 @Table(name = "users")
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class User {
     @Id
     @SequenceGenerator(name = "user_gen", sequenceName = "user_seq")
