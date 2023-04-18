@@ -1,6 +1,7 @@
 package com.example.gadgetariumb8.db.service.impl;
 
 import com.example.gadgetariumb8.db.config.jwt.JwtService;
+import com.example.gadgetariumb8.db.dto.response.SimpleResponse;
 import com.example.gadgetariumb8.db.exception.exceptions.AlreadyExistException;
 import com.example.gadgetariumb8.db.exception.exceptions.BadCredentialException;
 import com.example.gadgetariumb8.db.exception.exceptions.BadRequestException;
@@ -13,12 +14,18 @@ import com.example.gadgetariumb8.db.service.AuthenticationService;
 import com.example.gadgetariumb8.db.dto.request.AuthenticateRequest;
 import com.example.gadgetariumb8.db.dto.request.RegisterRequest;
 import com.example.gadgetariumb8.db.dto.response.AuthenticationResponse;
+import com.example.gadgetariumb8.db.service.EmailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
+import org.webjars.NotFoundException;
+
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +37,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+    private final EmailService emailService;
+    private final TemplateEngine templateEngine;
 
     @Override
     public AuthenticationResponse register(RegisterRequest request) {
@@ -90,5 +99,42 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .role(userInfo.getRole())
                 .token(token)
                 .build();
+    }
+
+    @Override
+    public SimpleResponse forgotPassword(String email) {
+        UserInfo userInfo = userRepository.findUserInfoByEmail(email)
+                .orElseThrow(() -> new NotFoundException("User was not found"));
+        String token = UUID.randomUUID().toString();
+        userInfo.setResetPasswordToken(token);
+        userInfoRepository.save(userInfo);
+
+        String subject = "Password Reset Request";
+        String resetPasswordLink = "http://localhost:8080/reset-password?token=" + token;
+
+        Context context = new Context();
+        context.setVariable("title", "Password Reset");
+        context.setVariable("message", "Please click link below for password reset!");
+        context.setVariable("token", resetPasswordLink);
+        context.setVariable("tokenTitle", "Reset Password");
+
+        String htmlContent = templateEngine.process("reset-password-template.html", context);
+
+        emailService.sendEmail(email, subject, htmlContent);
+        return SimpleResponse.builder()
+                .message("The password reset was sent to your email. Please check your email.")
+                .build();
+
+    }
+
+    @Override
+    public SimpleResponse resetPassword(String token, String newPassword) {
+        UserInfo userInfo = userInfoRepository.findByResetPasswordToken(token)
+                .orElseThrow(() -> new NotFoundException("User was not found"));
+
+        userInfo.setPassword(passwordEncoder.encode(newPassword));
+        userInfo.setResetPasswordToken(null);
+        userInfoRepository.save(userInfo);
+        return SimpleResponse.builder().message("User password changed successfully!").build();
     }
 }
