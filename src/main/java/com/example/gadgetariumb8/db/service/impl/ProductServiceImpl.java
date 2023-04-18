@@ -47,6 +47,7 @@ public class ProductServiceImpl implements ProductService {
             subProduct.setQuantity(s.quantity());
             subProduct.setImages(s.images());
             subProduct.setProduct(product);
+            product.addSubProduct(subProduct);
             subProductRepository.save(subProduct);
         }
         return SimpleResponse.builder().httpStatus(HttpStatus.OK).message("Successfully saved!!").build();
