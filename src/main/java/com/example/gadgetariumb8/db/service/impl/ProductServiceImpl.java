@@ -9,7 +9,6 @@ import com.example.gadgetariumb8.db.model.Product;
 import com.example.gadgetariumb8.db.model.SubCategory;
 import com.example.gadgetariumb8.db.model.SubProduct;
 import com.example.gadgetariumb8.db.repository.BrandRepository;
-import com.example.gadgetariumb8.db.repository.ProductRepository;
 import com.example.gadgetariumb8.db.repository.SubCategoryRepository;
 import com.example.gadgetariumb8.db.repository.SubProductRepository;
 import com.example.gadgetariumb8.db.service.ProductService;
@@ -20,21 +19,18 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class ProductServiceImpl implements ProductService {
-    private final ProductRepository productRepository;
     private final SubCategoryRepository subCategoryRepository;
     private final BrandRepository brandRepository;
     private final SubProductRepository subProductRepository;
 
     @Override
     public SimpleResponse saveProduct(ProductRequest productRequest) {
-
-        Product product = new Product();
         SubCategory subCategory = subCategoryRepository.findById(productRequest.subCategoryId())
                 .orElseThrow(() -> new NotFoundException("Sub category with id:" + productRequest.subCategoryId() + " not found!!"));
 
         Brand brand = brandRepository.findById(productRequest.brandId())
                 .orElseThrow(() -> new NotFoundException("Brand with id:" + productRequest.brandId() + " not found!!!"));
-
+        Product product = new Product();
         product.setSubCategory(subCategory);
         product.setBrand(brand);
         product.setGuarantee(productRequest.guarantee());
@@ -43,7 +39,6 @@ public class ProductServiceImpl implements ProductService {
         product.setVideo(productRequest.video());
         product.setPDF(productRequest.PDF());
         product.setDescription(productRequest.description());
-
         for (SubProductRequest s : productRequest.subProducts()) {
             SubProduct subProduct = new SubProduct();
             subProduct.addCharacteristics(s.characteristics());
@@ -54,8 +49,6 @@ public class ProductServiceImpl implements ProductService {
             subProduct.setProduct(product);
             subProductRepository.save(subProduct);
         }
-        productRepository.save(product);
-
         return SimpleResponse.builder().httpStatus(HttpStatus.OK).message("Successfully saved!!").build();
     }
 }
