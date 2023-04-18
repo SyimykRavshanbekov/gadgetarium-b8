@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static jakarta.persistence.CascadeType.*;
@@ -36,4 +35,10 @@ public class Review {
     @ManyToOne(cascade = {REFRESH, PERSIST, MERGE, DETACH})
     @JoinColumn(name = "user_id")
     private User user;
+
+    public Review(String commentary, int grade, List<String> images) {
+        this.commentary = commentary;
+        this.grade = grade;
+        this.images = images;
+    }
 }
