@@ -25,7 +25,7 @@ public class BannerServiceImpl implements BannerService {
                     throw new BadRequestException("One of the elements is empty!");
                 }
             }
-            return new SimpleResponse("The banner is well preserved!", HttpStatus.OK);
+            return  SimpleResponse.builder().message("The banner is well preserved!").httpStatus(HttpStatus.OK).build();
         } else {
             throw new BadRequestException("Quantity of banners should not exceed 6!");
         }

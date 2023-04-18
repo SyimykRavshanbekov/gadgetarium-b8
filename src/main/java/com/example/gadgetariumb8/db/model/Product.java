@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 import static jakarta.persistence.CascadeType.*;
@@ -48,6 +49,13 @@ public class Product {
 
     @OneToMany(cascade = ALL, fetch = FetchType.EAGER, mappedBy = "product", orphanRemoval = true)
     private List<SubProduct> subProducts;
+
+    public void addSubProduct(SubProduct subProduct) {
+        if (subProducts == null) {
+            subProducts = new ArrayList<>();
+        }
+        subProducts.add(subProduct);
+    }
 
     @OneToOne(cascade = ALL, orphanRemoval = true)
     @JoinColumn(name = "discount_id")
