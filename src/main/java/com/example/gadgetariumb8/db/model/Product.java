@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 import static jakarta.persistence.CascadeType.*;
@@ -26,8 +27,11 @@ public class Product {
     private String name;
     private LocalDate dateOfIssue;
     private LocalDate createdAt;
+    @Column(length = 10000)
     private String video;
+    @Column(length = 10000)
     private String PDF;
+    @Column(length = 1000)
     private String description;
     private double rating;
     private String itemNumber;
@@ -45,6 +49,13 @@ public class Product {
 
     @OneToMany(cascade = ALL, fetch = FetchType.EAGER, mappedBy = "product", orphanRemoval = true)
     private List<SubProduct> subProducts;
+
+    public void addSubProduct(SubProduct subProduct) {
+        if (subProducts == null) {
+            subProducts = new ArrayList<>();
+        }
+        subProducts.add(subProduct);
+    }
 
     @OneToOne(cascade = ALL, orphanRemoval = true)
     @JoinColumn(name = "discount_id")
