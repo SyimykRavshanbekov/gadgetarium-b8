@@ -1,6 +1,6 @@
 package com.example.gadgetariumb8.db.dto.response;
 
-import lombok.*;
+import lombok.Builder;
 import org.springframework.http.HttpStatus;
 
 @Getter
@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 @AllArgsConstructor
 @Builder
 public class SimpleResponse {
-    private String description;
-    private HttpStatus status;
+        HttpStatus httpStatus,
+        String message
+) {
 }
