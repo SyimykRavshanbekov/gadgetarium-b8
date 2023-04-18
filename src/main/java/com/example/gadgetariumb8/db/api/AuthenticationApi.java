@@ -33,12 +33,15 @@ public class AuthenticationApi {
     public AuthenticationResponse signIn(@RequestBody @Valid AuthenticateRequest request) {
         return authenticationService.authenticate(request);
     }
+
+    @Operation(summary = "Forgot password", description = "This method sends message to email for reset password.")
     @PostMapping("/forgot-password")
     public ResponseEntity<SimpleResponse> processForgotPasswordForm(@RequestParam String email) throws MessagingException {
         return ResponseEntity.ok(authenticationService.
                 forgotPassword(email));
     }
 
+    @Operation(summary = "Reset password",description = "This method changes the old password to new password.")
     @PostMapping("/reset-password")
     public ResponseEntity<SimpleResponse> resetPassword(@RequestParam String token, @RequestBody ResetPasswordRequest request) {
         return ResponseEntity.ok(authenticationService.resetPassword(token, request.newPassword()));
