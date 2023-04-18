@@ -3,6 +3,7 @@ package com.example.gadgetariumb8.db.api;
 import com.example.gadgetariumb8.db.dto.request.ProductRequest;
 import com.example.gadgetariumb8.db.dto.response.SimpleResponse;
 import com.example.gadgetariumb8.db.service.ProductService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,7 +21,8 @@ public class ProductApi {
         this.productService = productService;
     }
 
-    @PostMapping
+    @PostMapping("/add-product")
+    @Operation(summary = "To save the product.", description = "This method to save the product.")
     @PreAuthorize("hasAuthority('ADMIN')")
     public SimpleResponse saveProduct(@RequestBody @Valid ProductRequest productRequest) {
         return productService.saveProduct(productRequest);
