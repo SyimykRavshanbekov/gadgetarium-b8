@@ -66,8 +66,8 @@ public class MailingListServiceImpl implements MailingListService {
 
         mailingListRepository.save(mail);
         return SimpleResponse.builder()
-                .status(HttpStatus.OK)
-                .description("Сообщение успешно отправлено всем подписчикам.")
+                .httpStatus(HttpStatus.OK)
+                .message("Сообщение успешно отправлено всем подписчикам.")
                 .build();
     }
 
@@ -75,8 +75,8 @@ public class MailingListServiceImpl implements MailingListService {
     public SimpleResponse subscribe(MallingListSubscriber subscriber) {
         subscriberRepository.save(subscriber);
         return SimpleResponse.builder()
-                .status(HttpStatus.CREATED)
-                .description("Подписчик успешно добавлен в базу данных.")
+                .httpStatus(HttpStatus.CREATED)
+                .message("Подписчик успешно добавлен в базу данных.")
                 .build();
     }
 
