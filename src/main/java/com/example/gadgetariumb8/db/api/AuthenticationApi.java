@@ -1,5 +1,6 @@
 package com.example.gadgetariumb8.db.api;
 
+import com.example.gadgetariumb8.db.dto.request.ForgotPasswordRequest;
 import com.example.gadgetariumb8.db.dto.request.ResetPasswordRequest;
 import com.example.gadgetariumb8.db.dto.response.SimpleResponse;
 import com.example.gadgetariumb8.db.service.AuthenticationService;
@@ -37,14 +38,14 @@ public class AuthenticationApi {
 
     @Operation(summary = "Forgot password", description = "This method sends message to email for reset password.")
     @PostMapping("/forgot-password")
-    public ResponseEntity<SimpleResponse> processForgotPasswordForm(@RequestParam String email) throws MessagingException {
+    public ResponseEntity<SimpleResponse> processForgotPasswordForm(@RequestBody @Valid ForgotPasswordRequest request) throws MessagingException {
         return ResponseEntity.ok(authenticationService.
-                forgotPassword(email));
+                forgotPassword(request.email()));
     }
 
     @Operation(summary = "Reset password", description = "This method changes the old password to new password.")
     @PostMapping("/reset-password")
-    public ResponseEntity<SimpleResponse> resetPassword(@RequestParam String token, @RequestBody ResetPasswordRequest request) {
+    public ResponseEntity<SimpleResponse> resetPassword(@RequestParam String token, @RequestBody @Valid ResetPasswordRequest request) {
         return ResponseEntity.ok(authenticationService.resetPassword(token, request.newPassword()));
     }
 }
