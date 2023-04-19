@@ -11,6 +11,8 @@ public interface AuthenticationService {
     AuthenticationResponse register(RegisterRequest request);
 
     AuthenticationResponse authenticate(AuthenticateRequest request);
+
     SimpleResponse forgotPassword(String email) throws MessagingException;
-    SimpleResponse resetPassword(String token,String newPassword);
+
+    SimpleResponse resetPassword(String token, String newPassword);
 }

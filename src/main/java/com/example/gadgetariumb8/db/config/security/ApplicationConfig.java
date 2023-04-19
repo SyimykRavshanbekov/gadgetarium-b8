@@ -13,10 +13,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-/**
- * @author kurstan
- * @created at 03.04.2023 6:38
- */
 @Configuration
 @RequiredArgsConstructor
 public class ApplicationConfig {

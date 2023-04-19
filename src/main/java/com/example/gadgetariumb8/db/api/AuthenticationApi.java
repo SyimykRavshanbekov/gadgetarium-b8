@@ -42,10 +42,9 @@ public class AuthenticationApi {
                 forgotPassword(email));
     }
 
-    @Operation(summary = "Reset password",description = "This method changes the old password to new password.")
+    @Operation(summary = "Reset password", description = "This method changes the old password to new password.")
     @PostMapping("/reset-password")
     public ResponseEntity<SimpleResponse> resetPassword(@RequestParam String token, @RequestBody ResetPasswordRequest request) {
         return ResponseEntity.ok(authenticationService.resetPassword(token, request.newPassword()));
     }
-
 }
