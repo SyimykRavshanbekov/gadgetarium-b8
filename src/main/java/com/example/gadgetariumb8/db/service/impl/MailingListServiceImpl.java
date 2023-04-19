@@ -1,5 +1,7 @@
 package com.example.gadgetariumb8.db.service.impl;
 
+import com.example.gadgetariumb8.db.dto.request.MailingListRequest;
+import com.example.gadgetariumb8.db.dto.request.MailingListSubscriberRequest;
 import com.example.gadgetariumb8.db.dto.response.SimpleResponse;
 import com.example.gadgetariumb8.db.exception.exceptions.MessageSendingException;
 import com.example.gadgetariumb8.db.model.MallingList;
@@ -35,15 +37,15 @@ public class MailingListServiceImpl implements MailingListService {
     private final Configuration config;
 
     @Override
-    public SimpleResponse sendEmail(MallingList mail) {
+    public SimpleResponse sendEmail(MailingListRequest mail) {
         List<MallingListSubscriber> subscriberList = subscriberRepository.findAll();
 
         Map<String, Object> model = new HashMap<>();
-        model.put("description", mail.getDescription());
-        model.put("image", mail.getImage());
-        model.put("name", mail.getName());
-        model.put("start", mail.getDateOfStart());
-        model.put("finish", mail.getDateOfFinish());
+        model.put("description", mail.description());
+        model.put("image", mail.image());
+        model.put("name", mail.name());
+        model.put("start", mail.dateOfStart());
+        model.put("finish", mail.dateOfFinish());
 
         MimeMessage message = javaMailSender.createMimeMessage();
 
@@ -64,7 +66,15 @@ public class MailingListServiceImpl implements MailingListService {
             throw new MessageSendingException("Ошибка при отправке сообщения!");
         }
 
-        mailingListRepository.save(mail);
+        MallingList mallingList = MallingList.builder()
+                .image(mail.image())
+                .name(mail.name())
+                .description(mail.description())
+                .dateOfStart(mail.dateOfStart())
+                .dateOfFinish(mail.dateOfFinish())
+                .build();
+
+        mailingListRepository.save(mallingList);
         return SimpleResponse.builder()
                 .httpStatus(HttpStatus.OK)
                 .message("Сообщение успешно отправлено всем подписчикам.")
@@ -72,8 +82,12 @@ public class MailingListServiceImpl implements MailingListService {
     }
 
     @Override
-    public SimpleResponse subscribe(MallingListSubscriber subscriber) {
-        subscriberRepository.save(subscriber);
+    public SimpleResponse subscribe(MailingListSubscriberRequest subscriber) {
+        MallingListSubscriber mallingListSubscriber = MallingListSubscriber.builder()
+                .userEmail(subscriber.userEmail())
+                .build();
+
+        subscriberRepository.save(mallingListSubscriber);
         return SimpleResponse.builder()
                 .httpStatus(HttpStatus.CREATED)
                 .message("Подписчик успешно добавлен в базу данных.")

@@ -1,12 +1,12 @@
 package com.example.gadgetariumb8.db.service;
 
+import com.example.gadgetariumb8.db.dto.request.MailingListRequest;
+import com.example.gadgetariumb8.db.dto.request.MailingListSubscriberRequest;
 import com.example.gadgetariumb8.db.dto.response.SimpleResponse;
-import com.example.gadgetariumb8.db.model.MallingList;
-import com.example.gadgetariumb8.db.model.MallingListSubscriber;
 
 public interface MailingListService {
-    SimpleResponse sendEmail(MallingList mallingList);
+    SimpleResponse sendEmail(MailingListRequest mallingList);
 
-    SimpleResponse subscribe(MallingListSubscriber subscriber);
+    SimpleResponse subscribe(MailingListSubscriberRequest subscriber);
 }
 
