@@ -15,10 +15,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.ui.freemarker.FreeMarkerConfigurationFactoryBean;
 
-/**
- * @author kurstan
- * @created at 03.04.2023 6:38
- */
 @Configuration
 @RequiredArgsConstructor
 public class ApplicationConfig{

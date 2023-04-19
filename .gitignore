@@ -35,3 +35,4 @@ src/main/resources/application-altyn.properties
 src/main/resources/application-kutman.properties
 src/main/resources/application-kurstan.yml
 src/main/resources/application-azimbek.properties
+src/main/resources/application.yml

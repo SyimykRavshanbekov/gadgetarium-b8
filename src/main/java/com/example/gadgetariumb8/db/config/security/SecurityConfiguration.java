@@ -11,10 +11,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-/**
- * @author kurstan
- * @created at 03.04.2023 9:39
- */
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
