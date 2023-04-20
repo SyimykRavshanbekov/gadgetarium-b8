@@ -15,4 +15,6 @@ public interface ReviewService {
     SimpleResponse deleteById(Long id);
     SimpleResponse updateReview(Long id,ReviewRequest newRequest);
     List<ReviewResponse>getAllReview(Long productId);
+    SimpleResponse replyToFeedback(String answer,Long id);
+
 }

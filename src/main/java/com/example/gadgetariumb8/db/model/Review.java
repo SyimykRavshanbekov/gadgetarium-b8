@@ -36,9 +36,11 @@ public class Review {
     @JoinColumn(name = "user_id")
     private User user;
 
-    public Review(String commentary, int grade, List<String> images) {
+    public Review(String commentary, int grade, List<String> images, Product product, User user) {
         this.commentary = commentary;
         this.grade = grade;
         this.images = images;
+        this.product = product;
+        this.user = user;
     }
 }
