@@ -4,10 +4,6 @@ import lombok.*;
 
 import java.util.List;
 
-/**
- * name : kutman
- **/
-
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
