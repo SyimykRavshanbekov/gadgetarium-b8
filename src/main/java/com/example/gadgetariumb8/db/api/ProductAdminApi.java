@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 public class ProductAdminApi {
     private final ProductService productService;
 
-    @PostMapping
+    @PostMapping("/add-product")
     @Operation(summary = "To save the product.", description = "This method to save the product.")
     @PreAuthorize("hasAuthority('ADMIN')")
     public SimpleResponse saveProduct(@RequestBody @Valid ProductRequest productRequest) {
