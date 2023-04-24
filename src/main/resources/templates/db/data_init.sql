@@ -47,21 +47,21 @@ values (1,'2023-02-01','2023-01-01','Скидка только для вас!','
 
 insert into products (id,pdf,created_at,
                       date_of_issue,description,
-                      guarantee,item_number,name,
+                      guarantee,name,
                       rating,video,brand_id,discount_id,
                       sub_category_id)
-values (1,'pdf link','2023-04-01','2020-01-01','Good product',12,'1','IPHONE 12',5,'https://youtu.be/Mla7Y-iQSq0',1,1,1),
-       (2,'pdf link','2023-04-01','2019-01-01','Good product',12,'1','Asus',5,'https://youtu.be/MZavnAdb-_s',4,2,3),
-       (3,'pdf link','2023-04-01','2021-01-01','Good product',12,'1','Apple Watch',5,'https://youtu.be/mLwVeGK0ViA',1,1,1),
-       (4,'pdf link','2023-04-01','2022-01-01','Good product',12,'1','IPHONE 14 PRO MAX',5,'https://youtu.be/Mla7Y-iQSq0',1,1,1),
-       (5,'pdf link','2023-04-01','2018-01-01','Good product',12,'1','Mac Book',5,'https://youtu.be/Hw7iB-zkYrk',1,1,1);
+values (1,'pdf link','2023-04-01','2020-01-01','Good product',12,'IPHONE 12',5,'https://youtu.be/Mla7Y-iQSq0',1,1,1),
+       (2,'pdf link','2023-04-01','2019-01-01','Good product',12,'Asus',5,'https://youtu.be/MZavnAdb-_s',4,2,3),
+       (3,'pdf link','2023-04-01','2021-01-01','Good product',12,'Apple Watch',5,'https://youtu.be/mLwVeGK0ViA',1,1,1),
+       (4,'pdf link','2023-04-01','2022-01-01','Good product',12,'IPHONE 14 PRO MAX',5,'https://youtu.be/Mla7Y-iQSq0',1,1,1),
+       (5,'pdf link','2023-04-01','2018-01-01','Good product',12,'Mac Book',5,'https://youtu.be/Hw7iB-zkYrk',1,1,1);
 
-insert into sub_products (id,colour,price,quantity,product_id)
-values (1,'Blue',55000,1,1),
-       (2,'Red',55000,1,2),
-       (3,'Black',55000,1,3),
-       (4,'Purple',55000,1,4),
-       (5,'White',55000,1,5);
+insert into sub_products (id,colour,price,quantity,item_number,product_id)
+values (1,'Blue',55000,1,'123',1),
+       (2,'Red',55000,1,'321',2),
+       (3,'Black',55000,1,'234',3),
+       (4,'Purple',55000,1,'432',4),
+       (5,'White',55000,1,'345',5);
 
 insert into orders (id,date,delivery_type,order_number,payment_type,quantity,status,total_price,customer_id,user_id)
 values (1,'2023-01-01',true,'1',1,1,1,55000,1,1),

@@ -23,9 +23,9 @@ public class SubProduct {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sub_product_gen")
     private Long id;
     private String colour;
-
     private BigDecimal price;
     private int quantity;
+    private String itemNumber;
 
     @ElementCollection
     @Column(length = 10000)
