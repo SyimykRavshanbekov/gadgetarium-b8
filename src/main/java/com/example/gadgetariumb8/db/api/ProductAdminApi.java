@@ -24,7 +24,7 @@ public class ProductAdminApi {
     private final ProductService productService;
 
     @Operation(summary = "To save the product.", description = "This method to save the product.")
-    @PostMapping("/add-product")
+    @PostMapping
     public SimpleResponse saveProduct(@RequestBody @Valid ProductRequest productRequest) {
         return productService.saveProduct(productRequest);
     }
