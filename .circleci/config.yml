@@ -55,7 +55,7 @@ jobs:
             ssh -o "StrictHostKeyChecking=no" -i ./privateKey.pem ubuntu@$HOST '
             sudo gunzip -c ./<< pipeline.parameters.docker-container >>.tar.gz | sudo docker load
             sudo rm ./<< pipeline.parameters.docker-container >>.tar.gz
-            sudo docker run -p 80:80 --name << pipeline.parameters.docker-container >> -d << pipeline.parameters.docker-container >>:latest
+            sudo docker run -p 80:2023 --name << pipeline.parameters.docker-container >> -d << pipeline.parameters.docker-container >>:latest
             '
 
 workflows:
