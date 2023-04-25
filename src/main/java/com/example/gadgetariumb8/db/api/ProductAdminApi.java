@@ -21,6 +21,7 @@ import java.time.LocalDate;
 @CrossOrigin(origins = "*", maxAge = 3600)
 @PreAuthorize("hasAuthority('ADMIN')")
 public class ProductAdminApi {
+
     private final ProductService productService;
 
     @Operation(summary = "To save the product.", description = "This method to save the product.")

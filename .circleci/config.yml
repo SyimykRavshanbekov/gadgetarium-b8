@@ -1,34 +1,74 @@
 version: 2.1
-orbs:
-  aws-ecr: circleci/aws-ecr@7.0.0
-  aws-ecs: circleci/aws-ecs@3.2
+
+parameters:
+  docker-container:
+    type: string
+    default: "gadgetariumb8"
+
+jobs:
+  build-image:
+    docker:
+      - image: docker:20.10.9
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Build Docker Image
+          command: |
+            docker build -t << pipeline.parameters.docker-container >>:latest .
+      - run:
+          name: Compress Docker Image
+          command: |
+            docker save << pipeline.parameters.docker-container >>:latest | gzip > << pipeline.parameters.docker-container >>.tar.gz
+      - persist_to_workspace:
+          root: .
+          paths:
+            - << pipeline.parameters.docker-container >>.tar.gz
+  transfer-and-run:
+    docker:
+      - image: circleci/node:14
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Install SSH And Configure
+          command: |
+            echo $SSH_PRIVATE_KEY | base64 --decode > ./privateKey.pem
+            chmod 400 privateKey.pem
+      - run:
+          name: Stop Remote Docker Container and Remove Existing Docker Image
+          command: |
+            ssh -o "StrictHostKeyChecking=no" -i ./privateKey.pem ubuntu@$HOST '
+            if [ "$(sudo docker ps -q -f name=<< pipeline.parameters.docker-container >>)" ]; then
+                sudo docker stop << pipeline.parameters.docker-container >>
+                sudo docker rmi -f $(sudo docker inspect --format='{{.Image}}' << pipeline.parameters.docker-container >>)
+                sudo docker rm << pipeline.parameters.docker-container >>
+            fi
+            '
+      - run:
+          name: Transfer Files
+          command: |
+            scp -o "StrictHostKeyChecking=no" -i ./privateKey.pem ./<< pipeline.parameters.docker-container >>.tar.gz ubuntu@$HOST:~/
+      - run:
+          name: Decompress Docker Image | Run Compose
+          command: |
+            ssh -o "StrictHostKeyChecking=no" -i ./privateKey.pem ubuntu@$HOST '
+            sudo gunzip -c ./<< pipeline.parameters.docker-container >>.tar.gz | sudo docker load
+            sudo rm ./<< pipeline.parameters.docker-container >>.tar.gz
+            sudo docker run -p 80:2023 --name << pipeline.parameters.docker-container >> -d << pipeline.parameters.docker-container >>:latest
+            '
+
 workflows:
-  deploy-to-ecs:
+  deploy:
     jobs:
-      - aws-ecr/build-and-push-image:
-          name: "build-and-push-image"
-          account-url: AWS_ECR_URL
-          create-repo: false
-          dockerfile: Dockerfile
-          no-output-timeout: 20m
-          path: ./
-          region: AWS_DEFAULT_REGION
-          repo: gadgetarium-repo
-          skip-when-tags-exist: false
-          tag: $CIRCLE_SHA1
+      - build-image:
           filters:
             branches:
               only:
                 - main
-      - aws-ecs/deploy-service-update:
-          name: "deploy-service-update"
-          cluster: gadgetarium-b8
-          container-image-name-updates: 'container=gadgetarium-con,tag=${CIRCLE_SHA1}'
-          family: gadgetarium-b8
-          service-name: gadgetarium-service
-          force-new-deployment: true
+      - transfer-and-run:
           requires:
-            - build-and-push-image
+            - build-image
           filters:
             branches:
               only:
