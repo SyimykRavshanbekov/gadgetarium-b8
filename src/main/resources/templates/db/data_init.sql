@@ -64,11 +64,11 @@ values (1,'Blue',55000,1,1),
        (5,'White',55000,1,5);
 
 insert into orders (id,date,delivery_type,order_number,payment_type,quantity,status,total_price,customer_id,user_id)
-values (1,'2023-01-01',true,'1',1,1,1,55000,1,1),
-       (2,'2023-01-01',true,'1',1,1,1,55000,1,1),
-       (3,'2023-01-01',true,'1',1,1,1,55000,1,1),
-       (4,'2023-01-01',true,'1',1,1,1,55000,1,1),
-       (5,'2023-01-01',true,'1',1,1,1,55000,1,1);
+values (1,'2023-01-01',true,'1','BY_CARD_ONLINE',1,'PENDING',55000,1,1),
+       (2,'2023-01-01',true,'1','BY_CARD_OFFLINE',1,'DELIVERED',55000,1,1),
+       (3,'2023-01-01',true,'1','BY_CARD_ONLINE',1,'CANCEL',55000,1,1),
+       (4,'2023-01-01',true,'1','BY_CASH',1,'COURIER_ON_THE_WAY',55000,1,1),
+       (5,'2023-01-01',true,'1','BY_CARD_OFFLINE',1,'DELIVERED',55000,1,1);
 
 insert into malling_list_subscribers (id,user_email)
 values (1,'azimbek1@gmail.com'),
