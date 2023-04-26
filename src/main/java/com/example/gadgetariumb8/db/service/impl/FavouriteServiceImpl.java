@@ -4,8 +4,9 @@ import com.example.gadgetariumb8.db.dto.response.ProductsResponse;
 import com.example.gadgetariumb8.db.dto.response.SimpleResponse;
 import com.example.gadgetariumb8.db.exception.exceptions.NotFoundException;
 import com.example.gadgetariumb8.db.model.Product;
+import com.example.gadgetariumb8.db.model.SubProduct;
 import com.example.gadgetariumb8.db.model.User;
-import com.example.gadgetariumb8.db.repository.ProductRepository;
+import com.example.gadgetariumb8.db.repository.SubProductRepository;
 import com.example.gadgetariumb8.db.repository.UserRepository;
 import com.example.gadgetariumb8.db.service.FavouriteService;
 import jakarta.transaction.Transactional;
@@ -21,12 +22,12 @@ import java.util.List;
 @Transactional
 public class FavouriteServiceImpl implements FavouriteService {
     private final UserRepository userRepository;
-    private final ProductRepository productRepository;
+    private final SubProductRepository subProductRepository;
     @Override
-    public SimpleResponse addProductToFavourites(Long userId, Long productId) {
+    public SimpleResponse addProductToFavourites(Long userId, Long subProductId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User with id: " + userId + " is no exist!"));
-        Product product = productRepository.findById(productId).orElseThrow(() -> new NotFoundException("Product with id: " + productId + " is no exist!"));
-        user.addFavourites(product);
+        SubProduct subProduct= subProductRepository.findById(subProductId).orElseThrow(() -> new NotFoundException("SubProduct with id: " + subProductId + " is no exist!"));
+        user.addFavourites(subProduct);
         return SimpleResponse.builder().httpStatus(HttpStatus.OK).message("Product is successfully added to favourites!").build();
     }
 
@@ -34,14 +35,14 @@ public class FavouriteServiceImpl implements FavouriteService {
     public List<ProductsResponse> getAllFavouriteProducts(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User with id: " + userId + " is no exist!"));
         List<ProductsResponse> productsResponses = new ArrayList<>();
-        for (Product favourite : user.getFavorites()) {
+        for (SubProduct favourite : user.getFavorites()) {
             ProductsResponse product = new ProductsResponse(
-                    favourite.getSubProducts().get(0).getImages().get(0),
-                    favourite.getSubProducts().get(0).getQuantity(),
-                    favourite.getSubCategory().getCategory().getName() + " " + favourite.getBrand() + " " + favourite.getName() + " " + favourite.getSubProducts().get(0).getCharacteristics().get("memory") + " " + favourite.getSubProducts().get(0).getColour(),
-                    favourite.getRating(),
-                    favourite.getSubProducts().get(0).getPrice(),
-                    favourite.getSubProducts().get(0).getPrice().intValue() - ((favourite.getSubProducts().get(0).getPrice().intValue() * favourite.getDiscount().getPercent()) / 100)
+                    favourite.getImages().get(0),
+                    favourite.getQuantity(),
+                    favourite.getProduct().getSubCategory().getCategory().getName() + " " + favourite.getProduct().getBrand() + " " + favourite.getProduct().getName() + " " + favourite.getCharacteristics().get("memory") + " " + favourite.getColour(),
+                    favourite.getProduct().getRating(),
+                    favourite.getPrice(),
+                    favourite.getPrice().intValue() - ((favourite.getPrice().intValue() * favourite.getProduct().getDiscount().getPercent()) / 100)
             );
             productsResponses.add(product);
         }
@@ -49,10 +50,10 @@ public class FavouriteServiceImpl implements FavouriteService {
     }
 
     @Override
-    public SimpleResponse deleteById(Long userId, Long productId) {
+    public SimpleResponse deleteById(Long userId, Long subProductId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User with id: " + userId + " is no exist!"));
-        user.getFavorites().removeIf(favorite -> favorite.getId().equals(productId));
-        return SimpleResponse.builder().httpStatus(HttpStatus.OK).message("Product is successfully deleted from favourites!").build();
+        user.getFavorites().removeIf(favorite -> favorite.getId().equals(subProductId));
+        return SimpleResponse.builder().httpStatus(HttpStatus.OK).message("SubProduct is successfully deleted from favourites!").build();
     }
 
     @Override

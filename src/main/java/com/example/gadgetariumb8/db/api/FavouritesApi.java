@@ -19,11 +19,11 @@ import java.util.List;
 public class FavouritesApi {
     private final FavouriteService favouriteService;
 
-    @PostMapping("/{userId}/{productId}")
+    @PostMapping("/{userId}/{subProductId}")
     @Operation(summary = "Add to favourite!", description = "This method adds product to favourites!")
     @PreAuthorize("hasAnyAuthority('USER')")
-    public SimpleResponse addProductToFavourites(@PathVariable Long userId, @PathVariable Long productId) {
-        return favouriteService.addProductToFavourites(userId, productId);
+    public SimpleResponse addProductToFavourites(@PathVariable Long userId, @PathVariable Long subProductId) {
+        return favouriteService.addProductToFavourites(userId, subProductId);
     }
 
     @GetMapping("/{userId}")
@@ -33,11 +33,11 @@ public class FavouritesApi {
         return favouriteService.getAllFavouriteProducts(userId);
     }
 
-    @DeleteMapping("/{userId}/{productId}")
+    @DeleteMapping("/{userId}/{subProductId}")
     @Operation(summary = "Delete by id", description = "This method removes product by id from favourites!")
     @PreAuthorize("hasAnyAuthority('USER')")
-    public SimpleResponse deleteFavouriteProductById(@PathVariable Long userId, @PathVariable Long productId) {
-        return favouriteService.deleteById(userId, productId);
+    public SimpleResponse deleteFavouriteProductById(@PathVariable Long userId, @PathVariable Long subProductId) {
+        return favouriteService.deleteById(userId, subProductId);
     }
 
     @DeleteMapping("/{userId}")
