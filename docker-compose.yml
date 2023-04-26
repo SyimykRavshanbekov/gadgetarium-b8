@@ -6,11 +6,11 @@ services:
     ports:
       - "80:2023"
     environment:
-      SPRING_PROFILES_ACTIVE: dev
+      SPRING_PROFILES_ACTIVE: main
       SERVER_PORT: 2023
-      DATABASE_URL: jdbc:postgresql://database:5432/postgres
-      DATABASE_USER: gadgetariumdbuser
-      DATABASE_PASS: gadgetariumdb2023
+      POSTGRES_DB: jdbc:postgresql://database:5432/postgres
+      POSTGRES_USER: gadgetariumdbuser
+      POSTGRES_PASSWORD: gadgetariumdb2023
   database:
     image: postgres:latest
     restart: always
