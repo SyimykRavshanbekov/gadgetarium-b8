@@ -2,6 +2,8 @@ package com.example.gadgetariumb8.db.service.impl;
 
 
 import com.example.gadgetariumb8.db.dto.response.OrderResponse;
+import com.example.gadgetariumb8.db.dto.response.PaginationResponse;
+import com.example.gadgetariumb8.db.exception.exceptions.BadRequestException;
 import com.example.gadgetariumb8.db.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -16,7 +18,7 @@ import java.util.List;
 public class OrderServiceImpl implements OrderService {
     private final JdbcTemplate jdbcTemplate;
     @Override
-    public List<OrderResponse> getAllOrders(String keyWord, String status, LocalDate from, LocalDate before, int page, int pageSize) {
+    public PaginationResponse<OrderResponse> getAllOrders(String keyWord, String status, LocalDate from, LocalDate before, int page, int pageSize) {
         String sql = """
                select o.id as id,concat(c.first_name,' ',c.last_name) as fio,
                       o.order_number as orderNumber,
@@ -27,11 +29,22 @@ public class OrderServiceImpl implements OrderService {
 
         String dateClause = "";
         if (from != null && before != null) {
-            dateClause = String.format("AND p.date BETWEEN '%s' AND '%s'", from, before);
+            if (from.isAfter(before)) {
+                throw new BadRequestException("The from date must be earlier than the date before");
+            } else if (from.isAfter(LocalDate.now()) || before.isAfter(LocalDate.now())) {
+                throw new BadRequestException("The date must be in the past tense");
+            }
+            dateClause = String.format("AND o.date BETWEEN '%s' AND '%s'", from, before);
         } else if (from != null) {
-            dateClause = "AND p.date >= '%s'".formatted(from);
+            if (from.isAfter(LocalDate.now())) {
+                throw new BadRequestException("The date must be in the past tense");
+            }
+            dateClause = "AND o.date >= '%s'".formatted(from);
         } else if (before != null) {
-            dateClause = "AND p.date <= '%s'".formatted(before);
+            if (before.isAfter(LocalDate.now())) {
+                throw new BadRequestException("The date must be in the past tense");
+            }
+            dateClause = "AND o.date <= '%s'".formatted(before);
         }
         String keyWordCondition = "";
         List<Object> params = new ArrayList<>();
@@ -49,6 +62,15 @@ public class OrderServiceImpl implements OrderService {
                     """;
         }
         sql = String.format(sql, dateClause, keyWordCondition);
+
+        String countSql = "SELECT COUNT(*) FROM (" + sql + ") AS count_query";
+        int count = jdbcTemplate.queryForObject(countSql, params.toArray(), Integer.class);
+        int totalPage = (int) Math.ceil((double) count / pageSize);
+
+        sql = sql + " LIMIT ? OFFSET ?";
+        int offset = (page - 1) * pageSize;
+        params.add(pageSize);
+        params.add(offset);
         List<OrderResponse> orders = jdbcTemplate.query(sql, params.toArray(), (resultSet, i) -> new OrderResponse(
                 resultSet.getLong("id"),
                 resultSet.getString("fio"),
@@ -60,6 +82,11 @@ public class OrderServiceImpl implements OrderService {
                 resultSet.getString("status")
         ));
 
-        return orders;
+        return PaginationResponse.<OrderResponse>builder()
+                .foundProducts(count)
+                .elements(orders)
+                .currentPage(page)
+                .totalPages(totalPage)
+                .build();
     }
 }
