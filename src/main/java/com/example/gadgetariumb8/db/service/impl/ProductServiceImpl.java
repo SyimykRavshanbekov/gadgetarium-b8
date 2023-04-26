@@ -4,10 +4,7 @@ import com.example.gadgetariumb8.db.dto.request.ProductRequest;
 import com.example.gadgetariumb8.db.dto.request.SubProductRequest;
 import com.example.gadgetariumb8.db.dto.response.SimpleResponse;
 import com.example.gadgetariumb8.db.exception.exceptions.NotFoundException;
-import com.example.gadgetariumb8.db.model.Brand;
-import com.example.gadgetariumb8.db.model.Product;
-import com.example.gadgetariumb8.db.model.SubCategory;
-import com.example.gadgetariumb8.db.model.SubProduct;
+import com.example.gadgetariumb8.db.model.*;
 import com.example.gadgetariumb8.db.repository.BrandRepository;
 import com.example.gadgetariumb8.db.repository.SubCategoryRepository;
 import com.example.gadgetariumb8.db.repository.SubProductRepository;
@@ -22,6 +19,7 @@ public class ProductServiceImpl implements ProductService {
     private final SubCategoryRepository subCategoryRepository;
     private final BrandRepository brandRepository;
     private final SubProductRepository subProductRepository;
+
 
     @Override
     public SimpleResponse saveProduct(ProductRequest productRequest) {
@@ -52,4 +50,7 @@ public class ProductServiceImpl implements ProductService {
         }
         return SimpleResponse.builder().httpStatus(HttpStatus.OK).message("Successfully saved!!").build();
     }
+
+
+
 }
