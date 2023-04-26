@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.LinkedList;
 import java.util.List;
-
 @Service
 @RequiredArgsConstructor
 public class SubProductServiceImpl implements SubProductService {
@@ -23,7 +22,7 @@ public class SubProductServiceImpl implements SubProductService {
         List<SubProduct> subProductList = subProductRepository.getAllLastReviews(userId);
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(String.format("User with id %s does not exists", userId)));
-        if(subProductList.size()>7) {
+        if(subProductList.size()>8) {
             user.getLastViews().remove(subProductRepository.getAllLastReviews(userId).get(0));
             userRepository.save(user);
         }
