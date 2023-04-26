@@ -5,7 +5,6 @@ import lombok.*;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -33,15 +32,7 @@ public class User {
     @JoinTable(name = "users_favorites",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "favorites_id"))
-    private List<Product> favorites;
-    public void addFavourites(Product product){
-        if(favorites==null){
-           this.favorites=new ArrayList<>();
-        }else {
-            favorites.add(product);
-        }
-    }
-
+    private List<SubProduct> favorites;
 
     @ManyToMany(cascade = ALL)
     @JoinTable(name = "users_last_views",
