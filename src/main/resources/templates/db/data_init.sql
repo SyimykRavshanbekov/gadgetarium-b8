@@ -1,6 +1,6 @@
 insert into users_info(id,email,password,role)
-values (1,'azimbek1@gmail.com','azimbek11','ADMIN'),
-       (2,'altyn1@gmail.com','altyn11','USER');
+values (1,'azimbek1@gmail.com','$2a$12$qT1185usfTsvB6R6WZYl4O2JiUtg6UxyfPxcqnkruhOqVEf/iPmlK','ADMIN'),        -- password: azimbek11
+       (2,'altyn1@gmail.com','$2a$12$fT3foWsvu6YXkpFjWWu3z.zDNQMIycDDTwr7CMWa9KMb1WGEpFdeO','USER');           -- password: altyn11
 
 insert into users(id, address, first_name, image, last_name, phone_number, user_info_id)
 VALUES (1,'Гражданская 119','Азимбек','https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8M3x8dXNlcnxlbnwwfHwwfHw%3D&w=1000&q=80','Абдивалиев','+996 222 899 897',1),
@@ -57,18 +57,18 @@ values (1,'pdf link','2023-04-01','2020-01-01','Good product',12,'IPHONE 12',5,'
        (5,'pdf link','2023-04-01','2018-01-01','Good product',12,'Mac Book',5,'https://youtu.be/Hw7iB-zkYrk',1,1,1);
 
 insert into sub_products (id,colour,price,quantity,item_number,product_id)
-values (1,'Blue',55000,1,'123',1),
-       (2,'Red',55000,1,'321',2),
-       (3,'Black',55000,1,'234',3),
+values (1,'Blue',120000,1,'123',1),
+       (2,'Red',76000,1,'321',2),
+       (3,'Black',111000,1,'234',3),
        (4,'Purple',55000,1,'432',4),
-       (5,'White',55000,1,'345',5);
+       (5,'White',3236000,1,'345',5);
 
 insert into orders (id,date,delivery_type,order_number,payment_type,quantity,status,total_price,customer_id,user_id)
-values (1,'2023-01-01',true,'1',1,1,1,55000,1,1),
-       (2,'2023-01-01',true,'1',1,1,1,55000,1,1),
-       (3,'2023-01-01',true,'1',1,1,1,55000,1,1),
-       (4,'2023-01-01',true,'1',1,1,1,55000,1,1),
-       (5,'2023-01-01',true,'1',1,1,1,55000,1,1);
+values (1,'2023-01-01',true,'1',1,1,1,155000,1,1),
+       (2,'2023-01-01',true,'1',1,1,1,999000,1,1),
+       (3,'2023-01-01',false,'1',1,1,1,122000,1,1),
+       (4,'2023-01-01',true,'1',1,1,1,512000,1,1),
+       (5,'2023-01-01',false,'1',1,1,1,355000,1,1);
 
 insert into malling_list_subscribers (id,user_email)
 values (1,'azimbek1@gmail.com'),

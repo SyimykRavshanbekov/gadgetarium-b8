@@ -5,6 +5,7 @@ import com.example.gadgetariumb8.db.dto.request.SubProductRequest;
 import com.example.gadgetariumb8.db.dto.response.PaginationResponse;
 import com.example.gadgetariumb8.db.dto.response.ProductAdminResponse;
 import com.example.gadgetariumb8.db.dto.response.SimpleResponse;
+import com.example.gadgetariumb8.db.exception.exceptions.BadRequestException;
 import com.example.gadgetariumb8.db.exception.exceptions.NotFoundException;
 import com.example.gadgetariumb8.db.model.Brand;
 import com.example.gadgetariumb8.db.model.Product;
@@ -79,18 +80,30 @@ public class ProductServiceImpl implements ProductService {
                 %s
                 """;
         String sqlStatus = switch (status) {
-            case "on sale" -> "JOIN orders_sub_products o ON o.sub_products_id = s.id";
-            case "in favorites" -> "JOIN users_favorites f ON f.favorites_id = s.id";
-            case "in basket" -> "JOIN user_basket b ON b.basket_key = s.id";
+            case "в продаже" -> "JOIN orders_sub_products o ON o.sub_products_id = s.id";
+            case "в избранном" -> "JOIN users_favorites f ON f.favorites_id = s.id";
+            case "в корзине" -> "JOIN user_basket b ON b.basket_key = s.id";
             default -> "";
         };
 
+
         String dateClause = "";
         if (from != null && before != null) {
+            if (from.isAfter(before)) {
+                throw new BadRequestException("The from date must be earlier than the date before");
+            } else if (from.isAfter(LocalDate.now()) || before.isAfter(LocalDate.now())) {
+                throw new BadRequestException("The date must be in the past tense");
+            }
             dateClause = String.format("AND p.created_at BETWEEN '%s' AND '%s'", from, before);
         } else if (from != null) {
+            if (from.isAfter(LocalDate.now())) {
+                throw new BadRequestException("The date must be in the past tense");
+            }
             dateClause = "AND p.created_at >= '%s'".formatted(from);
         } else if (before != null) {
+            if (before.isAfter(LocalDate.now())) {
+                throw new BadRequestException("The date must be in the past tense");
+            }
             dateClause = "AND p.created_at <= '%s'".formatted(before);
         }
 
@@ -104,26 +117,28 @@ public class ProductServiceImpl implements ProductService {
             params.add("%" + keyWord + "%");
 
             keywordCondition = """
-                    p.name iLIKE ? OR p.item_number iLIKE ?
+                    p.name iLIKE ? OR CASt(s.item_number AS TEXT) iLIKE ?
                     OR p.description iLIKE ? OR CAST(s.price AS TEXT) iLIKE ?
                     OR ch.characteristics iLIKE ?
                     """;
         }
         String joinType = "LEFT";
         String orderBy = "";
-        switch (sortBy) {
-            case "novelties" -> orderBy = "AND p.created_at >= CURRENT_DATE - interval '7 day'";
-            case "all promotions" -> joinType = "";
-            case "up to 50%" -> orderBy = "AND d.percent < 50";
-            case "over 50%" -> orderBy = "AND d.percent >= 50";
-            case "recommended" -> orderBy = "AND p.rating >= 4";
-            case "by price asc" -> orderBy = "ORDER BY s.price";
-            case "by price desc" -> orderBy = "ORDER BY s.price DESC";
+        if (sortBy != null) {
+            switch (sortBy) {
+                case "Новинки" -> orderBy = "AND p.created_at >= CURRENT_DATE - interval '7 day'";
+                case "Все акции" -> joinType = "";
+                case "До 50%" -> orderBy = "AND d.percent < 50";
+                case "Свыше 50%" -> orderBy = "AND d.percent >= 50";
+                case "Рекомендуемые" -> orderBy = "AND p.rating >= 4";
+                case "По увеличению цены" -> orderBy = "ORDER BY s.price";
+                case "По уменьшению цены" -> orderBy = "ORDER BY s.price DESC";
+            }
         }
 
         sql = String.format(sql, sqlStatus, joinType, keywordCondition, dateClause, orderBy);
 
-        String countSql = "SELECT COUNT(*) FROM (" + sql + ") as count_query";
+        String countSql = "SELECT COUNT(*) FROM (" + sql + ") AS count_query";
         int count = jdbcTemplate.queryForObject(countSql, params.toArray(), Integer.class);
         int totalPage = (int) Math.ceil((double) count / pageSize);
 
@@ -131,21 +146,20 @@ public class ProductServiceImpl implements ProductService {
         int offset = (page - 1) * pageSize;
         params.add(pageSize);
         params.add(offset);
-        List<ProductAdminResponse> products = jdbcTemplate.query(sql, params.toArray(), (resultSet, i) -> {
-            return new ProductAdminResponse(
-                    resultSet.getLong("id"),
-                    resultSet.getString("image"),
-                    resultSet.getString("item_number"),
-                    resultSet.getString("name"),
-                    LocalDate.parse(resultSet.getString("created_at")),
-                    resultSet.getInt("quantity"),
-                    resultSet.getBigDecimal("price"),
-                    resultSet.getInt("percent"),
-                    resultSet.getBigDecimal("total_price")
-            );
-        });
+        List<ProductAdminResponse> products = jdbcTemplate.query(sql, params.toArray(), (resultSet, i) -> new ProductAdminResponse(
+                resultSet.getLong("id"),
+                resultSet.getString("image"),
+                resultSet.getInt("item_number"),
+                resultSet.getString("name"),
+                LocalDate.parse(resultSet.getString("created_at")),
+                resultSet.getInt("quantity"),
+                resultSet.getBigDecimal("price"),
+                resultSet.getInt("percent"),
+                resultSet.getBigDecimal("total_price")
+        ));
 
         return PaginationResponse.<ProductAdminResponse>builder()
+                .foundProducts(count)
                 .elements(products)
                 .currentPage(page)
                 .totalPages(totalPage)

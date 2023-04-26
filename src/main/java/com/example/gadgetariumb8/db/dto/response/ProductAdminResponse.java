@@ -9,7 +9,7 @@ import java.time.LocalDate;
 public record ProductAdminResponse(
         Long id,
         String photo,
-        String itemNumber,
+        int itemNumber,
         String name,
         LocalDate createdAt,
         int quantity,

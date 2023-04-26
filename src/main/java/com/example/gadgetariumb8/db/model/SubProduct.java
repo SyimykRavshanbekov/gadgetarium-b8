@@ -25,7 +25,7 @@ public class SubProduct {
     private String colour;
     private BigDecimal price;
     private int quantity;
-    private String itemNumber;
+    private int itemNumber;
 
     @ElementCollection
     @Column(length = 10000)
