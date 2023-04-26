@@ -23,7 +23,6 @@ public class SubProduct {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sub_product_gen")
     private Long id;
     private String colour;
-
     private BigDecimal price;
     private int quantity;
 
@@ -35,7 +34,6 @@ public class SubProduct {
     private Map<String, String> characteristics;
 
     public void addCharacteristics(Map<String, String> characteristics) {
-
         if (this.characteristics == null) {
             this.characteristics = new HashMap<>();
         }

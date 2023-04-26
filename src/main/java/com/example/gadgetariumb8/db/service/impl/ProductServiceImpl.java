@@ -2,6 +2,7 @@ package com.example.gadgetariumb8.db.service.impl;
 
 import com.example.gadgetariumb8.db.dto.request.ProductRequest;
 import com.example.gadgetariumb8.db.dto.request.SubProductRequest;
+import com.example.gadgetariumb8.db.dto.response.ProductUserResponse;
 import com.example.gadgetariumb8.db.dto.response.SimpleResponse;
 import com.example.gadgetariumb8.db.exception.exceptions.NotFoundException;
 import com.example.gadgetariumb8.db.model.Brand;
@@ -51,5 +52,10 @@ public class ProductServiceImpl implements ProductService {
             subProductRepository.save(subProduct);
         }
         return SimpleResponse.builder().httpStatus(HttpStatus.OK).message("Successfully saved!!").build();
+    }
+
+    @Override
+    public ProductUserResponse getProductById(Long id) {
+        return null;
     }
 }
