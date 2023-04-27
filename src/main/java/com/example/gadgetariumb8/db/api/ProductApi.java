@@ -1,5 +1,6 @@
 package com.example.gadgetariumb8.db.api;
 
+import com.example.gadgetariumb8.db.dto.request.ProductUserRequest;
 import com.example.gadgetariumb8.db.dto.response.ProductUserResponse;
 import com.example.gadgetariumb8.db.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -16,11 +17,11 @@ import org.springframework.web.bind.annotation.*;
 public class ProductApi {
     private final ProductService productService;
 
-    @GetMapping("/{id}")
+    @GetMapping()
     @PreAuthorize("permitAll()")
     @Operation(summary = "To get by product id the product.", description = "This method to get by product id  the product.")
-    public ProductUserResponse getByProduct(@PathVariable Long id){
-        return productService.getProductById(id);
+    public ProductUserResponse getByProduct(@RequestBody ProductUserRequest productUserRequest) {
+        return productService.getProductById(productUserRequest);
     }
 
 }
