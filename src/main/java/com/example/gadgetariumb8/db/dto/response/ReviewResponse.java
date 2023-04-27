@@ -12,7 +12,7 @@ import java.util.List;
 public class ReviewResponse {
     private Long id;
     private String productImg;
-    private String productItemNumber;
+    private int productItemNumber;
     private String commentary;
     private int grade;
     private String answer;
@@ -21,7 +21,7 @@ public class ReviewResponse {
     private String userEmail;
     private String userImg;
 
-    public ReviewResponse(Long id, String productImg, String productItemNumber, String commentary, int grade, String answer, String userName, String userEmail, String userImg) {
+    public ReviewResponse(Long id, String productImg, int productItemNumber, String commentary, int grade, String answer, String userName, String userEmail, String userImg) {
         this.id = id;
         this.productImg = productImg;
         this.productItemNumber = productItemNumber;
