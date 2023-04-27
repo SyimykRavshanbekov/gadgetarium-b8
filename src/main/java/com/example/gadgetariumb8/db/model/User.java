@@ -33,7 +33,7 @@ public class User {
     @JoinTable(name = "users_favorites",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "favorites_id"))
-    private List<Product> favorites;
+    private List<SubProduct> favorites;
 
     @ManyToMany(cascade = ALL)
     @JoinTable(name = "users_last_views",

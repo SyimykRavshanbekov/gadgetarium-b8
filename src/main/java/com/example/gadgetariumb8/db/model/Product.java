@@ -34,7 +34,6 @@ public class Product {
     @Column(length = 1000)
     private String description;
     private double rating;
-    private String itemNumber;
 
     @OneToMany(cascade = ALL, fetch = FetchType.EAGER, mappedBy = "product", orphanRemoval = true)
     private List<Review> reviews;
