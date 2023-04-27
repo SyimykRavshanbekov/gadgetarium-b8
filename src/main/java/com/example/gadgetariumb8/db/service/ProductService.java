@@ -14,7 +14,6 @@ public interface ProductService {
 
     SimpleResponse saveProduct(ProductRequest productRequest);
     List<CompareProductResponse> compare();
-
     PaginationResponse<ProductAdminResponse> getAll(String keyWord, String status, LocalDate from, LocalDate before,
                                                     String sortBy, int page, int pageSize);
 
