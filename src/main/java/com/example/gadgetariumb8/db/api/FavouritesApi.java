@@ -19,31 +19,31 @@ import java.util.List;
 public class FavouritesApi {
     private final FavouriteService favouriteService;
 
-    @PostMapping("/{userId}/{subProductId}")
+    @PostMapping("/{subProductId}")
     @Operation(summary = "Add to favourite!", description = "This method adds product to favourites!")
     @PreAuthorize("hasAnyAuthority('USER')")
-    public SimpleResponse addProductToFavourites(@PathVariable Long userId, @PathVariable Long subProductId) {
-        return favouriteService.addProductToFavourites(userId, subProductId);
+    public SimpleResponse addProductToFavourites(@PathVariable Long subProductId) {
+        return favouriteService.addProductToFavourites(subProductId);
     }
 
-    @GetMapping("/{userId}")
+    @GetMapping
     @Operation(summary = "Get all favourites!", description = "This method gets all favourite products!")
     @PreAuthorize("hasAnyAuthority('USER')")
-    public List<ProductsResponse> getAllFavouriteProducts(@PathVariable Long userId) {
-        return favouriteService.getAllFavouriteProducts(userId);
+    public List<ProductsResponse> getAllFavouriteProducts() {
+        return favouriteService.getAllFavouriteProducts();
     }
 
-    @DeleteMapping("/{userId}/{subProductId}")
+    @DeleteMapping("/{subProductId}")
     @Operation(summary = "Delete by id", description = "This method removes product by id from favourites!")
     @PreAuthorize("hasAnyAuthority('USER')")
-    public SimpleResponse deleteFavouriteProductById(@PathVariable Long userId, @PathVariable Long subProductId) {
-        return favouriteService.deleteById(userId, subProductId);
+    public SimpleResponse deleteFavouriteProductById(@PathVariable Long subProductId) {
+        return favouriteService.deleteById(subProductId);
     }
 
-    @DeleteMapping("/{userId}")
+    @DeleteMapping
     @Operation(summary = "Delete all", description = "This method removes all favourite products")
     @PreAuthorize("hasAnyAuthority('USER')")
-    public SimpleResponse deleteAllFavouriteProducts(@PathVariable Long userId) {
-        return favouriteService.deleteAll(userId);
+    public SimpleResponse deleteAllFavouriteProducts() {
+        return favouriteService.deleteAll();
     }
 }
