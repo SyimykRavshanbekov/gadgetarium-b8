@@ -1,5 +1,7 @@
 package com.example.gadgetariumb8.db.service.impl;
 
+import com.example.gadgetariumb8.db.dto.response.PaginationResponse;
+import com.example.gadgetariumb8.db.dto.response.ProductsResponse;
 import com.example.gadgetariumb8.db.dto.response.SubProductResponse;
 import com.example.gadgetariumb8.db.exception.exceptions.NotFoundException;
 import com.example.gadgetariumb8.db.model.*;
@@ -30,7 +32,7 @@ public class SubProductServiceImpl implements SubProductService {
         }).getUser();
     }
     @Override
-    public List<SubProductResponse> lastViews() {
+    public PaginationResponse<SubProductResponse> lastViews(int page, int pageSize) {
         List<SubProductResponse>subProductResponseList = new LinkedList<>();
         List<SubProduct> subProductList = subProductRepository.getAllLastReviews(getAuthenticate().getId());
         for (SubProduct subProduct : subProductList) {
@@ -43,6 +45,10 @@ public class SubProductServiceImpl implements SubProductService {
                     subProduct.getPrice()
             ));
         }
-        return subProductResponseList;
+        return PaginationResponse.<SubProductResponse>builder()
+                .elements(subProductResponseList)
+                .totalPages(pageSize)
+                .currentPage(page)
+                .build();
     }
 }
