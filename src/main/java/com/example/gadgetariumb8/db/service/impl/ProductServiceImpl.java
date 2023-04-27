@@ -2,7 +2,11 @@ package com.example.gadgetariumb8.db.service.impl;
 
 import com.example.gadgetariumb8.db.dto.request.ProductRequest;
 import com.example.gadgetariumb8.db.dto.request.SubProductRequest;
+import com.example.gadgetariumb8.db.dto.response.PaginationResponse;
+import com.example.gadgetariumb8.db.dto.response.ProductAdminResponse;
+import com.example.gadgetariumb8.db.dto.response.ProductsResponse;
 import com.example.gadgetariumb8.db.dto.response.SimpleResponse;
+import com.example.gadgetariumb8.db.exception.exceptions.BadRequestException;
 import com.example.gadgetariumb8.db.exception.exceptions.NotFoundException;
 import com.example.gadgetariumb8.db.model.*;
 import com.example.gadgetariumb8.db.repository.BrandRepository;
@@ -88,7 +92,7 @@ public class ProductServiceImpl implements ProductService {
         return PaginationResponse.<ProductsResponse>builder()
                 .elements(products)
                 .currentPage(page)
-                .totalPage(totalPage)
+                .totalPages(totalPage)
                 .build();
     }
 
@@ -108,7 +112,6 @@ public class ProductServiceImpl implements ProductService {
         String countSql = "SELECT COUNT(*) FROM (" + sql + ") as count_query";
         int count = jdbcTemplate.queryForObject(countSql, Integer.class);
         int totalPage = (int) Math.ceil((double) count / pageSize);
-
         int offset = (page - 1) * pageSize;
         sql = String.format(sql + "LIMIT %s OFFSET %s", pageSize, offset);
         List<ProductsResponse> products = jdbcTemplate.query(sql, (resultSet, i) -> new ProductsResponse(
@@ -122,7 +125,7 @@ public class ProductServiceImpl implements ProductService {
         return PaginationResponse.<ProductsResponse>builder()
                 .elements(products)
                 .currentPage(page)
-                .totalPage(totalPage)
+                .totalPages(totalPage)
                 .build();
     }
 
@@ -156,10 +159,10 @@ public class ProductServiceImpl implements ProductService {
         return PaginationResponse.<ProductsResponse>builder()
                 .elements(products)
                 .currentPage(page)
-                .totalPage(totalPage)
+                .totalPages(totalPage)
                 .build();
     }
-}
+
 
     public PaginationResponse<ProductAdminResponse> getAll(String keyWord, String status, LocalDate from, LocalDate before, String sortBy, int page, int pageSize) {
         String sql = """
