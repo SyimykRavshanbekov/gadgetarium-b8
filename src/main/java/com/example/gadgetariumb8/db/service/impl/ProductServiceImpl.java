@@ -50,7 +50,6 @@ public class ProductServiceImpl implements ProductService {
     public SimpleResponse saveProduct(ProductRequest productRequest) {
         SubCategory subCategory = subCategoryRepository.findById(productRequest.subCategoryId())
                 .orElseThrow(() -> new NotFoundException("Sub category with id:" + productRequest.subCategoryId() + " not found!!"));
-
         Brand brand = brandRepository.findById(productRequest.brandId())
                 .orElseThrow(() -> new NotFoundException("Brand with id:" + productRequest.brandId() + " not found!!!"));
         Product product = new Product();
@@ -223,7 +222,7 @@ public class ProductServiceImpl implements ProductService {
                 %s
                 LEFT JOIN sub_product_characteristics ch ON ch.sub_product_id = s.id
                 %s JOIN discounts d ON d.id = p.discount_id
-                WHERE %s %s 
+                WHERE %s %s
                 %s
                 """;
         String sqlStatus = switch (status) {
