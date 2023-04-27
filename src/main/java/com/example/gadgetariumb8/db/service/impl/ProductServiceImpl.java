@@ -23,8 +23,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 @Slf4j
