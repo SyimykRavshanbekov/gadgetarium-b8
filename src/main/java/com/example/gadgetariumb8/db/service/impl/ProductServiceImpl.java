@@ -21,7 +21,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-
 @Service
 @RequiredArgsConstructor
 public class ProductServiceImpl implements ProductService {
@@ -29,7 +28,6 @@ public class ProductServiceImpl implements ProductService {
     private final BrandRepository brandRepository;
     private final SubProductRepository subProductRepository;
     private final JdbcTemplate jdbcTemplate;
-
     @Override
     public SimpleResponse saveProduct(ProductRequest productRequest) {
         SubCategory subCategory = subCategoryRepository.findById(productRequest.subCategoryId())
@@ -59,7 +57,6 @@ public class ProductServiceImpl implements ProductService {
         }
         return SimpleResponse.builder().httpStatus(HttpStatus.OK).message("Successfully saved!!").build();
     }
-
     @Override
     public PaginationResponse<ProductsResponse> getAllDiscountProducts(int page, int pageSize) {
         String sql = """
@@ -88,14 +85,12 @@ public class ProductServiceImpl implements ProductService {
                 resultSet.getBigDecimal("price"),
                 resultSet.getInt("discount")
         ));
-
         return PaginationResponse.<ProductsResponse>builder()
                 .elements(products)
                 .currentPage(page)
                 .totalPages(totalPage)
                 .build();
     }
-
     @Override
     public PaginationResponse<ProductsResponse>  getNewProducts(int page, int pageSize) {
         String sql = """
@@ -128,7 +123,6 @@ public class ProductServiceImpl implements ProductService {
                 .totalPages(totalPage)
                 .build();
     }
-
     @Override
     public PaginationResponse<ProductsResponse>  getRecommendedProducts(int page, int pageSize) {
         String sql = """
@@ -162,7 +156,6 @@ public class ProductServiceImpl implements ProductService {
                 .totalPages(totalPage)
                 .build();
     }
-
 
     public PaginationResponse<ProductAdminResponse> getAll(String keyWord, String status, LocalDate from, LocalDate before, String sortBy, int page, int pageSize) {
         String sql = """
@@ -258,7 +251,6 @@ public class ProductServiceImpl implements ProductService {
                 resultSet.getInt("percent"),
                 resultSet.getBigDecimal("total_price")
         ));
-
         return PaginationResponse.<ProductAdminResponse>builder()
                 .foundProducts(count)
                 .elements(products)
@@ -266,7 +258,4 @@ public class ProductServiceImpl implements ProductService {
                 .totalPages(totalPage)
                 .build();
     }
-
-
-
 }

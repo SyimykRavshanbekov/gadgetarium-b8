@@ -7,25 +7,32 @@ import com.example.gadgetariumb8.db.repository.SubProductRepository;
 import com.example.gadgetariumb8.db.repository.UserRepository;
 import com.example.gadgetariumb8.db.service.SubProductService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.LinkedList;
 import java.util.List;
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class SubProductServiceImpl implements SubProductService {
     private final SubProductRepository subProductRepository;
     private final UserRepository userRepository;
+    private User getAuthenticate(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String login = authentication.getName();
+        log.info("Token has been taken!");
+        return userRepository.findUserInfoByEmail(login).orElseThrow(()-> {
+            log.error("User not found!");
+            return new NotFoundException("User not found!");
+        }).getUser();
+    }
     @Override
-    public List<SubProductResponse> lastViews(Long userId) {
+    public List<SubProductResponse> lastViews() {
         List<SubProductResponse>subProductResponseList = new LinkedList<>();
-        List<SubProduct> subProductList = subProductRepository.getAllLastReviews(userId);
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException(String.format("User with id %s does not exists", userId)));
-        if(subProductList.size()>8) {
-            user.getLastViews().remove(subProductRepository.getAllLastReviews(userId).get(0));
-            userRepository.save(user);
-        }
+        List<SubProduct> subProductList = subProductRepository.getAllLastReviews(getAuthenticate().getId());
         for (SubProduct subProduct : subProductList) {
             subProductResponseList.add(new SubProductResponse(
                     subProduct.getImages().stream().findFirst().orElse("Sub product images"),
