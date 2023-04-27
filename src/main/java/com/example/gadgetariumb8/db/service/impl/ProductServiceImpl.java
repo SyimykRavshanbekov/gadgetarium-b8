@@ -18,7 +18,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -28,7 +27,6 @@ import java.util.List;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -53,7 +51,6 @@ public class ProductServiceImpl implements ProductService {
     public SimpleResponse saveProduct(ProductRequest productRequest) {
         SubCategory subCategory = subCategoryRepository.findById(productRequest.subCategoryId())
                 .orElseThrow(() -> new NotFoundException("Sub category with id:" + productRequest.subCategoryId() + " not found!!"));
-
         Brand brand = brandRepository.findById(productRequest.brandId())
                 .orElseThrow(() -> new NotFoundException("Brand with id:" + productRequest.brandId() + " not found!!!"));
         Product product = new Product();
@@ -111,7 +108,6 @@ public class ProductServiceImpl implements ProductService {
                 ), getAuthenticate().getId()
         );
     }
-}
 
     @Override
     public PaginationResponse<ProductAdminResponse> getAll(String keyWord, String status, LocalDate from, LocalDate before, String sortBy, int page, int pageSize) {
@@ -120,14 +116,14 @@ public class ProductServiceImpl implements ProductService {
                     SELECT i.images FROM sub_product_images i WHERE i.sub_product_id = s.id LIMIT 1
                 ) AS image, s.item_number, p.name, p.created_at, s.quantity, s.price,
                 COALESCE(d.percent, 0) AS percent,
-                CASE WHEN d.percent IS NOT NULL THEN ROUND(s.price - (s.price * d.percent / 100)) 
+                CASE WHEN d.percent IS NOT NULL THEN ROUND(s.price - (s.price * d.percent / 100))
                 ELSE s.price END AS total_price
                 FROM sub_products s
                 JOIN products p ON p.id = s.product_id
                 %s
                 LEFT JOIN sub_product_characteristics ch ON ch.sub_product_id = s.id
                 %s JOIN discounts d ON d.id = p.discount_id
-                WHERE %s %s 
+                WHERE %s %s
                 %s
                 """;
         String sqlStatus = switch (status) {
