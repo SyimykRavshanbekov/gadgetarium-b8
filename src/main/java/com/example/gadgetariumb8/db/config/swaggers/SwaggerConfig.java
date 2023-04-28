@@ -10,9 +10,6 @@ import org.springframework.context.annotation.Configuration;
 
 import java.util.Collections;
 
-/**
- * name : kutman
- **/
 @Configuration
 public class SwaggerConfig {
 

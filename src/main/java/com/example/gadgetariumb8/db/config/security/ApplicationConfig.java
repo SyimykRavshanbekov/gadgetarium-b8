@@ -22,6 +22,7 @@ import javax.sql.DataSource;
  * @author kurstan
  * @created at 03.04.2023 6:38
  */
+ 
 @Configuration
 @RequiredArgsConstructor
 public class ApplicationConfig {
