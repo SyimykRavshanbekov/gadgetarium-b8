@@ -22,8 +22,8 @@ public class FavouritesApi {
     @PostMapping("/{subProductId}")
     @Operation(summary = "Add to favourite!", description = "This method adds product to favourites!")
     @PreAuthorize("hasAnyAuthority('USER')")
-    public SimpleResponse addProductToFavourites(@PathVariable Long subProductId) {
-        return favouriteService.addProductToFavourites(subProductId);
+    public SimpleResponse addOrDeleteFavourites(@PathVariable Long subProductId, @RequestParam Boolean addOrDelete) {
+        return favouriteService.addOrDeleteFavourites(addOrDelete,subProductId);
     }
 
     @GetMapping
@@ -31,13 +31,6 @@ public class FavouritesApi {
     @PreAuthorize("hasAnyAuthority('USER')")
     public List<ProductsResponse> getAllFavouriteProducts() {
         return favouriteService.getAllFavouriteProducts();
-    }
-
-    @DeleteMapping("/{subProductId}")
-    @Operation(summary = "Delete by id", description = "This method removes product by id from favourites!")
-    @PreAuthorize("hasAnyAuthority('USER')")
-    public SimpleResponse deleteFavouriteProductById(@PathVariable Long subProductId) {
-        return favouriteService.deleteById(subProductId);
     }
 
     @DeleteMapping

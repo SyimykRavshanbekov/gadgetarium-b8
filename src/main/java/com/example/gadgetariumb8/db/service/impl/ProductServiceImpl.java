@@ -3,8 +3,8 @@ package com.example.gadgetariumb8.db.service.impl;
 import com.example.gadgetariumb8.db.dto.request.ProductRequest;
 import com.example.gadgetariumb8.db.dto.request.SubProductRequest;
 import com.example.gadgetariumb8.db.dto.response.PaginationResponse;
-import com.example.gadgetariumb8.db.dto.response.ProductsResponse;
 import com.example.gadgetariumb8.db.dto.response.ProductAdminResponse;
+import com.example.gadgetariumb8.db.dto.response.ProductsResponse;
 import com.example.gadgetariumb8.db.dto.response.SimpleResponse;
 import com.example.gadgetariumb8.db.exception.exceptions.BadRequestException;
 import com.example.gadgetariumb8.db.exception.exceptions.NotFoundException;
@@ -95,12 +95,12 @@ public class ProductServiceImpl implements ProductService {
         return PaginationResponse.<ProductsResponse>builder()
                 .elements(products)
                 .currentPage(page)
-                .totalPage(totalPage)
+                .totalPages(totalPage)
                 .build();
     }
 
     @Override
-    public PaginationResponse<ProductsResponse>  getNewProducts(int page, int pageSize) {
+    public PaginationResponse<ProductsResponse> getNewProducts(int page, int pageSize) {
         String sql = """
                        SELECT (select i.images from sub_product_images i where i.sub_product_id = sp.id limit 1) as image, sp.quantity as quantity, CONCAT(c.name, ' ', p.brand_id, ' ', p.name, ' ',characteristics,' ', sp.colour) as product_info, p.rating as rating, sp.price as price,
                        coalesce(CAST(sp.price - ((sp.price * d.percent) / 100) AS INTEGER),0) as discount
@@ -129,12 +129,12 @@ public class ProductServiceImpl implements ProductService {
         return PaginationResponse.<ProductsResponse>builder()
                 .elements(products)
                 .currentPage(page)
-                .totalPage(totalPage)
+                .totalPages(totalPage)
                 .build();
     }
 
     @Override
-    public PaginationResponse<ProductsResponse>  getRecommendedProducts(int page, int pageSize) {
+    public PaginationResponse<ProductsResponse> getRecommendedProducts(int page, int pageSize) {
         String sql = """
                        SELECT (select i.images from sub_product_images i where i.sub_product_id = sp.id limit 1) as image, sp.quantity as quantity, CONCAT(c.name, ' ', p.brand_id, ' ', p.name, ' ',characteristics,' ', sp.colour) as product_info, p.rating as rating, sp.price as price,
                        coalesce(CAST(sp.price - ((sp.price * d.percent) / 100) AS INTEGER),0) as discount
@@ -163,10 +163,9 @@ public class ProductServiceImpl implements ProductService {
         return PaginationResponse.<ProductsResponse>builder()
                 .elements(products)
                 .currentPage(page)
-                .totalPage(totalPage)
+                .totalPages(totalPage)
                 .build();
     }
-}
 
     public PaginationResponse<ProductAdminResponse> getAll(String keyWord, String status, LocalDate from, LocalDate before, String sortBy, int page, int pageSize) {
         String sql = """
