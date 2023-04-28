@@ -26,7 +26,6 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -89,6 +88,28 @@ public class ProductServiceImpl implements ProductService {
                     JOIN sub_product_characteristics spc ON sp.id = spc.sub_product_id
                 WHERE  p.discount_id is not null and characteristics_key like 'memory'
                        """;
+
+        String countSql = "SELECT COUNT(*) FROM (" + sql + ") as count_query";
+        int count = jdbcTemplate.queryForObject(countSql, Integer.class);
+        int totalPage = (int) Math.ceil((double) count / pageSize);
+
+        int offset = (page - 1) * pageSize;
+        sql = String.format(sql + "LIMIT %s OFFSET %s", pageSize, offset);
+        List<ProductsResponse> products = jdbcTemplate.query(sql, (resultSet, i) -> new ProductsResponse(
+                resultSet.getString("image"),
+                resultSet.getInt("quantity"),
+                resultSet.getString("product_info"),
+                resultSet.getDouble("rating"),
+                resultSet.getBigDecimal("price"),
+                resultSet.getInt("discount")
+        ));
+
+        return PaginationResponse.<ProductsResponse>builder()
+                .elements(products)
+                .currentPage(page)
+                .totalPages(totalPage)
+                .build();
+    }
 
     @Override
     public List<CompareProductResponse> compare() {
@@ -202,7 +223,7 @@ public class ProductServiceImpl implements ProductService {
                 %s
                 LEFT JOIN sub_product_characteristics ch ON ch.sub_product_id = s.id
                 %s JOIN discounts d ON d.id = p.discount_id
-                WHERE %s %s
+                WHERE %s %s 
                 %s
                 """;
         String sqlStatus = switch (status) {
