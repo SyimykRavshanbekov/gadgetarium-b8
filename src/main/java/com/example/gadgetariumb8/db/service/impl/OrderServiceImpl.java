@@ -55,8 +55,7 @@ public class OrderServiceImpl implements OrderService {
         }
         sql = String.format(sql, dateClause, keyWordCondition);
 
-        String countSql = "SELECT COUNT(*) FROM (" + sql + ") AS count_query";
-        int count = jdbcTemplate.queryForObject(countSql, params.toArray(), Integer.class);
+        int count = jdbcTemplate.queryForObject(customOrderRepository.countSql(sql), params.toArray(), Integer.class);
         int totalPage = (int) Math.ceil((double) count / pageSize);
 
         sql = sql + customOrderRepository.limitOffset();
