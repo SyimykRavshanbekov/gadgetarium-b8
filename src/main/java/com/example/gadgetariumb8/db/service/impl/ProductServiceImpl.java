@@ -222,7 +222,7 @@ public class ProductServiceImpl implements ProductService {
                 %s
                 LEFT JOIN sub_product_characteristics ch ON ch.sub_product_id = s.id
                 %s JOIN discounts d ON d.id = p.discount_id
-                WHERE %s %s
+                WHERE %s %s 
                 %s
                 """;
         String sqlStatus = switch (status) {
