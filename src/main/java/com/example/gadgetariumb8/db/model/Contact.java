@@ -9,7 +9,6 @@ import lombok.*;
 @Table(name = "contacts")
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class Contact {
     @Id
     @SequenceGenerator(name = "contact_gen", sequenceName = "contact_seq")

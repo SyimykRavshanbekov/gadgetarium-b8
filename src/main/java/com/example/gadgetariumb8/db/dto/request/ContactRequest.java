@@ -21,6 +21,5 @@ public record ContactRequest(
         @PhoneNumberValid(message = "Phone number should start with +996, consist of 13 characters and must be valid!")
         String phoneNumber,
         String message
-
 ) {
 }
