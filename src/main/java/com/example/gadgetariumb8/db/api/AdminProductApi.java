@@ -4,7 +4,9 @@ import com.example.gadgetariumb8.db.dto.request.ProductRequest;
 import com.example.gadgetariumb8.db.dto.response.PaginationResponse;
 import com.example.gadgetariumb8.db.dto.response.ProductAdminResponse;
 import com.example.gadgetariumb8.db.dto.response.SimpleResponse;
+import com.example.gadgetariumb8.db.dto.response.SubProductResponse;
 import com.example.gadgetariumb8.db.service.ProductService;
+import com.example.gadgetariumb8.db.service.SubProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -23,6 +25,7 @@ import java.time.LocalDate;
 @PreAuthorize("hasAuthority('ADMIN')")
 public class AdminProductApi {
     private final ProductService productService;
+    private final SubProductService subProductService;
 
     @Operation(summary = "To save the product.", description = "This method to save the product.")
     @PostMapping
@@ -40,5 +43,11 @@ public class AdminProductApi {
                                                            @RequestParam(required = false, defaultValue = "1") int page,
                                                            @RequestParam(required = false, defaultValue = "7") int pageSize) {
         return productService.getAll(keyWord, status, from, before, sortBy, page, pageSize);
+    }
+    @GetMapping("/last_views")
+    @Operation(summary = "Last viewed products ", description = "This method shows the last 7 items viewed")
+    @PreAuthorize("hasAuthority('USER')")
+    public PaginationResponse<SubProductResponse> findAllSubProductLastViews(@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "5") int pageSize){
+        return subProductService.lastViews(page, pageSize);
     }
 }

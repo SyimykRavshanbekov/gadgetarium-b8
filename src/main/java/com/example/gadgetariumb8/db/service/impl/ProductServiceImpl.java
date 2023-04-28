@@ -8,10 +8,7 @@ import com.example.gadgetariumb8.db.dto.response.ProductsResponse;
 import com.example.gadgetariumb8.db.dto.response.SimpleResponse;
 import com.example.gadgetariumb8.db.exception.exceptions.BadRequestException;
 import com.example.gadgetariumb8.db.exception.exceptions.NotFoundException;
-import com.example.gadgetariumb8.db.model.Brand;
-import com.example.gadgetariumb8.db.model.Product;
-import com.example.gadgetariumb8.db.model.SubCategory;
-import com.example.gadgetariumb8.db.model.SubProduct;
+import com.example.gadgetariumb8.db.model.*;
 import com.example.gadgetariumb8.db.repository.BrandRepository;
 import com.example.gadgetariumb8.db.repository.SubCategoryRepository;
 import com.example.gadgetariumb8.db.repository.SubProductRepository;
@@ -24,7 +21,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-
 @Service
 @RequiredArgsConstructor
 public class ProductServiceImpl implements ProductService {
@@ -32,7 +28,6 @@ public class ProductServiceImpl implements ProductService {
     private final BrandRepository brandRepository;
     private final SubProductRepository subProductRepository;
     private final JdbcTemplate jdbcTemplate;
-
     @Override
     public SimpleResponse saveProduct(ProductRequest productRequest) {
         SubCategory subCategory = subCategoryRepository.findById(productRequest.subCategoryId())
@@ -62,7 +57,6 @@ public class ProductServiceImpl implements ProductService {
         }
         return SimpleResponse.builder().httpStatus(HttpStatus.OK).message("Successfully saved!!").build();
     }
-
     @Override
     public PaginationResponse<ProductsResponse> getAllDiscountProducts(int page, int pageSize) {
         String sql = """
@@ -91,14 +85,12 @@ public class ProductServiceImpl implements ProductService {
                 resultSet.getBigDecimal("price"),
                 resultSet.getInt("discount")
         ));
-
         return PaginationResponse.<ProductsResponse>builder()
                 .elements(products)
                 .currentPage(page)
                 .totalPages(totalPage)
                 .build();
     }
-
     @Override
     public PaginationResponse<ProductsResponse> getNewProducts(int page, int pageSize) {
         String sql = """
@@ -115,7 +107,6 @@ public class ProductServiceImpl implements ProductService {
         String countSql = "SELECT COUNT(*) FROM (" + sql + ") as count_query";
         int count = jdbcTemplate.queryForObject(countSql, Integer.class);
         int totalPage = (int) Math.ceil((double) count / pageSize);
-
         int offset = (page - 1) * pageSize;
         sql = String.format(sql + "LIMIT %s OFFSET %s", pageSize, offset);
         List<ProductsResponse> products = jdbcTemplate.query(sql, (resultSet, i) -> new ProductsResponse(
@@ -132,7 +123,6 @@ public class ProductServiceImpl implements ProductService {
                 .totalPages(totalPage)
                 .build();
     }
-
     @Override
     public PaginationResponse<ProductsResponse> getRecommendedProducts(int page, int pageSize) {
         String sql = """
@@ -261,7 +251,6 @@ public class ProductServiceImpl implements ProductService {
                 resultSet.getInt("percent"),
                 resultSet.getBigDecimal("total_price")
         ));
-
         return PaginationResponse.<ProductAdminResponse>builder()
                 .foundProducts(count)
                 .elements(products)
