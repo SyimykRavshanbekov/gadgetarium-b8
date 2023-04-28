@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 public class ProductsResponse {
+    private Long subProductId;
     private String image;
     private int quantity;
     private String productInfo;

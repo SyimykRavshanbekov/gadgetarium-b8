@@ -17,17 +17,17 @@ public class BannerServiceImpl implements BannerService {
 
     @Override
     public SimpleResponse saveBanners(BannerRequest request) {
-        if (bannerRepository.findAll().size() > 6) {
-            for (String banner : request.getBannerList()) {
+        for (String banner : request.getBannerList()) {
+            if (bannerRepository.findAll().size() < 6) {
                 if (!banner.isBlank()) {
                     bannerRepository.save(new Banner(banner));
                 } else {
                     throw new BadRequestException("One of the elements is empty!");
                 }
+            } else {
+                throw new BadRequestException("Quantity of banners should not exceed 6!");
             }
-            return  SimpleResponse.builder().message("The banner is well preserved!").httpStatus(HttpStatus.OK).build();
-        } else {
-            throw new BadRequestException("Quantity of banners should not exceed 6!");
         }
+        return SimpleResponse.builder().message("The banner is well preserved!").httpStatus(HttpStatus.OK).build();
     }
 }

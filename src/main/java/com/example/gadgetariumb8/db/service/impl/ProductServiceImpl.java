@@ -36,16 +36,17 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public SimpleResponse saveProduct(ProductRequest productRequest) {
         SubCategory subCategory = subCategoryRepository.findById(productRequest.subCategoryId())
-                .orElseThrow(() -> new NotFoundException("Sub category with id:" + productRequest.subCategoryId() + " not found!!"));
+                .orElseThrow(() -> new NotFoundException("Sub category with id:" + productRequest.subCategoryId() + " not found!"));
 
         Brand brand = brandRepository.findById(productRequest.brandId())
-                .orElseThrow(() -> new NotFoundException("Brand with id:" + productRequest.brandId() + " not found!!!"));
+                .orElseThrow(() -> new NotFoundException("Brand with id:" + productRequest.brandId() + " not found!"));
         Product product = new Product();
         product.setSubCategory(subCategory);
         product.setBrand(brand);
         product.setGuarantee(productRequest.guarantee());
         product.setName(productRequest.name());
         product.setDateOfIssue(productRequest.dateOfIssue());
+        product.setCreatedAt(LocalDate.now());
         product.setVideo(productRequest.video());
         product.setPDF(productRequest.PDF());
         product.setDescription(productRequest.description());
@@ -66,16 +67,18 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public PaginationResponse<ProductsResponse> getAllDiscountProducts(int page, int pageSize) {
         String sql = """
-                       SELECT (select i.images from sub_product_images i where i.sub_product_id = sp.id limit 1) as image, sp.quantity as quantity, CONCAT(c.name, ' ', p.brand_id, ' ', p.name, ' ',characteristics,' ', sp.colour) as product_info, p.rating as rating, sp.price as price,
-                        CAST(sp.price - ((sp.price * d.percent) / 100) AS INTEGER) as discount
+                SELECT p.id as subProductId, (select i.images from sub_product_images i where i.sub_product_id = sp.id limit 1) as image,
+                 sp.quantity as quantity, CONCAT(c.name, ' ', p.brand_id, ' ', p.name, ' ',
+                  CASE WHEN spc.characteristics_key like 'память' THEN spc.characteristics END,' ',
+                  sp.colour) as product_info, p.rating as rating, sp.price as price,
+                 CAST(sp.price - ((sp.price * d.percent) / 100) AS INTEGER) as discount
                 FROM products p
                     JOIN sub_products sp ON p.id = sp.product_id
                     JOIN discounts d ON p.discount_id = d.id
                     JOIN sub_categories sc ON p.sub_category_id = sc.id
                     JOIN categories c ON sc.category_id = c.id
                     JOIN sub_product_characteristics spc ON sp.id = spc.sub_product_id
-                WHERE  p.discount_id is not null and characteristics_key like 'memory'
-                       """;
+                """;
 
         String countSql = "SELECT COUNT(*) FROM (" + sql + ") as count_query";
         int count = jdbcTemplate.queryForObject(countSql, Integer.class);
@@ -84,6 +87,7 @@ public class ProductServiceImpl implements ProductService {
         int offset = (page - 1) * pageSize;
         sql = String.format(sql + "LIMIT %s OFFSET %s", pageSize, offset);
         List<ProductsResponse> products = jdbcTemplate.query(sql, (resultSet, i) -> new ProductsResponse(
+                resultSet.getLong("subProductId"),
                 resultSet.getString("image"),
                 resultSet.getInt("quantity"),
                 resultSet.getString("product_info"),
@@ -93,25 +97,29 @@ public class ProductServiceImpl implements ProductService {
         ));
 
         return PaginationResponse.<ProductsResponse>builder()
+                .foundProducts(count)
                 .elements(products)
                 .currentPage(page)
-                .totalPage(totalPage)
+                .totalPages(totalPage)
                 .build();
     }
 
     @Override
     public PaginationResponse<ProductsResponse>  getNewProducts(int page, int pageSize) {
         String sql = """
-                       SELECT (select i.images from sub_product_images i where i.sub_product_id = sp.id limit 1) as image, sp.quantity as quantity, CONCAT(c.name, ' ', p.brand_id, ' ', p.name, ' ',characteristics,' ', sp.colour) as product_info, p.rating as rating, sp.price as price,
-                       coalesce(CAST(sp.price - ((sp.price * d.percent) / 100) AS INTEGER),0) as discount
+                SELECT sp.id as subProductId, (select i.images from sub_product_images i where i.sub_product_id = sp.id limit 1) as image,
+                 sp.quantity as quantity, CONCAT(c.name, ' ', p.brand_id, ' ', p.name, ' ',CASE WHEN spc.characteristics_key like 'память'
+                 THEN spc.characteristics END,' ', sp.colour) as product_info,
+                 p.rating as rating, sp.price as price,
+                 coalesce(CAST(sp.price - ((sp.price * d.percent) / 100) AS INTEGER),0) as discount
                 FROM products p
                     JOIN sub_products sp ON p.id = sp.product_id
                     LEFT JOIN discounts d ON p.discount_id = d.id
                     JOIN sub_categories sc ON p.sub_category_id = sc.id
                     JOIN categories c ON sc.category_id = c.id
                     JOIN sub_product_characteristics spc ON sp.id = spc.sub_product_id
-                WHERE    p.created_at BETWEEN (CURRENT_DATE - INTERVAL '1 week') AND CURRENT_DATE and characteristics_key like 'memory'
-                       """;
+                WHERE p.created_at BETWEEN (CURRENT_DATE - INTERVAL '1 week') AND CURRENT_DATE
+                """;
         String countSql = "SELECT COUNT(*) FROM (" + sql + ") as count_query";
         int count = jdbcTemplate.queryForObject(countSql, Integer.class);
         int totalPage = (int) Math.ceil((double) count / pageSize);
@@ -119,6 +127,7 @@ public class ProductServiceImpl implements ProductService {
         int offset = (page - 1) * pageSize;
         sql = String.format(sql + "LIMIT %s OFFSET %s", pageSize, offset);
         List<ProductsResponse> products = jdbcTemplate.query(sql, (resultSet, i) -> new ProductsResponse(
+                resultSet.getLong("subProductId"),
                 resultSet.getString("image"),
                 resultSet.getInt("quantity"),
                 resultSet.getString("product_info"),
@@ -127,25 +136,28 @@ public class ProductServiceImpl implements ProductService {
                 resultSet.getInt("discount")
         ));
         return PaginationResponse.<ProductsResponse>builder()
+                .foundProducts(count)
                 .elements(products)
                 .currentPage(page)
-                .totalPage(totalPage)
+                .totalPages(totalPage)
                 .build();
     }
 
     @Override
     public PaginationResponse<ProductsResponse>  getRecommendedProducts(int page, int pageSize) {
         String sql = """
-                       SELECT (select i.images from sub_product_images i where i.sub_product_id = sp.id limit 1) as image, sp.quantity as quantity, CONCAT(c.name, ' ', p.brand_id, ' ', p.name, ' ',characteristics,' ', sp.colour) as product_info, p.rating as rating, sp.price as price,
-                       coalesce(CAST(sp.price - ((sp.price * d.percent) / 100) AS INTEGER),0) as discount
+                SELECT (select i.images from sub_product_images i where i.sub_product_id = sp.id limit 1) as image,
+                sp.quantity as quantity, CONCAT(c.name, ' ', p.brand_id, ' ', p.name, ' ',CASE WHEN spc.characteristics_key  like 'память'
+                  THEN spc.characteristics END,' ', sp.colour) as product_info, p.rating as rating, sp.price as price,
+                coalesce(CAST(sp.price - ((sp.price * d.percent) / 100) AS INTEGER),0) as discount
                 FROM products p
                     JOIN sub_products sp ON p.id = sp.product_id
                     LEFT JOIN discounts d ON p.discount_id = d.id
                     JOIN sub_categories sc ON p.sub_category_id = sc.id
                     JOIN categories c ON sc.category_id = c.id
                     JOIN sub_product_characteristics spc ON sp.id = spc.sub_product_id
-                WHERE    p.rating > 4  and characteristics_key like 'memory'
-                       """;
+                WHERE    p.rating > 4
+                """;
         String countSql = "SELECT COUNT(*) FROM (" + sql + ") as count_query";
         int count = jdbcTemplate.queryForObject(countSql, Integer.class);
         int totalPage = (int) Math.ceil((double) count / pageSize);
@@ -153,6 +165,7 @@ public class ProductServiceImpl implements ProductService {
         int offset = (page - 1) * pageSize;
         sql = String.format(sql + "LIMIT %s OFFSET %s", pageSize, offset);
         List<ProductsResponse> products = jdbcTemplate.query(sql, (resultSet, i) -> new ProductsResponse(
+                resultSet.getLong("subProductId"),
                 resultSet.getString("image"),
                 resultSet.getInt("quantity"),
                 resultSet.getString("product_info"),
@@ -161,12 +174,12 @@ public class ProductServiceImpl implements ProductService {
                 resultSet.getInt("discount")
         ));
         return PaginationResponse.<ProductsResponse>builder()
+                .foundProducts(count)
                 .elements(products)
                 .currentPage(page)
-                .totalPage(totalPage)
+                .totalPages(totalPage)
                 .build();
     }
-}
 
     public PaginationResponse<ProductAdminResponse> getAll(String keyWord, String status, LocalDate from, LocalDate before, String sortBy, int page, int pageSize) {
         String sql = """
@@ -174,14 +187,14 @@ public class ProductServiceImpl implements ProductService {
                     SELECT i.images FROM sub_product_images i WHERE i.sub_product_id = s.id LIMIT 1
                 ) AS image, s.item_number, p.name, p.created_at, s.quantity, s.price,
                 COALESCE(d.percent, 0) AS percent,
-                CASE WHEN d.percent IS NOT NULL THEN ROUND(s.price - (s.price * d.percent / 100)) 
+                CASE WHEN d.percent IS NOT NULL THEN ROUND(s.price - (s.price * d.percent / 100))
                 ELSE s.price END AS total_price
                 FROM sub_products s
                 JOIN products p ON p.id = s.product_id
                 %s
                 LEFT JOIN sub_product_characteristics ch ON ch.sub_product_id = s.id
                 %s JOIN discounts d ON d.id = p.discount_id
-                WHERE %s %s 
+                WHERE %s %s
                 %s
                 """;
         String sqlStatus = switch (status) {
@@ -222,7 +235,7 @@ public class ProductServiceImpl implements ProductService {
             params.add("%" + keyWord + "%");
 
             keywordCondition = """
-                    p.name iLIKE ? OR CASt(s.item_number AS TEXT) iLIKE ?
+                    p.name iLIKE ? OR CAST(s.item_number AS TEXT) iLIKE ?
                     OR p.description iLIKE ? OR CAST(s.price AS TEXT) iLIKE ?
                     OR ch.characteristics iLIKE ?
                     """;

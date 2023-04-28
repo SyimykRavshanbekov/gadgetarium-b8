@@ -59,7 +59,7 @@ public class GlobalExceptionHandler {
 
 
     @ExceptionHandler(BadCredentialException.class)
-    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    @ResponseStatus(value = HttpStatus.NOT_FOUND)
     public ExceptionResponse badCredential(BadCredentialException exception) {
         return ExceptionResponse.builder()
                 .httpStatus(HttpStatus.BAD_REQUEST)
