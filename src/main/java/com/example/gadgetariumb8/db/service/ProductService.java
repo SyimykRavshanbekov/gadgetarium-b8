@@ -1,12 +1,9 @@
 package com.example.gadgetariumb8.db.service;
 import com.example.gadgetariumb8.db.dto.request.ProductRequest;
-import com.example.gadgetariumb8.db.dto.response.PaginationResponse;
-import com.example.gadgetariumb8.db.dto.response.ProductsResponse;
-import com.example.gadgetariumb8.db.dto.response.ProductAdminResponse;
-import com.example.gadgetariumb8.db.dto.response.SubProductResponse;
-import com.example.gadgetariumb8.db.dto.response.SimpleResponse;
+import com.example.gadgetariumb8.db.dto.response.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public interface ProductService {
 
