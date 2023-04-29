@@ -1,13 +1,18 @@
 package com.example.gadgetariumb8.db.api;
 
+import com.example.gadgetariumb8.db.dto.request.ProductUserRequest;
 import com.example.gadgetariumb8.db.dto.response.PaginationResponse;
+import com.example.gadgetariumb8.db.dto.response.ProductUserResponse;
 import com.example.gadgetariumb8.db.dto.response.ProductsResponse;
 import com.example.gadgetariumb8.db.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.security.PermitAll;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
 
 @RestController
 @RequestMapping("/api/products")
@@ -17,10 +22,10 @@ import org.springframework.web.bind.annotation.*;
 public class ProductApi {
     private final ProductService productService;
 
-    @GetMapping()
-    @PreAuthorize("permitAll()")
+    @GetMapping("/get-by-id")
+    @PreAuthorize("hasAuthority('USER')")
     @Operation(summary = "To get by product id the product.", description = "This method to get by product id  the product.")
-    public ProductUserResponse getByProduct(@RequestBody ProductUserRequest productUserRequest) {
+    public ProductUserResponse getByProductId(@RequestBody ProductUserRequest productUserRequest) {
         return productService.getProductById(productUserRequest);
     }
 

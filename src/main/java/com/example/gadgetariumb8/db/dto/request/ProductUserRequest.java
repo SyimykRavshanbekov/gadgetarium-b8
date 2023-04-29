@@ -1,8 +1,14 @@
 package com.example.gadgetariumb8.db.dto.request;
 
-public record ProductUserRequest(
-        Long productId,
-        String color,
-        int quantity
-) {
+import jakarta.validation.constraints.Size;
+import lombok.*;
+
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+public class ProductUserRequest {
+    private Long productId;
+    private String color;
+    private int quantity;
 }

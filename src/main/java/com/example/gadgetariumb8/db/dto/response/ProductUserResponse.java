@@ -1,29 +1,35 @@
 package com.example.gadgetariumb8.db.dto.response;
 
-import lombok.Builder;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
-@Builder
-public record ProductUserResponse(
-        String logo,
-        List<String> images,
-        String name,
-        int quantity,
-        String itemNumber,
-        double rating,
-        int countOfReviews,
-        String color,
-        int percentOfDiscount,
-        BigDecimal price,
-        BigDecimal oldPrice,
-        LocalDate dateOfIssue,
-        Map<String, String> characteristics,
-        String PDF,
-        String description,
-        String video
-) {
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class ProductUserResponse {
+    private String logo;
+    private List<String> images;
+    private String name;
+    private int quantity;
+    private String itemNumber;
+    private double rating;
+    private int countOfReviews;
+    private String color;
+    private int percentOfDiscount;
+    private BigDecimal price;
+    private BigDecimal oldPrice;
+    private LocalDate dateOfIssue;
+    private Map<String, String> characteristics;
+    private String PDF;
+    private String description;
+    private String video;
+    private List<ReviewsResponse> reviews;
 }
