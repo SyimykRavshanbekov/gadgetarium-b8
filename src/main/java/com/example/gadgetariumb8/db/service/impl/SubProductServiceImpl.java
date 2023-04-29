@@ -59,16 +59,16 @@ public class SubProductServiceImpl implements SubProductService {
     public PaginationResponse<SubProductBasketResponse> getAllBasket(int page, int pageSize) {
         String sql = """
                 SELECT (SELECT spi FROM sub_product_images spi WHERE spi.sub_product_id = sp.id LIMIT 1) AS img,
-                       p.name                                                                            AS names,
-                       p.description                                                                     AS description,
-                       ub.basket                                                                         AS quantity,
-                       sp.item_number                                                                    AS itemNumber,
-                       sp.price                                                                          AS price,
-                       p.rating                                                                          as rating,
+                       p.name AS names,
+                       p.description AS description,
+                       ub.basket AS quantity,
+                       sp.item_number AS itemNumber,
+                       sp.price AS price,
+                       p.rating as rating,
                        (SELECT count(r2)
                         FROM products psd
                                  JOIN reviews r2 on psd.id = r2.product_id
-                        where psd.id = p.id)                                                             as numberOfReviews
+                        where psd.id = p.id) as numberOfReviews
                 FROM sub_products sp
                          JOIN products p ON p.id = sp.product_id
                          JOIN user_basket ub ON sp.id = ub.basket_key
