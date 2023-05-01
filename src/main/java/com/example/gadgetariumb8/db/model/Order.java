@@ -29,8 +29,10 @@ public class Order {
     private LocalDate date;
     private int quantity;
     private BigDecimal totalPrice;
+    @Enumerated(EnumType.STRING)
     private Status status;
     private boolean deliveryType;
+    @Enumerated(EnumType.STRING)
     private PaymentType paymentType;
     private String orderNumber;
 

@@ -64,11 +64,11 @@ values (1,'Blue',120000,1,'123',1),
        (5,'White',3236000,1,'345',5);
 
 insert into orders (id,date,delivery_type,order_number,payment_type,quantity,status,total_price,customer_id,user_id)
-values (1,'2023-01-01',true,'1',1,1,1,155000,1,1),
-       (2,'2023-01-01',true,'1',1,1,1,999000,1,1),
-       (3,'2023-01-01',false,'1',1,1,1,122000,1,1),
-       (4,'2023-01-01',true,'1',1,1,1,512000,1,1),
-       (5,'2023-01-01',false,'1',1,1,1,355000,1,1);
+values (1,'2023-01-01',true,'1','BY_CARD_ONLINE',1,'PENDING',55000,1,1),
+       (2,'2023-01-01',true,'1','BY_CARD_OFFLINE',1,'DELIVERED',55000,1,1),
+       (3,'2023-01-01',true,'1','BY_CARD_ONLINE',1,'CANCEL',55000,1,1),
+       (4,'2023-01-01',true,'1','BY_CASH',1,'COURIER_ON_THE_WAY',55000,1,1),
+       (5,'2023-01-01',true,'1','BY_CARD_OFFLINE',1,'DELIVERED',55000,1,1);
 
 insert into malling_list_subscribers (id,user_email)
 values (1,'azimbek1@gmail.com'),
@@ -99,11 +99,11 @@ values (1,'https://yt3.googleusercontent.com/ytc/AGIKgqNoNRD8Y7-ydomwccOXCRsrtM3
        (5,'https://m.media-amazon.com/images/I/71TPda7cwUL._SL1500_.jpg');
 
 insert into sub_product_characteristics(sub_product_id,characteristics,characteristics_key)
-values (1,'characteristics',1),
-       (2,'characteristics',1),
-       (3,'characteristics',1),
-       (4,'characteristics',1),
-       (5,'characteristics',1);
+values (1,64,'память'),
+       (2,128,'память'),
+       (3,256,'память'),
+       (4,34,'память'),
+       (5,12,'память');
 
 insert into sub_product_images (sub_product_id,images)
 values (1,'https://login.kg/image/cache/catalog/new/Phones/Apple/iPhone%2014/Pro-Pro%20Max/1-500x500.jpg'),

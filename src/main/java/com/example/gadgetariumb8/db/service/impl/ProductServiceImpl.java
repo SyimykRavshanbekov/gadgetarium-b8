@@ -71,13 +71,11 @@ public class ProductServiceImpl implements ProductService {
                                                      String colour, String memory, String RAM, String watch_material,
                                                      String gender, String sortBy, int pageSize) {
 
-        // Получить аутентифицированного пользователя
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String login = authentication.getName();
         User user = userRepository.findUserByEmail(login).orElseThrow(() -> new NotFoundException("User not found!"));
         List<SubProduct> usersFavourites = user.getFavorites();
 
-        //Получить все подкатегории, которых ID категории равен categoryId
         List<SubCategory> subCategories = jdbcTemplate.query("SELECT sub.id,sub.name,sub.category_id FROM sub_categories sub WHERE sub.category_id=?",
                 new Object[]{categoryId},
                 new BeanPropertyRowMapper<>(SubCategory.class));
@@ -102,7 +100,6 @@ public class ProductServiceImpl implements ProductService {
 
         Map<String, Long> quantityColours = new HashMap<>();
 
-        // Проверка наличия подкатегории, если нет, получить продукты по категориям
         if (subCategoryId.isEmpty()) {
             for (SubCategory subCategory : subCategories) {
                 List<CatalogProductsResponse> subProducts = jdbcTemplate.query(sql,
@@ -111,8 +108,6 @@ public class ProductServiceImpl implements ProductService {
                 catalogProductsResponse.addAll(subProducts);
             }
 
-            //Ставить лайки всем полученным товарам, которые были в избранном у пользователя,
-            // и подсчитывать товары определенного цвета
             return getCatalogResponse(usersFavourites, catalogProductsResponse, quantityColours);
         }
 
@@ -126,9 +121,57 @@ public class ProductServiceImpl implements ProductService {
                 new Object[]{subCategory.getId(), pageSize},
                 (resultSet, i) -> rowMapper(resultSet)));
 
-        // Ставить лайки всем полученным товарам, которые были в избранном у пользователя, и подсчитывать товары определенного цвета
         return getCatalogResponse(usersFavourites, catalogProductsResponse, quantityColours);
     }
+    
+    @Override
+    public PaginationResponse<ProductsResponse> getNewProducts(int page, int pageSize) {
+        String sql = """
+                       SELECT (select i.images from sub_product_images i where i.sub_product_id = sp.id limit 1) as image, sp.quantity as quantity, CONCAT(c.name, ' ', p.brand_id, ' ', p.name, ' ',characteristics,' ', sp.colour) as product_info, p.rating as rating, sp.price as price,
+                       coalesce(CAST(sp.price - ((sp.price * d.percent) / 100) AS INTEGER),0) as discount
+                FROM products p
+                    JOIN sub_products sp ON p.id = sp.product_id
+                    LEFT JOIN discounts d ON p.discount_id = d.id
+                    JOIN sub_categories sc ON p.sub_category_id = sc.id
+                    JOIN categories c ON sc.category_id = c.id
+                    JOIN sub_product_characteristics spc ON sp.id = spc.sub_product_id
+                WHERE    p.created_at BETWEEN (CURRENT_DATE - INTERVAL '1 week') AND CURRENT_DATE and characteristics_key like 'memory'
+                       """;
+        String countSql = "SELECT COUNT(*) FROM (" + sql + ") as count_query";
+        int count = jdbcTemplate.queryForObject(countSql, Integer.class);
+        int totalPage = (int) Math.ceil((double) count / pageSize);
+        int offset = (page - 1) * pageSize;
+        sql = String.format(sql + "LIMIT %s OFFSET %s", pageSize, offset);
+        List<ProductsResponse> products = jdbcTemplate.query(sql, (resultSet, i) -> new ProductsResponse(
+                resultSet.getString("image"),
+                resultSet.getInt("quantity"),
+                resultSet.getString("product_info"),
+                resultSet.getDouble("rating"),
+                resultSet.getBigDecimal("price"),
+                resultSet.getInt("discount")
+        ));
+        return PaginationResponse.<ProductsResponse>builder()
+                .elements(products)
+                .currentPage(page)
+                .totalPages(totalPage)
+                .build();
+    }
+    @Override
+    public PaginationResponse<ProductsResponse> getRecommendedProducts(int page, int pageSize) {
+        String sql = """
+                       SELECT (select i.images from sub_product_images i where i.sub_product_id = sp.id limit 1) as image, sp.quantity as quantity, CONCAT(c.name, ' ', p.brand_id, ' ', p.name, ' ',characteristics,' ', sp.colour) as product_info, p.rating as rating, sp.price as price,
+                       coalesce(CAST(sp.price - ((sp.price * d.percent) / 100) AS INTEGER),0) as discount
+                FROM products p
+                    JOIN sub_products sp ON p.id = sp.product_id
+                    LEFT JOIN discounts d ON p.discount_id = d.id
+                    JOIN sub_categories sc ON p.sub_category_id = sc.id
+                    JOIN categories c ON sc.category_id = c.id
+                    JOIN sub_product_characteristics spc ON sp.id = spc.sub_product_id
+                WHERE    p.rating > 4  and characteristics_key like 'memory'
+                       """;
+        String countSql = "SELECT COUNT(*) FROM (" + sql + ") as count_query";
+        int count = jdbcTemplate.queryForObject(countSql, Integer.class);
+        int totalPage = (int) Math.ceil((double) count / pageSize);
 
     private CatalogResponse getCatalogResponse(List<SubProduct> usersFavourites, List<CatalogProductsResponse> catalogProductsResponse, Map<String, Long> quantityColours) {
         for (CatalogProductsResponse productsResponse : catalogProductsResponse) {
@@ -153,23 +196,19 @@ public class ProductServiceImpl implements ProductService {
     }
 
     private String filteringAndSorting(String sql, String brand, String priceFrom, String priceTo, String colour, String memory, String RAM, String watch_material, String gender, String sortBy) {
-        // Фильтрация по бренду
         String joiningForFilterByBrand = "";
         String conditionForFilterByBrand = "";
         if (brand != null) {
             joiningForFilterByBrand = "LEFT JOIN brands b on prod.brand_id = b.id";
             conditionForFilterByBrand = String.format("AND b.name = '%s'", brand);
         }
-        // Фильтрация по цене
         String filterByPrice = String.format("AND sub.price BETWEEN %s AND %s", priceFrom, priceTo);
 
-        //Фильтрация по цвету
         String filterByColour = "";
         if (colour != null) {
             filterByColour = String.format("AND sub.colour='%s'", colour);
         }
 
-        // Фильтрация по характеристикам
         String conditionForFilterByMemory = "";
         String conditionForFilterByRAM = "";
         String conditionForFilterByMaterial = "";
@@ -187,7 +226,6 @@ public class ProductServiceImpl implements ProductService {
             conditionForFilterByGender = String.format("AND spc.characteristics='%s' AND spc.characteristics_key='Пол'", gender);
         }
 
-        // Сортировка по некоторым критериям
         String orderBy = "";
         String joinTypeOfDiscount = "LEFT";
         if (sortBy != null) {
