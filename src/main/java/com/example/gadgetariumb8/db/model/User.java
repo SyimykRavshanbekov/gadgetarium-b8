@@ -5,6 +5,9 @@ import lombok.*;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
+
+import java.util.ArrayList;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -34,12 +37,19 @@ public class User {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "favorites_id"))
     private List<SubProduct> favorites;
+    public void addFavourites(SubProduct subProduct){
+        if(favorites==null){
+            favorites = new ArrayList<>();
+        }else {
+            favorites.add(subProduct);
+        }
+    }
 
     @ManyToMany(cascade = ALL)
     @JoinTable(name = "users_last_views",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "last_views_id"))
-    private List<Product> lastViews;
+    private List<SubProduct> lastViews;
 
     @ManyToMany(cascade = ALL)
     @JoinTable(name = "users_comparisons",
@@ -58,4 +68,5 @@ public class User {
     @OneToOne(cascade = ALL, orphanRemoval = true)
     @JoinColumn(name = "user_info_id")
     private UserInfo userInfo;
+    private BigDecimal bigDecimal;
 }
