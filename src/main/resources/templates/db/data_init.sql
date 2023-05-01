@@ -51,8 +51,8 @@ insert into products (id,pdf,created_at,
                       rating,video,brand_id,discount_id,
                       sub_category_id)
 values (1,'pdf link','2023-04-01','2020-01-01','Good product',12,'IPHONE 12',5,'https://youtu.be/Mla7Y-iQSq0',1,1,1),
-       (2,'pdf link','2023-02-15','2019-01-01','Good product',12,'Asus',4.5,'https://youtu.be/MZavnAdb-_s',4,2,3),
-       (3,'pdf link','2023-01-29','2021-01-01','Good product',12,'Apple Watch',3,'https://youtu.be/mLwVeGK0ViA',1,1,1),
+       (2,'pdf link','2023-02-15','2019-01-01','Good product',12,'Vivobook S 14 Flip OLED',4.5,'https://youtu.be/MZavnAdb-_s',4,2,3),
+       (3,'pdf link','2023-01-29','2021-01-01','Good product',12,'Smart Watch',3,'https://youtu.be/mLwVeGK0ViA',1,1,1),
        (4,'pdf link','2022-12-11','2022-01-01','Good product',12,'IPHONE 14 PRO MAX',5,'https://youtu.be/Mla7Y-iQSq0',1,1,1),
        (5,'pdf link','2023-03-19','2018-01-01','Good product',12,'Mac Book',1,'https://youtu.be/Hw7iB-zkYrk',1,1,1);
 
@@ -67,15 +67,13 @@ values (1,'Blue',120000,1,'123',1),
        (8,'Purple',55000,1,'432',4),
        (9,'Blue',55000,1,'432',4),
        (10,'White',3236000,1,'345',5);
-       (11,'Red',3236000,1,'345',5);
-       (12,'Purple',3236000,1,'345',5);
 
 insert into orders (id,date,delivery_type,order_number,payment_type,quantity,status,total_price,customer_id,user_id)
 values (1,'2023-04-11',true,'123',1,1,1,155000,1,1),
        (2,'2023-03-23',true,'321',1,1,1,999000,1,1),
        (3,'2023-01-08',false,'213',1,1,1,122000,1,1),
-       (4,'2023-12-15',true,'234',1,1,1,512000,1,1),
-       (5,'2022-11-10',false,'422',1,1,1,355000,1,1);
+       (4,'2023-02-15',true,'234',1,1,1,512000,1,1),
+       (5,'2022-09-10',false,'422',1,1,1,355000,1,1);
 
 insert into malling_list_subscribers (id,user_email)
 values (1,'azimbek1@gmail.com'),
@@ -126,10 +124,10 @@ values (1,'256GB','память'),
        (3,'16','RAM'),
        (4,'16','RAM'),
        (5,'16','RAM'),
-       (1,'7200 mA/h','емкость аккумулятора(mA/h)');
-       (2,'7200 mA/h','емкость аккумулятора(mA/h)');
-       (3,'7200 mA/h','емкость аккумулятора(mA/h)');
-       (4,'7200 mA/h','емкость аккумулятора(mA/h)');
+       (1,'7200 mA/h','емкость аккумулятора(mA/h)'),
+       (2,'7200 mA/h','емкость аккумулятора(mA/h)'),
+       (3,'7200 mA/h','емкость аккумулятора(mA/h)'),
+       (4,'7200 mA/h','емкость аккумулятора(mA/h)'),
        (5,'7200 mA/h','емкость аккумулятора(mA/h)');
 
 insert into sub_product_images (sub_product_id,images)
@@ -146,9 +144,9 @@ values (1,'https://login.kg/image/cache/catalog/new/Phones/Apple/iPhone%2014/Pro
        (4,'https://login.kg/image/cache/catalog/new/Phones/Apple/iPhone%2014/Pro-Pro%20Max/1-500x500.jpg'),
        (4,'https://login.kg/image/cache/catalog/new/Phones/Apple/iPhone%2014/Pro-Pro%20Max/1-500x500.jpg'),
        (4,'https://login.kg/image/cache/catalog/new/Phones/Apple/iPhone%2014/Pro-Pro%20Max/1-500x500.jpg'),
-       (5,'https://m.media-amazon.com/images/I/71TPda7cwUL._SL1500_.jpg');
-       (5,'https://m.media-amazon.com/images/I/71TPda7cwUL._SL1500_.jpg');
-       (5,'https://m.media-amazon.com/images/I/71TPda7cwUL._SL1500_.jpg');
+       (5,'https://m.media-amazon.com/images/I/71TPda7cwUL._SL1500_.jpg'),
+       (5,'https://m.media-amazon.com/images/I/71TPda7cwUL._SL1500_.jpg'),
+       (5,'https://m.media-amazon.com/images/I/71TPda7cwUL._SL1500_.jpg'),
        (5,'https://m.media-amazon.com/images/I/71TPda7cwUL._SL1500_.jpg');
 
 insert into user_basket (user_id,basket,basket_key)
