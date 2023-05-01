@@ -284,7 +284,6 @@ public class ProductServiceImpl implements ProductService {
                        ((sp.price - (sp.price * d.percent / 100)) *  ?  ) as price,
                        sp.price as old_price,
                        p.date_of_issue  as date_of_issue,
-                       p.pdf as pdf,
                        p.description as description,
                        p.video as video_link
                 from products p
@@ -308,7 +307,6 @@ public class ProductServiceImpl implements ProductService {
                     productUserResponse.setPrice(resulSet.getBigDecimal("price"));
                     productUserResponse.setOldPrice(resulSet.getBigDecimal("old_price"));
                     productUserResponse.setDateOfIssue(resulSet.getDate("date_of_issue").toLocalDate());
-                    productUserResponse.setPDF(resulSet.getString("pdf"));
                     productUserResponse.setDescription(resulSet.getString("description"));
                     productUserResponse.setVideo(resulSet.getString("video_link"));
                     return productUserResponse;
@@ -318,6 +316,11 @@ public class ProductServiceImpl implements ProductService {
                 , productUserRequest.getProductId()
                 , productUserRequest.getColor()
         );
+        String sqlColours= """
+                select sp.colour as colours from sub_products sp where sp.product_id=?
+                """;
+        List<String> colours = jdbcTemplate.query(sqlColours, (resultSet, i) -> resultSet.getString("colours"), productUserRequest.getProductId());
+        productUserResponse.setColours(colours);
         String sql2 = """
                  select spc.characteristics_key as characteristics_key
                  , spc.characteristics as characteristics
@@ -335,7 +338,7 @@ public class ProductServiceImpl implements ProductService {
                 select spi.images as images
                 from sub_product_images spi
                          join sub_products sp on sp.id = spi.sub_product_id
-                         where sp.product_id = ?
+                         where sp.product_id = ? 
                 """;
         List<String> images = jdbcTemplate.query(sql3, (resultSet, i) ->
                 resultSet.getString("images"), productUserRequest.getProductId());
@@ -348,7 +351,8 @@ public class ProductServiceImpl implements ProductService {
                         r.commentary as commentary,
                         r.answer as answer
                 from reviews r
-                         join users u on u.id = r.user_id where r.product_id= ?              
+                         join users u on u.id = r.user_id where r.product_id= ?
+                         ORDER BY r.created_at_data DESC LIMIT ?            
                 """;
         List<ReviewsResponse> reviewsResponses = jdbcTemplate.query(sql4, (resultSet, i) -> ReviewsResponse.builder()
                         .image(resultSet.getString("image"))
@@ -357,7 +361,8 @@ public class ProductServiceImpl implements ProductService {
                         .grade(resultSet.getInt("grade"))
                         .commentary(resultSet.getString("commentary"))
                         .answer(resultSet.getString("answer")).build(),
-                productUserRequest.getProductId()
+                productUserRequest.getProductId(),
+                productUserRequest.getPage()
         );
         productUserResponse.setReviews(reviewsResponses);
         return productUserResponse;

@@ -17,6 +17,7 @@ import java.util.Map;
 public class ProductUserResponse {
     private String logo;
     private List<String> images;
+    private List<String>colours;
     private String name;
     private int quantity;
     private String itemNumber;
@@ -28,7 +29,6 @@ public class ProductUserResponse {
     private BigDecimal oldPrice;
     private LocalDate dateOfIssue;
     private Map<String, String> characteristics;
-    private String PDF;
     private String description;
     private String video;
     private List<ReviewsResponse> reviews;
