@@ -38,13 +38,13 @@ public class InfographicServiceImpl implements InfographicService {
                 FROM orders o;
                 """;
         return jdbcTemplate.query(sql, (resulSet, i) -> new InfographicsResponse(
-                resulSet.getBigDecimal("redeemed_for_the_amount"),
-                resulSet.getInt("count_redeemed"),
-                resulSet.getBigDecimal("ordered_for_the_amount"),
-                resulSet.getInt("count_ordered"),
-                resulSet.getBigDecimal("current_period"),
-                resulSet.getBigDecimal("previous_period")
-        ),
+                        resulSet.getBigDecimal("redeemed_for_the_amount"),
+                        resulSet.getInt("count_redeemed"),
+                        resulSet.getBigDecimal("ordered_for_the_amount"),
+                        resulSet.getInt("count_ordered"),
+                        resulSet.getBigDecimal("current_period"),
+                        resulSet.getBigDecimal("previous_period")
+                ),
                 period,
                 period,
                 period,

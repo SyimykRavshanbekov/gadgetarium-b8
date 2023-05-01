@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.time.LocalDate;
 import java.util.ArrayList;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -165,7 +166,7 @@ public class ProductServiceImpl implements ProductService {
                     JOIN categories c ON sc.category_id = c.id
                     JOIN sub_product_characteristics spc ON sp.id = spc.sub_product_id
                 WHERE p.created_at BETWEEN (CURRENT_DATE - INTERVAL '1 week') AND CURRENT_DATE AND spc.characteristics_key like 'память'
-                
+                                
                 """;
         String countSql = "SELECT COUNT(*) FROM (" + sql + ") as count_query";
         int count = jdbcTemplate.queryForObject(countSql, Integer.class);
@@ -189,6 +190,7 @@ public class ProductServiceImpl implements ProductService {
                 .totalPages(totalPage)
                 .build();
     }
+
     @Override
     public PaginationResponse<ProductsResponse> getRecommendedProducts(int page, int pageSize) {
         String sql = """
@@ -251,7 +253,6 @@ public class ProductServiceImpl implements ProductService {
             case "в корзине" -> "JOIN user_basket b ON b.basket_key = sp.id";
             default -> "";
         };
-
 
         String dateClause = "";
         if (from != null && before != null) {
