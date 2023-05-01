@@ -24,13 +24,13 @@ public class CatalogApi {
             description = "This method is for getting products by category and subCategory, and filter them with specific characteristics")
     public CatalogResponse getProducts(@PathVariable(value = "category_id") Long category_id,
                                        @PathVariable(value = "subCategory_id") Optional<Long> subCategory_id,
-                                       @RequestParam(required = false) String category,
+                                       @RequestParam(required = false) String[] category,
                                        @RequestParam(required = false, defaultValue = "500") String priceFrom,
                                        @RequestParam(required = false, defaultValue = "250000") String priceTo,
-                                       @RequestParam(required = false) String colour,
-                                       @RequestParam(required = false) String memory,
-                                       @RequestParam(required = false) String RAM,
-                                       @RequestParam(required = false) String watch_material,
+                                       @RequestParam(required = false) String[] colour,
+                                       @RequestParam(required = false) String[] memory,
+                                       @RequestParam(required = false) String[] RAM,
+                                       @RequestParam(required = false) String[] watch_material,
                                        @RequestParam(required = false) String gender,
                                        @RequestParam(required = false) String sortBy,
                                        @RequestParam(required = false, defaultValue = "12") int pageSize

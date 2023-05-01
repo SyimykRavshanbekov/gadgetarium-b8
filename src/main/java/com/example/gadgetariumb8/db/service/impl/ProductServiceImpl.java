@@ -2,9 +2,7 @@ package com.example.gadgetariumb8.db.service.impl;
 
 import com.example.gadgetariumb8.db.dto.request.ProductRequest;
 import com.example.gadgetariumb8.db.dto.request.SubProductRequest;
-import com.example.gadgetariumb8.db.dto.response.CatalogProductsResponse;
-import com.example.gadgetariumb8.db.dto.response.CatalogResponse;
-import com.example.gadgetariumb8.db.dto.response.SimpleResponse;
+import com.example.gadgetariumb8.db.dto.response.*;
 import com.example.gadgetariumb8.db.exception.exceptions.NotFoundException;
 import com.example.gadgetariumb8.db.model.*;
 import com.example.gadgetariumb8.db.repository.BrandRepository;
@@ -67,8 +65,8 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public CatalogResponse findByCategoryIdAndFilter(Long categoryId, Optional<Long> subCategoryId,
-                                                     String brand, String priceFrom, String priceTo,
-                                                     String colour, String memory, String RAM, String watch_material,
+                                                     String[] brand, String priceFrom, String priceTo,
+                                                     String[] colour, String[] memory, String[] RAM, String[] watch_material,
                                                      String gender, String sortBy, int pageSize) {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -81,17 +79,17 @@ public class ProductServiceImpl implements ProductService {
                 new BeanPropertyRowMapper<>(SubCategory.class));
         List<CatalogProductsResponse> catalogProductsResponse = new ArrayList<>();
         String sql = """
-                 SELECT sub.id,sub.colour,sub.price,sub.quantity,prod.name,prod.rating,prod.created_at,COALESCE(d.percent, 0) AS discount,
-                 (SELECT i.images FROM sub_product_images i WHERE i.sub_product_id = sub.id LIMIT 1) AS image,
-                    CASE WHEN d.percent IS NOT NULL THEN ROUND(sub.price - (sub.price * d.percent / 100))
-                     ELSE sub.price END AS new_price,
-                 (SELECT count(r) as reviews_count FROM products p join reviews r on p.id = r.product_id WHERE product_id=prod.id) as reviews_count,
-                 (SELECT char.characteristics FROM sub_product_characteristics char LEFT JOIN sub_products sp ON char.sub_product_id = sp.id WHERE char.characteristics_key='Объем памяти' AND sub_product_id = sub.id LIMIT 1) as memory
+                 SELECT sub.id,sub.colour,sub.price,sub.quantity,prod.name,prod.rating,prod.created_at,COALESCE(dis.percent, 0) AS discount,
+                        (SELECT i.images FROM sub_product_images i WHERE i.sub_product_id = sub.id LIMIT 1) AS image,
+                        CASE WHEN dis.percent IS NOT NULL THEN ROUND(sub.price - (sub.price * dis.percent / 100))
+                             ELSE sub.price END AS new_price,
+                        (SELECT count(r) as reviews_count FROM products p join reviews r on p.id = r.product_id WHERE product_id=prod.id) as reviews_count,
+                        (SELECT char.characteristics FROM sub_product_characteristics char LEFT JOIN sub_products sp ON char.sub_product_id = sp.id WHERE char.characteristics_key='память' AND sub_product_id = sub.id LIMIT 1) as memory
                  FROM sub_products sub
-                     JOIN products prod ON sub.product_id = prod.id
-                     LEFT JOIN sub_product_characteristics spc on sub.id = spc.sub_product_id
-                     %7$s JOIN discounts d ON prod.discount_id = d.id
-                     %1$s
+                        JOIN products prod ON sub.product_id = prod.id
+                        LEFT JOIN sub_product_characteristics spc on sub.id = spc.sub_product_id
+                        %7$s JOIN discounts dis ON prod.discount_id = dis.id
+                        %1$s
                  WHERE sub_category_id=? %2$s  %3$s  %4$s  %5$s  %6$s  %8$s %9$s %10$s
                  LIMIT ?
                 """;
@@ -123,57 +121,10 @@ public class ProductServiceImpl implements ProductService {
 
         return getCatalogResponse(usersFavourites, catalogProductsResponse, quantityColours);
     }
-    
-    @Override
-    public PaginationResponse<ProductsResponse> getNewProducts(int page, int pageSize) {
-        String sql = """
-                       SELECT (select i.images from sub_product_images i where i.sub_product_id = sp.id limit 1) as image, sp.quantity as quantity, CONCAT(c.name, ' ', p.brand_id, ' ', p.name, ' ',characteristics,' ', sp.colour) as product_info, p.rating as rating, sp.price as price,
-                       coalesce(CAST(sp.price - ((sp.price * d.percent) / 100) AS INTEGER),0) as discount
-                FROM products p
-                    JOIN sub_products sp ON p.id = sp.product_id
-                    LEFT JOIN discounts d ON p.discount_id = d.id
-                    JOIN sub_categories sc ON p.sub_category_id = sc.id
-                    JOIN categories c ON sc.category_id = c.id
-                    JOIN sub_product_characteristics spc ON sp.id = spc.sub_product_id
-                WHERE    p.created_at BETWEEN (CURRENT_DATE - INTERVAL '1 week') AND CURRENT_DATE and characteristics_key like 'memory'
-                       """;
-        String countSql = "SELECT COUNT(*) FROM (" + sql + ") as count_query";
-        int count = jdbcTemplate.queryForObject(countSql, Integer.class);
-        int totalPage = (int) Math.ceil((double) count / pageSize);
-        int offset = (page - 1) * pageSize;
-        sql = String.format(sql + "LIMIT %s OFFSET %s", pageSize, offset);
-        List<ProductsResponse> products = jdbcTemplate.query(sql, (resultSet, i) -> new ProductsResponse(
-                resultSet.getString("image"),
-                resultSet.getInt("quantity"),
-                resultSet.getString("product_info"),
-                resultSet.getDouble("rating"),
-                resultSet.getBigDecimal("price"),
-                resultSet.getInt("discount")
-        ));
-        return PaginationResponse.<ProductsResponse>builder()
-                .elements(products)
-                .currentPage(page)
-                .totalPages(totalPage)
-                .build();
-    }
-    @Override
-    public PaginationResponse<ProductsResponse> getRecommendedProducts(int page, int pageSize) {
-        String sql = """
-                       SELECT (select i.images from sub_product_images i where i.sub_product_id = sp.id limit 1) as image, sp.quantity as quantity, CONCAT(c.name, ' ', p.brand_id, ' ', p.name, ' ',characteristics,' ', sp.colour) as product_info, p.rating as rating, sp.price as price,
-                       coalesce(CAST(sp.price - ((sp.price * d.percent) / 100) AS INTEGER),0) as discount
-                FROM products p
-                    JOIN sub_products sp ON p.id = sp.product_id
-                    LEFT JOIN discounts d ON p.discount_id = d.id
-                    JOIN sub_categories sc ON p.sub_category_id = sc.id
-                    JOIN categories c ON sc.category_id = c.id
-                    JOIN sub_product_characteristics spc ON sp.id = spc.sub_product_id
-                WHERE    p.rating > 4  and characteristics_key like 'memory'
-                       """;
-        String countSql = "SELECT COUNT(*) FROM (" + sql + ") as count_query";
-        int count = jdbcTemplate.queryForObject(countSql, Integer.class);
-        int totalPage = (int) Math.ceil((double) count / pageSize);
 
-    private CatalogResponse getCatalogResponse(List<SubProduct> usersFavourites, List<CatalogProductsResponse> catalogProductsResponse, Map<String, Long> quantityColours) {
+    private CatalogResponse getCatalogResponse(List<SubProduct> usersFavourites,
+                                               List<CatalogProductsResponse> catalogProductsResponse,
+                                               Map<String, Long> quantityColours) {
         for (CatalogProductsResponse productsResponse : catalogProductsResponse) {
             productsResponse.setIsLiked(usersFavourites.stream()
                     .map(SubProduct::getId)
@@ -192,35 +143,41 @@ public class ProductServiceImpl implements ProductService {
         return CatalogResponse.builder()
                 .productsResponses(catalogProductsResponse)
                 .colourQuantity(quantityColours)
+                .productQuantity(catalogProductsResponse.size())
                 .build();
     }
 
-    private String filteringAndSorting(String sql, String brand, String priceFrom, String priceTo, String colour, String memory, String RAM, String watch_material, String gender, String sortBy) {
+    private String filteringAndSorting(String sql, String[] brand, String priceFrom, String priceTo, String[] colour,
+                                       String[] memory, String[] RAM, String[] watch_material, String gender, String sortBy) {
         String joiningForFilterByBrand = "";
         String conditionForFilterByBrand = "";
         if (brand != null) {
+            String brands = stringify(brand);
             joiningForFilterByBrand = "LEFT JOIN brands b on prod.brand_id = b.id";
-            conditionForFilterByBrand = String.format("AND b.name = '%s'", brand);
+            conditionForFilterByBrand = String.format("AND b.name IN (%s)", brands);
         }
         String filterByPrice = String.format("AND sub.price BETWEEN %s AND %s", priceFrom, priceTo);
 
         String filterByColour = "";
         if (colour != null) {
-            filterByColour = String.format("AND sub.colour='%s'", colour);
+            String colours = stringify(colour);
+            filterByColour = String.format("AND sub.colour IN(%s)", colours);
         }
-
         String conditionForFilterByMemory = "";
         String conditionForFilterByRAM = "";
         String conditionForFilterByMaterial = "";
         String conditionForFilterByGender = "";
         if (memory != null) {
-            conditionForFilterByMemory = String.format("AND spc.characteristics='%sGB' AND spc.characteristics_key='Объем памяти'", memory);    // maybe changed
+            String memories = stringify(memory);
+            conditionForFilterByMemory = String.format("AND spc.characteristics IN (%s) AND spc.characteristics_key='память'", memories);
         }
         if (RAM != null) {
-            conditionForFilterByRAM = String.format("AND spc.characteristics='%sGB' AND spc.characteristics_key='Оперативная память'", RAM);                  // maybe changed
+            String rams = stringify(RAM);
+            conditionForFilterByRAM = String.format("AND spc.characteristics IN (%s) AND spc.characteristics_key='Оперативная память'", rams);
         }
         if (watch_material != null) {
-            conditionForFilterByMaterial = String.format("AND spc.characteristics='%s' AND spc.characteristics_key='Материал корпуса'", watch_material);
+            String watch_materials = stringify(watch_material);
+            conditionForFilterByMaterial = String.format("AND spc.characteristics IN (%s) AND spc.characteristics_key='Материал корпуса'", watch_materials);
         }
         if (gender != null) {
             conditionForFilterByGender = String.format("AND spc.characteristics='%s' AND spc.characteristics_key='Пол'", gender);
@@ -240,11 +197,19 @@ public class ProductServiceImpl implements ProductService {
                 case "По уменьшению цены" -> orderBy = "ORDER BY sub.price DESC";
             }
         }
-
         sql = String.format(sql, joiningForFilterByBrand, conditionForFilterByBrand, filterByPrice,
                 filterByColour, conditionForFilterByMemory, conditionForFilterByRAM, joinTypeOfDiscount,
                 conditionForFilterByMaterial, conditionForFilterByGender, orderBy);
         return sql;
+    }
+
+    private String stringify(String[] elements) {
+        StringBuilder elementsToString = new StringBuilder();
+        for (String b : elements) {
+            elementsToString.append("'").append(b).append("',");
+        }
+        elementsToString.deleteCharAt(elementsToString.length() - 1);
+        return elementsToString.toString();
     }
 
     public CatalogProductsResponse rowMapper(ResultSet resultSet) throws SQLException {
@@ -261,5 +226,30 @@ public class ProductServiceImpl implements ProductService {
                 .reviews_count(resultSet.getInt("reviews_count"))
                 .isNew(resultSet.getDate("created_at").toLocalDate().isAfter(LocalDate.now().minusDays(7)))
                 .build();
+    }
+
+    @Override
+    public List<CompareProductResponse> compare() {
+        return null;
+    }
+
+    @Override
+    public PaginationResponse<ProductsResponse> getAllDiscountProducts(int page, int pageSize) {
+        return null;
+    }
+
+    @Override
+    public PaginationResponse<ProductsResponse> getNewProducts(int page, int pageSize) {
+        return null;
+    }
+
+    @Override
+    public PaginationResponse<ProductsResponse> getRecommendedProducts(int page, int pageSize) {
+        return null;
+    }
+
+    @Override
+    public PaginationResponse<ProductAdminResponse> getAll(String keyWord, String status, LocalDate from, LocalDate before, String sortBy, int page, int pageSize) {
+        return null;
     }
 }

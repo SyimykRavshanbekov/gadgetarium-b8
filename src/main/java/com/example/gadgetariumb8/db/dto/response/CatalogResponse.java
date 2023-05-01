@@ -13,4 +13,5 @@ import java.util.Map;
 public class CatalogResponse {
     private List<CatalogProductsResponse> productsResponses;
     private Map<String,Long> colourQuantity;
+    private int productQuantity;
 }
