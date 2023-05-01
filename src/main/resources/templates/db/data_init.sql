@@ -99,11 +99,11 @@ values (1,'https://yt3.googleusercontent.com/ytc/AGIKgqNoNRD8Y7-ydomwccOXCRsrtM3
        (5,'https://m.media-amazon.com/images/I/71TPda7cwUL._SL1500_.jpg');
 
 insert into sub_product_characteristics(sub_product_id,characteristics,characteristics_key)
-values (1,'characteristics',1),
-       (2,'characteristics',1),
-       (3,'characteristics',1),
-       (4,'characteristics',1),
-       (5,'characteristics',1);
+values (1,64,'память'),
+       (2,128,'память'),
+       (3,256,'память'),
+       (4,34,'память'),
+       (5,12,'память');
 
 insert into sub_product_images (sub_product_id,images)
 values (1,'https://login.kg/image/cache/catalog/new/Phones/Apple/iPhone%2014/Pro-Pro%20Max/1-500x500.jpg'),
