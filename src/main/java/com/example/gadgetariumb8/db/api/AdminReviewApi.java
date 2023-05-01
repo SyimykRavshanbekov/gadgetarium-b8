@@ -17,6 +17,7 @@ import java.util.List;
 @RequestMapping("/api/reviews")
 @RequiredArgsConstructor
 @Tag(name = "Admin Reviews API")
+@CrossOrigin(origins = "*", maxAge = 3600)
 @PreAuthorize("hasAuthority('ADMIN')")
 public class AdminReviewApi {
     private final ReviewService reviewService;
