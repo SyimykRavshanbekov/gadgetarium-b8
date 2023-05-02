@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 
 public record MailingListSubscriberRequest(
         @NotBlank(message = "This field should not be empty")
-        @Email(message = "Field should be like 'example@gmail.com'")
+        @Email(message = "Field should be email, like 'example@gmail.com'")
         String userEmail
 ) {
 }

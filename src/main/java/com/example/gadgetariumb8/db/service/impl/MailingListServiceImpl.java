@@ -16,6 +16,7 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -88,6 +89,12 @@ public class MailingListServiceImpl implements MailingListService {
                 .build();
 
         subscriberRepository.save(mallingListSubscriber);
+        SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
+        simpleMailMessage.setTo(subscriber.userEmail());
+        simpleMailMessage.setFrom("ilyazovorozali08@gmail.com");
+        simpleMailMessage.setSubject("Gadgetarium");
+        simpleMailMessage.setText("Здраствуйте! Вы успешно подписались на Gadgetarium");
+        javaMailSender.send(simpleMailMessage);
         return SimpleResponse.builder()
                 .httpStatus(HttpStatus.CREATED)
                 .message("Подписчик успешно добавлен в базу данных.")
