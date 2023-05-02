@@ -1,10 +1,12 @@
 package com.example.gadgetariumb8.db.api;
 
+import com.example.gadgetariumb8.db.dto.request.AnswerRequest;
 import com.example.gadgetariumb8.db.dto.response.ReviewResponse;
 import com.example.gadgetariumb8.db.dto.response.SimpleResponse;
 import com.example.gadgetariumb8.db.service.ReviewService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +17,7 @@ import java.util.List;
 @RequestMapping("/api/reviews")
 @RequiredArgsConstructor
 @Tag(name = "Admin Reviews API")
+@CrossOrigin(origins = "*", maxAge = 3600)
 @PreAuthorize("hasAuthority('ADMIN')")
 public class AdminReviewApi {
     private final ReviewService reviewService;
@@ -27,8 +30,8 @@ public class AdminReviewApi {
 
     @PostMapping
     @Operation(summary = "Reply to comment", description = "This method is needed to reply to a review")
-    public SimpleResponse replyToFeedback(@RequestParam Long id, @RequestBody String answer) {
-        return reviewService.replyToFeedback(answer, id);
+    public SimpleResponse replyToFeedback(@RequestBody @Valid AnswerRequest request) {
+        return reviewService.replyToFeedback(request);
     }
 
     @DeleteMapping

@@ -60,7 +60,7 @@ public class MailingListServiceImpl implements MailingListService {
                 mimeMessageHelper.setTo(subscriber.getUserEmail());
                 mimeMessageHelper.setText(html, true);
                 mimeMessageHelper.setSubject("Gadgetarium");
-                mimeMessageHelper.setFrom("ilyazovorozali08@gmail.com");
+                mimeMessageHelper.setFrom("Gadgetarium@gmail.com");
                 javaMailSender.send(message);
             }
         } catch (IOException | TemplateException | MessagingException e) {

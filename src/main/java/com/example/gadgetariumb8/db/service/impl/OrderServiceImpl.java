@@ -1,6 +1,5 @@
 package com.example.gadgetariumb8.db.service.impl;
 
-
 import com.example.gadgetariumb8.db.dto.response.OrderResponse;
 import com.example.gadgetariumb8.db.dto.response.PaginationResponse;
 import com.example.gadgetariumb8.db.exception.exceptions.BadRequestException;
@@ -19,6 +18,7 @@ import java.util.List;
 public class OrderServiceImpl implements OrderService {
     private final JdbcTemplate jdbcTemplate;
     private final CustomOrderRepository customOrderRepository;
+
     @Override
     public PaginationResponse<OrderResponse> getAllOrders(String keyWord, String status, LocalDate from, LocalDate before, int page, int pageSize) {
         String sql = customOrderRepository.getAllOrder();
@@ -45,12 +45,12 @@ public class OrderServiceImpl implements OrderService {
         String keyWordCondition = "";
         List<Object> params = new ArrayList<>();
         params.add(status);
-        if (keyWord != null){
-            params.add("%"+keyWord+"%");
-            params.add("%"+keyWord+"%");
-            params.add("%"+keyWord+"%");
-            params.add("%"+keyWord+"%");
-            params.add("%"+keyWord+"%");
+        if (keyWord != null) {
+            params.add("%" + keyWord + "%");
+            params.add("%" + keyWord + "%");
+            params.add("%" + keyWord + "%");
+            params.add("%" + keyWord + "%");
+            params.add("%" + keyWord + "%");
             keyWordCondition = customOrderRepository.keyWordCondition();
         }
         sql = String.format(sql, dateClause, keyWordCondition);
