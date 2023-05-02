@@ -2,12 +2,7 @@ package com.example.gadgetariumb8.db.service.impl;
 
 import com.example.gadgetariumb8.db.dto.request.ProductRequest;
 import com.example.gadgetariumb8.db.dto.request.SubProductRequest;
-import com.example.gadgetariumb8.db.dto.response.CompareProductResponse;
-import com.example.gadgetariumb8.db.dto.response.PaginationResponse;
-import com.example.gadgetariumb8.db.dto.response.ProductAdminResponse;
-import com.example.gadgetariumb8.db.dto.response.ProductsResponse;
-import com.example.gadgetariumb8.db.dto.response.SimpleResponse;
-import com.example.gadgetariumb8.db.exception.exceptions.BadRequestException;
+import com.example.gadgetariumb8.db.dto.response.*;
 import com.example.gadgetariumb8.db.exception.exceptions.NotFoundException;
 import com.example.gadgetariumb8.db.model.*;
 import com.example.gadgetariumb8.db.repository.BrandRepository;
@@ -18,19 +13,24 @@ import com.example.gadgetariumb8.db.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
 @Slf4j
+import java.util.*;
+
 @Service
 @RequiredArgsConstructor
 public class ProductServiceImpl implements ProductService {
+
     private final SubCategoryRepository subCategoryRepository;
     private final BrandRepository brandRepository;
     private final SubProductRepository subProductRepository;
@@ -230,6 +230,7 @@ public class ProductServiceImpl implements ProductService {
                 .build();
     }
 
+    @Override
     public PaginationResponse<ProductAdminResponse> getAll(String keyWord, String status, LocalDate from, LocalDate before, String sortBy, int page, int pageSize) {
         String sql = """
                 SELECT DISTINCT sp.id AS subProductId, (
