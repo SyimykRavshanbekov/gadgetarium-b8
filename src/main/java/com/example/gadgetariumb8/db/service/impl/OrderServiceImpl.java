@@ -16,7 +16,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class OrderServiceImpl implements OrderService {
+public class  OrderServiceImpl implements OrderService {
     private final JdbcTemplate jdbcTemplate;
     private final CustomOrderRepository customOrderRepository;
     @Override
