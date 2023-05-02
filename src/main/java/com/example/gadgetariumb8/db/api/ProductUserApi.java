@@ -12,11 +12,11 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/products")
+@RequestMapping("/api/user/products")
 @RequiredArgsConstructor
 @Tag(name = "Product API")
 @CrossOrigin(origins = "*", maxAge = 3600)
-public class ProductApi {
+public class ProductUserApi {
     private final ProductService productService;
     private final SubProductService subProductService;
 
@@ -42,6 +42,13 @@ public class ProductApi {
     public PaginationResponse<ProductsResponse> getRecommendedProducts(@RequestParam(defaultValue = "1") int page,
                                                                        @RequestParam(defaultValue = "5") int pageSize) {
         return productService.getRecommendedProducts(page, pageSize);
+    }
+
+    @GetMapping("/compare-product")
+    @Operation(summary = "To compare the product.", description = "This method to compare product.")
+    @PreAuthorize("hasAuthority('USER')")
+    public List<CompareProductResponse> compareProduct() {
+        return productService.compare();
     }
 
     @GetMapping("/basket")

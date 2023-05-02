@@ -9,6 +9,10 @@ public interface ProductService {
 
     SimpleResponse saveProduct(ProductRequest productRequest);
 
+    CatalogResponse findByCategoryIdAndFilter(Long categoryId, Optional<Long> subCategoryId,
+
+    List<CompareProductResponse> compare();
+
     PaginationResponse<ProductsResponse> getAllDiscountProducts(int page, int pageSize);
 
     PaginationResponse<ProductsResponse> getNewProducts(int page, int pageSize);
@@ -17,5 +21,4 @@ public interface ProductService {
 
     PaginationResponse<ProductAdminResponse> getAll(String keyWord, String status, LocalDate from, LocalDate before,
                                                     String sortBy, int page, int pageSize);
-
 }

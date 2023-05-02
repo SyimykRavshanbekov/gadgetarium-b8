@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.LinkedList;
 import java.util.List;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -27,21 +28,22 @@ public class SubProductServiceImpl implements SubProductService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String login = authentication.getName();
         log.info("Token has been taken!");
-        return userRepository.findUserInfoByEmail(login).orElseThrow(()-> {
+        return userRepository.findUserInfoByEmail(login).orElseThrow(() -> {
             log.error("User not found!");
             return new NotFoundException("User not found!");
         }).getUser();
     }
+
     @Override
     public PaginationResponse<SubProductResponse> lastViews(int page, int pageSize) {
-        List<SubProductResponse>subProductResponseList = new LinkedList<>();
+        List<SubProductResponse> subProductResponseList = new LinkedList<>();
         List<SubProduct> subProductList = subProductRepository.getAllLastReviews(getAuthenticate().getId());
         for (SubProduct subProduct : subProductList) {
             subProductResponseList.add(new SubProductResponse(
                     subProduct.getImages().stream().findFirst().orElse("Sub product images"),
                     subProduct.getProduct().getName(),
                     subProduct.getProduct().getBrand().getName(),
-                    (subProduct.getProduct().getReviews().stream().mapToDouble(Review::getGrade).sum()/ (long) subProduct.getProduct().getReviews().size()),
+                    (subProduct.getProduct().getReviews().stream().mapToDouble(Review::getGrade).sum() / (long) subProduct.getProduct().getReviews().size()),
                     subProduct.getProduct().getReviews().size(),
                     subProduct.getPrice()
             ));
