@@ -3,6 +3,7 @@ package com.example.gadgetariumb8.db.service.impl;
 import com.example.gadgetariumb8.db.dto.request.ProductRequest;
 import com.example.gadgetariumb8.db.dto.request.SubProductRequest;
 import com.example.gadgetariumb8.db.dto.response.*;
+import com.example.gadgetariumb8.db.exception.exceptions.BadRequestException;
 import com.example.gadgetariumb8.db.exception.exceptions.NotFoundException;
 import com.example.gadgetariumb8.db.model.*;
 import com.example.gadgetariumb8.db.repository.BrandRepository;
@@ -22,11 +23,9 @@ import org.springframework.stereotype.Service;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.ArrayList;
-
-@Slf4j
 import java.util.*;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ProductServiceImpl implements ProductService {
@@ -331,6 +330,171 @@ public class ProductServiceImpl implements ProductService {
                 .elements(products)
                 .currentPage(page)
                 .totalPages(totalPage)
+                .build();
+    }
+
+    @Override
+    public CatalogResponse findByCategoryIdAndFilter(Long categoryId, Optional<Long> subCategoryId,
+                                                     String[] brand, String priceFrom, String priceTo,
+                                                     String[] colour, String[] memory, String[] RAM, String[] watch_material,
+                                                     String gender, String sortBy, int pageSize) {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String login = authentication.getName();
+        User user = userRepository.findUserByEmail(login).orElseThrow(() -> new NotFoundException("User not found!"));
+        List<SubProduct> usersFavourites = user.getFavorites();
+
+        List<SubCategory> subCategories = jdbcTemplate.query("SELECT sub.id,sub.name,sub.category_id FROM sub_categories sub WHERE sub.category_id=?",
+                new Object[]{categoryId},
+                new BeanPropertyRowMapper<>(SubCategory.class));
+        List<CatalogProductsResponse> catalogProductsResponse = new ArrayList<>();
+        String sql = """
+                 SELECT sub.id,sub.colour,sub.price,sub.quantity,prod.name,prod.rating,prod.created_at,COALESCE(dis.percent, 0) AS discount,
+                        (SELECT i.images FROM sub_product_images i WHERE i.sub_product_id = sub.id LIMIT 1) AS image,
+                        CASE WHEN dis.percent IS NOT NULL THEN ROUND(sub.price - (sub.price * dis.percent / 100))
+                             ELSE sub.price END AS new_price,
+                        (SELECT count(r) as reviews_count FROM products p join reviews r on p.id = r.product_id WHERE product_id=prod.id) as reviews_count,
+                        (SELECT char.characteristics FROM sub_product_characteristics char LEFT JOIN sub_products sp ON char.sub_product_id = sp.id WHERE char.characteristics_key='память' AND sub_product_id = sub.id LIMIT 1) as memory
+                 FROM sub_products sub
+                        JOIN products prod ON sub.product_id = prod.id
+                        LEFT JOIN sub_product_characteristics spc on sub.id = spc.sub_product_id
+                        %7$s JOIN discounts dis ON prod.discount_id = dis.id
+                        %1$s
+                 WHERE sub_category_id=? %2$s  %3$s  %4$s  %5$s  %6$s  %8$s %9$s %10$s
+                 LIMIT ?
+                """;
+        sql = filteringAndSorting(sql, brand, priceFrom, priceTo, colour,
+                memory, RAM, watch_material, gender, sortBy);
+
+        Map<String, Long> quantityColours = new HashMap<>();
+
+        if (subCategoryId.isEmpty()) {
+            for (SubCategory subCategory : subCategories) {
+                List<CatalogProductsResponse> subProducts = jdbcTemplate.query(sql,
+                        new Object[]{subCategory.getId(), pageSize},
+                        (resultSet, i) -> rowMapper(resultSet));
+                catalogProductsResponse.addAll(subProducts);
+            }
+
+            return getCatalogResponse(usersFavourites, catalogProductsResponse, quantityColours);
+        }
+
+        SubCategory subCategory = subCategories
+                .stream()
+                .filter(subCat -> Objects.equals(subCat.getId(), subCategoryId.get()))
+                .findAny()
+                .orElseThrow(() -> new NotFoundException("Products with this category and subcategory ID not found!"));
+
+        catalogProductsResponse.addAll(jdbcTemplate.query(sql,
+                new Object[]{subCategory.getId(), pageSize},
+                (resultSet, i) -> rowMapper(resultSet)));
+
+        return getCatalogResponse(usersFavourites, catalogProductsResponse, quantityColours);
+    }
+
+    private CatalogResponse getCatalogResponse(List<SubProduct> usersFavourites,
+                                               List<CatalogProductsResponse> catalogProductsResponse,
+                                               Map<String, Long> quantityColours) {
+        for (CatalogProductsResponse productsResponse : catalogProductsResponse) {
+            productsResponse.setIsLiked(usersFavourites.stream()
+                    .map(SubProduct::getId)
+                    .anyMatch(productsResponse.getSub_product_id()::equals));
+        }
+        quantityColours.put("Black", catalogProductsResponse.stream().filter(item -> Objects.equals(item.getColour(), "Black")).count());
+        quantityColours.put("Blue", catalogProductsResponse.stream().filter(item -> Objects.equals(item.getColour(), "Blue")).count());
+        quantityColours.put("White", catalogProductsResponse.stream().filter(item -> Objects.equals(item.getColour(), "White")).count());
+        quantityColours.put("Red", catalogProductsResponse.stream().filter(item -> Objects.equals(item.getColour(), "Red")).count());
+        quantityColours.put("Gold", catalogProductsResponse.stream().filter(item -> Objects.equals(item.getColour(), "Gold")).count());
+        quantityColours.put("Graphite", catalogProductsResponse.stream().filter(item -> Objects.equals(item.getColour(), "Graphite")).count());
+        quantityColours.put("Green", catalogProductsResponse.stream().filter(item -> Objects.equals(item.getColour(), "Green")).count());
+        quantityColours.put("Rose Gold", catalogProductsResponse.stream().filter(item -> Objects.equals(item.getColour(), "Rose Gold")).count());
+        quantityColours.put("Silver", catalogProductsResponse.stream().filter(item -> Objects.equals(item.getColour(), "Silver")).count());
+        quantityColours.put("Purple", catalogProductsResponse.stream().filter(item -> Objects.equals(item.getColour(), "Purple")).count());
+        return CatalogResponse.builder()
+                .productsResponses(catalogProductsResponse)
+                .colourQuantity(quantityColours)
+                .productQuantity(catalogProductsResponse.size())
+                .build();
+    }
+
+    private String filteringAndSorting(String sql, String[] brand, String priceFrom, String priceTo, String[] colour,
+                                       String[] memory, String[] RAM, String[] watch_material, String gender, String sortBy) {
+        String joiningForFilterByBrand = "";
+        String conditionForFilterByBrand = "";
+        if (brand != null) {
+            String brands = stringify(brand);
+            joiningForFilterByBrand = "LEFT JOIN brands b on prod.brand_id = b.id";
+            conditionForFilterByBrand = String.format("AND b.name IN (%s)", brands);
+        }
+        String filterByPrice = String.format("AND sub.price BETWEEN %s AND %s", priceFrom, priceTo);
+
+        String filterByColour = "";
+        if (colour != null) {
+            String colours = stringify(colour);
+            filterByColour = String.format("AND sub.colour IN(%s)", colours);
+        }
+        String conditionForFilterByMemory = "";
+        String conditionForFilterByRAM = "";
+        String conditionForFilterByMaterial = "";
+        String conditionForFilterByGender = "";
+        if (memory != null) {
+            String memories = stringify(memory);
+            conditionForFilterByMemory = String.format("AND spc.characteristics IN (%s) AND spc.characteristics_key='память'", memories);
+        }
+        if (RAM != null) {
+            String rams = stringify(RAM);
+            conditionForFilterByRAM = String.format("AND spc.characteristics IN (%s) AND spc.characteristics_key='Оперативная память'", rams);
+        }
+        if (watch_material != null) {
+            String watch_materials = stringify(watch_material);
+            conditionForFilterByMaterial = String.format("AND spc.characteristics IN (%s) AND spc.characteristics_key='Материал корпуса'", watch_materials);
+        }
+        if (gender != null) {
+            conditionForFilterByGender = String.format("AND spc.characteristics='%s' AND spc.characteristics_key='Пол'", gender);
+        }
+
+        String orderBy = "";
+        String joinTypeOfDiscount = "LEFT";
+        if (sortBy != null) {
+            switch (sortBy) {
+                case "Новинки" ->
+                        orderBy = "AND prod.created_at >= NOW() - INTERVAL '7 days' ORDER BY prod.created_at DESC";
+                case "Все акции" -> joinTypeOfDiscount = "";
+                case "До 50%" -> orderBy = "AND d.percent < 50";
+                case "Свыше 50%" -> orderBy = "AND d.percent >= 50";
+                case "Рекомендуемые" -> orderBy = "AND prod.rating >= 4";
+                case "По увеличению цены" -> orderBy = "ORDER BY sub.price";
+                case "По уменьшению цены" -> orderBy = "ORDER BY sub.price DESC";
+            }
+        }
+        sql = String.format(sql, joiningForFilterByBrand, conditionForFilterByBrand, filterByPrice,
+                filterByColour, conditionForFilterByMemory, conditionForFilterByRAM, joinTypeOfDiscount,
+                conditionForFilterByMaterial, conditionForFilterByGender, orderBy);
+        return sql;
+    }
+
+    private String stringify(String[] elements) {
+        StringBuilder elementsToString = new StringBuilder();
+        for (String b : elements) {
+            elementsToString.append("'").append(b).append("',");
+        }
+        elementsToString.deleteCharAt(elementsToString.length() - 1);
+        return elementsToString.toString();
+    }
+
+    public CatalogProductsResponse rowMapper(ResultSet resultSet) throws SQLException {
+        return CatalogProductsResponse.builder()
+                .sub_product_id(resultSet.getLong("id"))
+                .price(resultSet.getBigDecimal("price"))
+                .quantity(resultSet.getInt("quantity"))
+                .fullname(resultSet.getString("name") + " " + resultSet.getObject("memory") + " " + resultSet.getString("colour"))
+                .rating(resultSet.getDouble("rating"))
+                .discount(resultSet.getInt("discount"))
+                .image(resultSet.getString("image"))
+                .colour(resultSet.getString("colour"))
+                .new_price(resultSet.getBigDecimal("new_price"))
+                .reviews_count(resultSet.getInt("reviews_count"))
+                .isNew(resultSet.getDate("created_at").toLocalDate().isAfter(LocalDate.now().minusDays(7)))
                 .build();
     }
 }
