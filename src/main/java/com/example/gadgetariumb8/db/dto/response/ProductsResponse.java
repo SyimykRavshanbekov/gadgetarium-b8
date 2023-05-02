@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 @Setter
 @NoArgsConstructor
 public class ProductsResponse {
+    private Long subProductId;
     private String image;
     private int quantity;
     private String productInfo;

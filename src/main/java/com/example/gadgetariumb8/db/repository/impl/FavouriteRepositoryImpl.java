@@ -44,19 +44,23 @@ public class FavouriteRepositoryImpl implements FavouriteRepository {
         List<ProductsResponse> productsResponses = new ArrayList<>();
         for (SubProduct favorite : getAuthenticate().getFavorites()) {
             String sql = """
-                           SELECT (select i.images from sub_product_images i where i.sub_product_id = sp.id limit 1) as image, sp.quantity as quantity, CONCAT(c.name, ' ', p.brand_id, ' ', p.name, ' ',characteristics,' ', sp.colour) as product_info, p.rating as rating, sp.price as price,
-                            CAST(sp.price - ((sp.price * d.percent) / 100) AS INTEGER) as discount
+                    SELECT sp.id AS subProductId,
+                        (select i.images from sub_product_images i where i.sub_product_id = sp.id limit 1) as image,
+                         sp.quantity as quantity, CONCAT(c.name, ' ', p.brand_id, ' ', p.name, ' ',spc.characteristics,' ', sp.colour)
+                         as product_info, p.rating as rating, sp.price as price,
+                        CAST(sp.price - ((sp.price * d.percent) / 100) AS INTEGER) as discount
                     FROM sub_products sp
                         JOIN products p ON p.id = sp.product_id
                         LEFT JOIN discounts d ON p.discount_id = d.id
                         JOIN sub_categories sc ON p.sub_category_id = sc.id
                         JOIN categories c ON sc.category_id = c.id
                         JOIN sub_product_characteristics spc ON sp.id = spc.sub_product_id
-                    WHERE characteristics_key like 'память' and sp.id = ?;
+                    WHERE spc.characteristics_key like 'память' and sp.id = ?;
                      """;
 
             productsResponses.addAll(jdbcTemplate.query(sql,
                     (resultSet, i) -> new ProductsResponse(
+                            resultSet.getLong("subProductId"),
                             resultSet.getString("image"),
                             resultSet.getInt("quantity"),
                             resultSet.getString("product_info"),
