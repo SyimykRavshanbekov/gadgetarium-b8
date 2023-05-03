@@ -270,7 +270,8 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductUserResponse getProductById(ProductUserRequest productUserRequest) {
         String sql = """
-                select b.logo as logo,
+                select sp.id as sub_product_id
+                       b.logo as logo,
                        p.name as product_name,
                        sp.quantity as quantity,
                        sp.item_number as item_number,
@@ -295,7 +296,7 @@ public class ProductServiceImpl implements ProductService {
                 """;
         ProductUserResponse productUserResponse = new ProductUserResponse();
         jdbcTemplate.query(sql, (resulSet, i) -> {
-
+                    productUserResponse.setSubProductId(resulSet.getLong("sub_product_id"));
                     productUserResponse.setLogo(resulSet.getString("logo"));
                     productUserResponse.setName(resulSet.getString("product_name"));
                     productUserResponse.setQuantity(resulSet.getInt("quantity"));

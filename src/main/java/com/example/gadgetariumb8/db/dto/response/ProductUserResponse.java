@@ -15,6 +15,7 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProductUserResponse {
+    private Long subProductId;
     private String logo;
     private List<String> images;
     private List<String>colours;
