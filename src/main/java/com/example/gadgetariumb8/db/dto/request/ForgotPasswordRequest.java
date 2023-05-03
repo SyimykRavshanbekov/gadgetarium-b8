@@ -6,7 +6,7 @@ import lombok.Builder;
 
 @Builder
 public record ForgotPasswordRequest(
-        @NotBlank(message = "email should not be empty")
+        @NotBlank(message = "Email should not be empty")
         @Email(message = "Write valid email!")
         String email
 ) {
