@@ -1,5 +1,6 @@
 package com.example.gadgetariumb8.db.service;
 import com.example.gadgetariumb8.db.dto.request.ProductRequest;
+import com.example.gadgetariumb8.db.dto.request.ProductUserRequest;
 import com.example.gadgetariumb8.db.dto.response.*;
 
 import java.time.LocalDate;
