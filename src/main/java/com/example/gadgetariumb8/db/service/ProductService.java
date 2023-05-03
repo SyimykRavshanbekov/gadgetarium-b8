@@ -16,6 +16,8 @@ public interface ProductService {
                                                      String gender, String sortBy, int pageSize);
     List<CompareProductResponse> compare();
 
+    CompareCountResponse countCompare ();
+
     PaginationResponse<ProductsResponse> getAllDiscountProducts(int page, int pageSize);
 
     PaginationResponse<ProductsResponse> getNewProducts(int page, int pageSize);
