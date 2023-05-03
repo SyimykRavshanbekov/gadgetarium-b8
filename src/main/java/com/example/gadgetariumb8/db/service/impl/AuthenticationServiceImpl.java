@@ -15,8 +15,10 @@ import com.example.gadgetariumb8.db.dto.request.AuthenticateRequest;
 import com.example.gadgetariumb8.db.dto.request.RegisterRequest;
 import com.example.gadgetariumb8.db.dto.response.AuthenticationResponse;
 import com.example.gadgetariumb8.db.service.EmailService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -30,6 +32,7 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional
 public class AuthenticationServiceImpl implements AuthenticationService {
 
     private final UserInfoRepository userInfoRepository;
@@ -107,7 +110,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .orElseThrow(() -> new NotFoundException("User was not found"));
         String token = UUID.randomUUID().toString();
         userInfo.setResetPasswordToken(token);
-        userInfoRepository.save(userInfo);
 
         String subject = "Password Reset Request";
         String resetPasswordLink = "http://localhost:8080/reset-password?token=" + token;
@@ -122,9 +124,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         emailService.sendEmail(email, subject, htmlContent);
         return SimpleResponse.builder()
+                .httpStatus(HttpStatus.OK)
                 .message("The password reset was sent to your email. Please check your email.")
                 .build();
-
     }
 
     @Override
@@ -134,7 +136,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         userInfo.setPassword(passwordEncoder.encode(newPassword));
         userInfo.setResetPasswordToken(null);
-        userInfoRepository.save(userInfo);
-        return SimpleResponse.builder().message("User password changed successfully!").build();
+
+        return SimpleResponse.builder()
+                .httpStatus(HttpStatus.OK)
+                .message("User password changed successfully!")
+                .build();
     }
 }

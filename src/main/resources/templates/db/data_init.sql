@@ -3,15 +3,15 @@ values (1,'azimbek1@gmail.com','$2a$12$qT1185usfTsvB6R6WZYl4O2JiUtg6UxyfPxcqnkru
        (2,'altyn1@gmail.com','$2a$12$fT3foWsvu6YXkpFjWWu3z.zDNQMIycDDTwr7CMWa9KMb1WGEpFdeO','USER');           -- password: altyn11
 
 insert into users(id, address, first_name, image, last_name, phone_number, user_info_id)
-VALUES (1,'Гражданская 119','Азимбек','https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8M3x8dXNlcnxlbnwwfHwwfHw%3D&w=1000&q=80','Абдивалиев','+996 222 899 897',1),
-       (2,'Чуй 119','Алтын','https://thumbs.dreamstime.com/b/portrait-chubby-young-man-against-gray-background-portrait-chubby-young-man-against-gray-background-154513213.jpg','Шакиров','+996 770 098 908',2);
+VALUES (1,'Гражданская 119','Азимбек','https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8M3x8dXNlcnxlbnwwfHwwfHw%3D&w=1000&q=80','Абдивалиев','+996222899897',1),
+       (2,'Чуй 119','Алтын','https://thumbs.dreamstime.com/b/portrait-chubby-young-man-against-gray-background-portrait-chubby-young-man-against-gray-background-154513213.jpg','Шакиров','+996770098908',2);
 
 insert into customers (id,address,email,first_name,last_name,phone_number)
-values (1,'Московский Фучика 268/3','azimbek279@gmail.com','Азимбек','Абдивалиев','+996 777 87 78 87'),
-       (2,'Байтик Батыр 229','beka279@gmail.com','Бека','Ташкенбаев','+996 777 87 78 87'),
-       (3,'Asia 4/3','marlen@gmail.com','Марлен','Марленов','+996 777 87 78 87'),
-       (4,'Киевский 222','kutman@gmail.com','Кутман','Кутманов','+996 777 87 78 87'),
-       (5,'Фучика 543','chris@gmail.com','Крис','Хрисов','+996 777 87 78 87');
+values (1,'Московский Фучика 268/3','azimbek279@gmail.com','Азимбек','Абдивалиев','+996777877887'),
+       (2,'Байтик Батыр 229','beka279@gmail.com','Бека','Ташкенбаев','+996777877887'),
+       (3,'Asia 4/3','marlen@gmail.com','Марлен','Марленов','+996777877887'),
+       (4,'Киевский 222','kutman@gmail.com','Кутман','Кутманов','+996777877887'),
+       (5,'Фучика 543','chris@gmail.com','Крис','Хрисов','+996777877887');
 
 insert into brands(id,logo,name)
 values (1,'https://alchemyimmersive.com/wp-content/uploads/sites/4/2020/04/apple-logo-transparent.png','Apple'),
@@ -33,7 +33,7 @@ values (1,'Apple',1),
        (4,'Apple',4);
 
 insert into discounts(id,date_of_finish,date_of_start,percent)
-values (1,'2023-09-01','2023-01-01',90),
+values (1,'2023-09-01','2023-01-01',55),
         (2,'2023-08-01','2023-01-01',20),
         (3,'2023-07-01','2023-01-01',25),
         (4,'2023-06-01','2023-01-01',10),
@@ -51,24 +51,29 @@ insert into products (id,pdf,created_at,
                       rating,video,brand_id,discount_id,
                       sub_category_id)
 values (1,'pdf link','2023-04-01','2020-01-01','Good product',12,'IPHONE 12',5,'https://youtu.be/Mla7Y-iQSq0',1,1,1),
-       (2,'pdf link','2023-04-01','2019-01-01','Good product',12,'Asus',5,'https://youtu.be/MZavnAdb-_s',4,2,3),
-       (3,'pdf link','2023-04-01','2021-01-01','Good product',12,'Apple Watch',5,'https://youtu.be/mLwVeGK0ViA',1,1,1),
-       (4,'pdf link','2023-04-01','2022-01-01','Good product',12,'IPHONE 14 PRO MAX',5,'https://youtu.be/Mla7Y-iQSq0',1,1,1),
-       (5,'pdf link','2023-04-01','2018-01-01','Good product',12,'Mac Book',5,'https://youtu.be/Hw7iB-zkYrk',1,1,1);
+       (2,'pdf link','2023-02-15','2019-01-01','Good product',12,'Vivobook S 14 Flip OLED',4.5,'https://youtu.be/MZavnAdb-_s',4,2,3),
+       (3,'pdf link','2023-01-29','2021-01-01','Good product',12,'Smart Watch',3,'https://youtu.be/mLwVeGK0ViA',1,1,1),
+       (4,'pdf link','2022-12-11','2022-01-01','Good product',12,'IPHONE 14 PRO MAX',5,'https://youtu.be/Mla7Y-iQSq0',1,1,1),
+       (5,'pdf link','2023-03-19','2018-01-01','Good product',12,'Mac Book',1,'https://youtu.be/Hw7iB-zkYrk',1,1,1);
 
 insert into sub_products (id,colour,price,quantity,item_number,product_id)
 values (1,'Blue',120000,1,'123',1),
        (2,'Red',76000,1,'321',2),
-       (3,'Black',111000,1,'234',3),
-       (4,'Purple',55000,1,'432',4),
-       (5,'White',3236000,1,'345',5);
+       (3,'Black',76000,1,'321',2),
+       (4,'Pink',76000,1,'321',2),
+       (5,'Black',111000,1,'234',3),
+       (6,'Green',111000,1,'234',3),
+       (7,'Space grey',111000,1,'234',3),
+       (8,'Purple',55000,1,'432',4),
+       (9,'Blue',55000,1,'432',4),
+       (10,'White',3236000,1,'345',5);
 
 insert into orders (id,date,delivery_type,order_number,payment_type,quantity,status,total_price,customer_id,user_id)
-values (1,'2023-01-01',true,'1',1,1,1,155000,1,1),
-       (2,'2023-01-01',true,'1',1,1,1,999000,1,1),
-       (3,'2023-01-01',false,'1',1,1,1,122000,1,1),
-       (4,'2023-01-01',true,'1',1,1,1,512000,1,1),
-       (5,'2023-01-01',false,'1',1,1,1,355000,1,1);
+values (1,'2023-01-01',true,'1','BY_CARD_ONLINE',1,'PENDING',55000,1,1),
+       (2,'2023-01-01',true,'1','BY_CARD_OFFLINE',1,'DELIVERED',55000,1,1),
+       (3,'2023-01-01',true,'1','BY_CARD_ONLINE',1,'CANCEL',55000,1,1),
+       (4,'2023-01-01',true,'1','BY_CASH',1,'COURIER_ON_THE_WAY',55000,1,1),
+       (5,'2023-01-01',true,'1','BY_CARD_OFFLINE',1,'DELIVERED',55000,1,1);
 
 insert into malling_list_subscribers (id,user_email)
 values (1,'azimbek1@gmail.com'),
@@ -86,10 +91,10 @@ values (1,1),
 
 insert into reviews (id,answer,commentary,grade,product_id,user_id)
 values (1,'answer','commentary',5,1,1),
-       (2,'answer','commentary',5,2,1),
-       (3,'answer','commentary',5,3,1),
-       (4,'answer','commentary',5,4,1),
-       (5,'answer','commentary',5,5,1);
+       (2,'answer','commentary',4,2,1),
+       (3,'answer','commentary',1,3,1),
+       (4,'answer','commentary',3,4,1),
+       (5,'answer','commentary',4,5,1);
 
 insert into review_images (review_id,images)
 values (1,'https://yt3.googleusercontent.com/ytc/AGIKgqNoNRD8Y7-ydomwccOXCRsrtM3SVG1veHCKxN5IOg=s900-c-k-c0x00ffffff-no-rj'),
@@ -99,17 +104,49 @@ values (1,'https://yt3.googleusercontent.com/ytc/AGIKgqNoNRD8Y7-ydomwccOXCRsrtM3
        (5,'https://m.media-amazon.com/images/I/71TPda7cwUL._SL1500_.jpg');
 
 insert into sub_product_characteristics(sub_product_id,characteristics,characteristics_key)
-values (1,'characteristics',1),
-       (2,'characteristics',1),
-       (3,'characteristics',1),
-       (4,'characteristics',1),
-       (5,'characteristics',1);
+values (1,'256GB','память'),
+       (2,'512GB','память'),
+       (3,'256GB','память'),
+       (4,'1T','память'),
+       (5,'128GB','память'),
+       (1,'1024x600','разрешение экрана'),
+       (2,'2340x1200','разрешение экрана'),
+       (3,'2340x1200','разрешение экрана'),
+       (4,'2340x1200','разрешение экрана'),
+       (5,'2340x1200','разрешение экрана'),
+       (1,'13.3','диогональ экрана'),
+       (2,'13.3','диогональ экрана'),
+       (3,'13.3','диогональ экрана'),
+       (4,'13.3','диогональ экрана'),
+       (5,'13.3','диогональ экрана'),
+       (1,'16','RAM'),
+       (2,'16','RAM'),
+       (3,'16','RAM'),
+       (4,'16','RAM'),
+       (5,'16','RAM'),
+       (1,'7200 mA/h','емкость аккумулятора(mA/h)'),
+       (2,'7200 mA/h','емкость аккумулятора(mA/h)'),
+       (3,'7200 mA/h','емкость аккумулятора(mA/h)'),
+       (4,'7200 mA/h','емкость аккумулятора(mA/h)'),
+       (5,'7200 mA/h','емкость аккумулятора(mA/h)');
 
 insert into sub_product_images (sub_product_id,images)
 values (1,'https://login.kg/image/cache/catalog/new/Phones/Apple/iPhone%2014/Pro-Pro%20Max/1-500x500.jpg'),
+       (1,'https://login.kg/image/cache/catalog/new/Phones/Apple/iPhone%2014/Pro-Pro%20Max/1-500x500.jpg'),
+       (1,'https://login.kg/image/cache/catalog/new/Phones/Apple/iPhone%2014/Pro-Pro%20Max/1-500x500.jpg'),
+       (2,'https://www.litech.kg/storage/products/November2022/FCnalG4PX0ZYoq5EqmbH.jpg'),
+       (2,'https://www.litech.kg/storage/products/November2022/FCnalG4PX0ZYoq5EqmbH.jpg'),
        (2,'https://www.litech.kg/storage/products/November2022/FCnalG4PX0ZYoq5EqmbH.jpg'),
        (3,'https://mstore.kg/wp-content/uploads/2022/02/часы.png'),
+       (3,'https://mstore.kg/wp-content/uploads/2022/02/часы.png'),
+       (3,'https://mstore.kg/wp-content/uploads/2022/02/часы.png'),
+       (3,'https://mstore.kg/wp-content/uploads/2022/02/часы.png'),
        (4,'https://login.kg/image/cache/catalog/new/Phones/Apple/iPhone%2014/Pro-Pro%20Max/1-500x500.jpg'),
+       (4,'https://login.kg/image/cache/catalog/new/Phones/Apple/iPhone%2014/Pro-Pro%20Max/1-500x500.jpg'),
+       (4,'https://login.kg/image/cache/catalog/new/Phones/Apple/iPhone%2014/Pro-Pro%20Max/1-500x500.jpg'),
+       (5,'https://m.media-amazon.com/images/I/71TPda7cwUL._SL1500_.jpg'),
+       (5,'https://m.media-amazon.com/images/I/71TPda7cwUL._SL1500_.jpg'),
+       (5,'https://m.media-amazon.com/images/I/71TPda7cwUL._SL1500_.jpg'),
        (5,'https://m.media-amazon.com/images/I/71TPda7cwUL._SL1500_.jpg');
 
 insert into user_basket (user_id,basket,basket_key)
