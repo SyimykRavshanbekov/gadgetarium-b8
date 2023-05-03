@@ -1,8 +1,12 @@
 package com.example.gadgetariumb8.db.service.impl;
 
+import com.example.gadgetariumb8.db.dto.request.UserOrderRequest;
 import com.example.gadgetariumb8.db.dto.response.OrderResponse;
 import com.example.gadgetariumb8.db.dto.response.PaginationResponse;
+import com.example.gadgetariumb8.db.dto.response.UserOrderResponse;
 import com.example.gadgetariumb8.db.exception.exceptions.BadRequestException;
+import com.example.gadgetariumb8.db.model.Customer;
+import com.example.gadgetariumb8.db.model.Order;
 import com.example.gadgetariumb8.db.repository.CustomOrderRepository;
 import com.example.gadgetariumb8.db.service.OrderService;
 import lombok.RequiredArgsConstructor;
@@ -79,5 +83,19 @@ public class  OrderServiceImpl implements OrderService {
                 .currentPage(page)
                 .totalPages(totalPage)
                 .build();
+    }
+
+    @Override
+    public UserOrderResponse ordering(UserOrderRequest userOrderRequest) {
+        Customer customer = new Customer();
+        customer.setFirstName(userOrderRequest.customerInfo().firstName());
+        customer.setLastName(userOrderRequest.customerInfo().lastName());
+        customer.setEmail(userOrderRequest.customerInfo().email());
+        customer.setPhoneNumber(userOrderRequest.customerInfo().phoneNumber());
+        customer.setAddress(userOrderRequest.customerInfo().address());
+        Order order = new Order();
+        order.setDate(LocalDate.now());
+//        order.setQuantity();
+        return null;
     }
 }

@@ -19,6 +19,6 @@ public class UserOrderApi {
     private final OrderService orderService;
 
     public UserOrderResponse ordering(UserOrderRequest userOrderRequest) {
-        return null;
+        return orderService.ordering(userOrderRequest);
     }
 }

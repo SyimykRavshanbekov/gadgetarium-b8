@@ -42,6 +42,13 @@ public class Order {
             inverseJoinColumns = @JoinColumn(name = "sub_products_id"))
     private List<SubProduct> subProducts;
 
+    private void addAllSubProducts(List<SubProduct> subProducts){
+        if (this.subProducts == null){
+            this.subProducts = new ArrayList<>();
+        }
+        this.subProducts.addAll(subProducts);
+    }
+
     @ManyToOne(cascade = ALL)
     @JoinColumn(name = "customer_id")
     private Customer customer;
