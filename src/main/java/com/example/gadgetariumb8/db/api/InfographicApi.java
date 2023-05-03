@@ -17,9 +17,10 @@ public class InfographicApi {
     private final InfographicService infographicService;
 
     @GetMapping("/infographic")
-    @Operation(summary = "To infographics the order.", description = "This method to infographics the order.")
+    @Operation(summary = "To infographics the order.",
+            description = "This method for infographic of all ordered items which will take a period of time and calculate a report for that period.")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public InfographicsResponse infographics(@RequestParam String infographicsRequest) {
-        return infographicService.getInfographics(infographicsRequest);
+    public InfographicsResponse infographics(@RequestParam(defaultValue = "day") String period) {
+        return infographicService.getInfographics(period);
     }
 }

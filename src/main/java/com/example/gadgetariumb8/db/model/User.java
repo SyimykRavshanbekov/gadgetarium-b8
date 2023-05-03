@@ -5,6 +5,8 @@ import lombok.*;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
+
+import java.util.ArrayList;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
@@ -20,7 +22,8 @@ import static jakarta.persistence.CascadeType.*;
 @Builder
 public class User {
     @Id
-    @SequenceGenerator(name = "user_gen", sequenceName = "user_seq")
+    @SequenceGenerator(name = "user_gen", sequenceName = "user_seq",
+            allocationSize = 1, initialValue = 3)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_gen")
     private Long id;
     private String firstName;
@@ -34,6 +37,13 @@ public class User {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "favorites_id"))
     private List<SubProduct> favorites;
+    public void addFavourites(SubProduct subProduct){
+        if(favorites==null){
+            favorites = new ArrayList<>();
+        }else {
+            favorites.add(subProduct);
+        }
+    }
 
     @ManyToMany(cascade = ALL)
     @JoinTable(name = "users_last_views",
