@@ -4,9 +4,11 @@ import com.example.gadgetariumb8.db.dto.request.UserOrderRequest;
 import com.example.gadgetariumb8.db.dto.response.OrderResponse;
 import com.example.gadgetariumb8.db.dto.response.UserOrderResponse;
 import com.example.gadgetariumb8.db.service.OrderService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -18,6 +20,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserOrderApi {
     private final OrderService orderService;
 
+    @PostMapping
+    @Operation(summary = "")
     public UserOrderResponse ordering(UserOrderRequest userOrderRequest) {
         return orderService.ordering(userOrderRequest);
     }
