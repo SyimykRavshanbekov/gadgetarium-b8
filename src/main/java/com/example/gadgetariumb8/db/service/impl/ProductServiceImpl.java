@@ -1,6 +1,7 @@
 package com.example.gadgetariumb8.db.service.impl;
 
 import com.example.gadgetariumb8.db.dto.request.ProductRequest;
+import com.example.gadgetariumb8.db.dto.request.ProductUserRequest;
 import com.example.gadgetariumb8.db.dto.request.SubProductRequest;
 import com.example.gadgetariumb8.db.dto.response.*;
 import com.example.gadgetariumb8.db.exception.exceptions.BadRequestException;
@@ -496,5 +497,107 @@ public class ProductServiceImpl implements ProductService {
                 .reviews_count(resultSet.getInt("reviews_count"))
                 .isNew(resultSet.getDate("created_at").toLocalDate().isAfter(LocalDate.now().minusDays(7)))
                 .build();
+    }
+
+    @Override
+    public ProductUserResponse getProductById(ProductUserRequest productUserRequest) {
+        String sql = """
+                select sp.id as sub_product_id
+                       b.logo as logo,
+                       p.name as product_name,
+                       sp.quantity as quantity,
+                       sp.item_number as item_number,
+                       p.rating as rating,
+                       (select count(r.id)
+                        from reviews r
+                                 join products p on p.id = r.product_id
+                        where p.id = ? ) as count_of_reviews,
+                       sp.colour as color,
+                       d.percent as percent_of_discount,
+                       ((sp.price - (sp.price * d.percent / 100)) *  ?  ) as price,
+                       sp.price as old_price,
+                       p.date_of_issue  as date_of_issue,
+                       p.description as description,
+                       p.video as video_link
+                from products p
+                         join brands b on b.id = p.brand_id
+                         join sub_products sp on p.id = sp.product_id
+                         join reviews r on p.id = r.product_id
+                         left join discounts d on d.id = p.discount_id
+                where p.id =  ?  and sp.colour =  ?
+                """;
+        ProductUserResponse productUserResponse = new ProductUserResponse();
+        jdbcTemplate.query(sql, (resulSet, i) -> {
+                    productUserResponse.setSubProductId(resulSet.getLong("sub_product_id"));
+                    productUserResponse.setLogo(resulSet.getString("logo"));
+                    productUserResponse.setName(resulSet.getString("product_name"));
+                    productUserResponse.setQuantity(resulSet.getInt("quantity"));
+                    productUserResponse.setItemNumber(resulSet.getString("item_number"));
+                    productUserResponse.setRating(resulSet.getDouble("rating"));
+                    productUserResponse.setCountOfReviews(resulSet.getInt("count_of_reviews"));
+                    productUserResponse.setColor(resulSet.getString("color"));
+                    productUserResponse.setPercentOfDiscount(resulSet.getInt("percent_of_discount"));
+                    productUserResponse.setPrice(resulSet.getBigDecimal("price"));
+                    productUserResponse.setOldPrice(resulSet.getBigDecimal("old_price"));
+                    productUserResponse.setDateOfIssue(resulSet.getDate("date_of_issue").toLocalDate());
+                    productUserResponse.setDescription(resulSet.getString("description"));
+                    productUserResponse.setVideo(resulSet.getString("video_link"));
+                    return productUserResponse;
+                }
+                , productUserRequest.getProductId()
+                , productUserRequest.getQuantity()
+                , productUserRequest.getProductId()
+                , productUserRequest.getColor()
+        );
+        String sqlColours= """
+                select sp.colour as colours from sub_products sp where sp.product_id=?
+                """;
+        List<String> colours = jdbcTemplate.query(sqlColours, (resultSet, i) -> resultSet.getString("colours"), productUserRequest.getProductId());
+        productUserResponse.setColours(colours);
+        String sql2 = """
+                 select spc.characteristics_key as characteristics_key
+                 , spc.characteristics as characteristics
+                 from sub_product_characteristics spc
+                          join sub_products sp on sp.id = spc.sub_product_id
+                          where sp.product_id = ?
+                """;
+        Map<String, String> characteristics = new LinkedHashMap<>();
+        jdbcTemplate.query(sql2, (resultSet, i) ->
+                        characteristics.put(resultSet.getString("characteristics_key")
+                                , resultSet.getString("characteristics"))
+                , productUserRequest.getProductId());
+        productUserResponse.setCharacteristics(characteristics);
+        String sql3 = """
+                select spi.images as images
+                from sub_product_images spi
+                         join sub_products sp on sp.id = spi.sub_product_id
+                         where sp.product_id = ? 
+                """;
+        List<String> images = jdbcTemplate.query(sql3, (resultSet, i) ->
+                resultSet.getString("images"), productUserRequest.getProductId());
+        productUserResponse.setImages(images);
+        String sql4 = """
+                select u.image as image,
+                        concat(u.first_name, ' ', u.last_name) as full_name,
+                        concat(r.created_at_data,' ',r.created_at_time) as created_at,
+                        r.grade as grade,
+                        r.commentary as commentary,
+                        r.answer as answer
+                from reviews r
+                         join users u on u.id = r.user_id where r.product_id= ?
+                         ORDER BY r.created_at_data DESC LIMIT ?            
+                """;
+        List<ReviewsResponse> reviewsResponses = jdbcTemplate.query(sql4, (resultSet, i) -> ReviewsResponse.builder()
+                        .image(resultSet.getString("image"))
+                        .fullName(resultSet.getString("full_name"))
+                        .createdAt(resultSet.getString("created_at"))
+                        .grade(resultSet.getInt("grade"))
+                        .commentary(resultSet.getString("commentary"))
+                        .answer(resultSet.getString("answer")).build(),
+                productUserRequest.getProductId(),
+                productUserRequest.getPage()
+        );
+        productUserResponse.setReviews(reviewsResponses);
+        return productUserResponse;
     }
 }
