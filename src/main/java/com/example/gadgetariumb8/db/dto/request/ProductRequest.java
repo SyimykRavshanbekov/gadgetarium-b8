@@ -25,7 +25,6 @@ public record ProductRequest(
         String PDF,
         @NotBlank(message = "Description must be specified!!!")
         String description,
-
         @Valid
         @NotEmpty(message = "Description must be specified!!!")
         List<SubProductRequest> subProducts

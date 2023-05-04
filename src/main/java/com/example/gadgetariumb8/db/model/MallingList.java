@@ -16,6 +16,7 @@ public class MallingList {
             allocationSize = 1, initialValue = 5)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "malling_list_gen")
     private Long id;
+    @Column(length = 1000000)
     private String image;
     private String name;
     private String description;
