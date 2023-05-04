@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 
 import static jakarta.persistence.CascadeType.*;
@@ -25,6 +27,8 @@ public class Review {
     private String commentary;
     private int grade;
     private String answer;
+    private LocalDate createdAtData;
+    private Date createdAtTime;
 
     @ElementCollection
     private List<String> images;
