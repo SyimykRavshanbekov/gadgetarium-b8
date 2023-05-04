@@ -1,9 +1,11 @@
 package com.example.gadgetariumb8.db.api;
 
+import com.example.gadgetariumb8.db.dto.request.ProductUserRequest;
 import com.example.gadgetariumb8.db.dto.response.*;
 import com.example.gadgetariumb8.db.service.ProductService;
 import com.example.gadgetariumb8.db.service.SubProductService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.security.PermitAll;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +22,13 @@ import java.util.List;
 public class ProductUserApi {
     private final ProductService productService;
     private final SubProductService subProductService;
+
+    @GetMapping("/get-by-id")
+    @PreAuthorize("hasAuthority('USER')")
+    @Operation(summary = "To get by product id the product.", description = "This method to get by product id  the product.")
+    public ProductUserResponse getByProductId(@RequestBody ProductUserRequest productUserRequest) {
+        return productService.getProductById(productUserRequest);
+    }
 
     @GetMapping("/discount")
     @Operation(summary = "Get discount products", description = "This method gets all discount products")

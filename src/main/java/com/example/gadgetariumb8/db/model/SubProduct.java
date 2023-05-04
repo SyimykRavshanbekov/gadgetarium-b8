@@ -37,7 +37,6 @@ public class SubProduct {
     private Map<String, String> characteristics;
 
     public void addCharacteristics(Map<String, String> characteristics) {
-
         if (this.characteristics == null) {
             this.characteristics = new HashMap<>();
         }
