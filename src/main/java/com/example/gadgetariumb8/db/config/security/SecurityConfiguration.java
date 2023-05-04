@@ -28,7 +28,7 @@ public class SecurityConfiguration {
                 .requestMatchers("/api/auth/**", "/swagger-ui/**","/v3/api-docs/**")
                 .permitAll()
                 .anyRequest()
-                .authenticated()
+                .permitAll()
                 .and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)

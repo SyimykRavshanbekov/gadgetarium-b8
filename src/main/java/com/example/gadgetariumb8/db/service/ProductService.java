@@ -1,12 +1,10 @@
 package com.example.gadgetariumb8.db.service;
-
-import com.example.gadgetariumb8.db.dto.response.CatalogResponse;
-import java.util.Optional;
 import com.example.gadgetariumb8.db.dto.request.ProductRequest;
 import com.example.gadgetariumb8.db.dto.response.*;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 public interface ProductService {
 
@@ -26,5 +24,4 @@ public interface ProductService {
 
     PaginationResponse<ProductAdminResponse> getAll(String keyWord, String status, LocalDate from, LocalDate before,
                                                     String sortBy, int page, int pageSize);
-
 }

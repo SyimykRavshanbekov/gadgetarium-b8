@@ -28,6 +28,7 @@ public class User {
     private Long id;
     private String firstName;
     private String lastName;
+    @Column(length = 1000000)
     private String image;
     private String phoneNumber;
     private String address;
