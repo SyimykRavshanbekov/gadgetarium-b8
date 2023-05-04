@@ -152,16 +152,18 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public CompareCountResponse countCompare() {
         User user = getAuthenticate();
-        String sql = customProductRepository.countCompare();
-
-        return jdbcTemplate.query(sql, (result, i) -> {
-                    Map<String, Integer> count = new LinkedHashMap<>();
-                    count.put(result.getString("categoryName"),
-                            result.getInt("countComparisons"));
-                    return new CompareCountResponse(count);
-                },
-                user.getId()
-        ).stream().findFirst().orElseThrow(() -> new NotFoundException("Not found"));
+        if (user.getComparisons().size()!=0){
+            return jdbcTemplate.query(customProductRepository.countCompare(), (result, i) -> {
+                        Map<String, Integer> count = new LinkedHashMap<>();
+                        count.put(result.getString("categoryName"),
+                                result.getInt("countComparisons"));
+                        return new CompareCountResponse(count);
+                    },
+                    user.getId()
+            ).stream().findFirst().orElseThrow(() -> new NotFoundException("Not found"));
+        }else {
+            throw new NotFoundException(String.format("not compare!"));
+        }
     }
     @Override
     public PaginationResponse<ProductsResponse> getNewProducts(int page, int pageSize) {
