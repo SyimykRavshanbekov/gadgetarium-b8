@@ -1,7 +1,9 @@
 package com.example.gadgetariumb8.db.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Size;
 import lombok.*;
+import org.hibernate.validator.constraints.Length;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
@@ -29,7 +31,6 @@ public class SubProduct {
     private int itemNumber;
 
     @ElementCollection
-    @Column(length = 10000)
     private List<String> images;
 
     @ElementCollection

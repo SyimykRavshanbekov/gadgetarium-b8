@@ -22,6 +22,7 @@ public class Banner {
             allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "banner_gen")
     private Long id;
+    @Column(length = 1000000)
     private String banner;
 
     public Banner(String banner) {
