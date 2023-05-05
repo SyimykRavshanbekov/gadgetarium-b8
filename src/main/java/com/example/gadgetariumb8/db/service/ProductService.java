@@ -18,6 +18,8 @@ public interface ProductService {
 
     CompareCountResponse countCompare ();
 
+    SimpleResponse cleanCompare();
+
     PaginationResponse<ProductsResponse> getAllDiscountProducts(int page, int pageSize);
 
     PaginationResponse<ProductsResponse> getNewProducts(int page, int pageSize);

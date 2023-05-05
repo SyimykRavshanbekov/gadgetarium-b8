@@ -5,10 +5,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class CustomProductRepository {
 
-    public String cleanCompare (){
-        return "TRUNCATE TABLE user_comparisons where id = ?";
-    }
-
     public String countCompare () {
         return """
                 select c.name as categoryName,count(uc.comparisons_id) as countComparisons from

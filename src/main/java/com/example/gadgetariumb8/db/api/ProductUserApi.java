@@ -73,4 +73,11 @@ public class ProductUserApi {
     public CompareCountResponse countCompare(){
         return productService.countCompare();
     }
+
+    @DeleteMapping
+    @Operation(summary = "To clean the Compare",description = "This method clean table Comparisons")
+    @PermitAll
+    public SimpleResponse cleanCompare(){
+        return productService.cleanCompare();
+    }
 }

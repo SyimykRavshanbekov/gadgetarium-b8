@@ -162,9 +162,18 @@ public class ProductServiceImpl implements ProductService {
                     user.getId()
             ).stream().findFirst().orElseThrow(() -> new NotFoundException("Not found"));
         }else {
-            throw new NotFoundException(String.format("not compare!"));
+            throw new NotFoundException(String.format("There is no comparison on this User"));
         }
     }
+
+    @Override
+    public SimpleResponse cleanCompare() {
+        User user = getAuthenticate();
+        user.getComparisons().clear();
+        userRepository.save(user);
+        return SimpleResponse.builder().message(String.format("Clean Compare!")).httpStatus(HttpStatus.OK).build();
+    }
+
     @Override
     public PaginationResponse<ProductsResponse> getNewProducts(int page, int pageSize) {
         String sql = """
