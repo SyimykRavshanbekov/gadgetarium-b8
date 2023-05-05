@@ -1,8 +1,12 @@
 package com.example.gadgetariumb8.db.dto.response;
 
-/**
- * @author kurstan
- * @created at 02.05.2023 16:43
- */
-public record UserOrderResponse() {
+import lombok.Builder;
+import org.springframework.http.HttpStatus;
+
+@Builder
+public record UserOrderResponse(
+        HttpStatus httpStatus,
+        String orderNumber,
+        String message
+) {
 }

@@ -7,7 +7,7 @@ import jakarta.validation.constraints.NotNull;
 import java.util.Map;
 
 public record UserOrderRequest(
-        Map<Long, Integer> productsAndQuantity,
+        Map<Long, Integer> productsIdAndQuantity,
         @NotNull
         boolean deliveryType,
         @Valid

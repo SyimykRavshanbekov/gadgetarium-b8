@@ -46,4 +46,8 @@ public class SubProduct {
     @ManyToOne(cascade = {REFRESH, PERSIST, MERGE, DETACH})
     @JoinColumn(name = "product_id")
     private Product product;
+
+    @OneToOne(cascade = ALL)
+    @JoinColumn(name = "discount_id")
+    private Discount discount;
 }

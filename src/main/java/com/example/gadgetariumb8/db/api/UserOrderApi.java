@@ -21,7 +21,7 @@ public class UserOrderApi {
     private final OrderService orderService;
 
     @PostMapping
-    @Operation(summary = "")
+    @Operation(summary = "Order products", description = "This method validates the request and to order products")
     public UserOrderResponse ordering(UserOrderRequest userOrderRequest) {
         return orderService.ordering(userOrderRequest);
     }
