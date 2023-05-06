@@ -1,16 +1,18 @@
 package com.example.gadgetariumb8.db.dto.response;
 
-import lombok.Builder;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.util.List;
-
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Builder
-public record UserChosenOneResponse(
-        Long id,
-        List<String> images,
-        String productName,
-        double rating,
-        BigDecimal price
-) {
+public class UserChosenOneResponse {
+       private Long id;
+       private List<String> images;
+       private String productName;
+       private double rating;
+       private BigDecimal price;
 }

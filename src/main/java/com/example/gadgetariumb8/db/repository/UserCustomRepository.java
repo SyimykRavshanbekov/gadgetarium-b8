@@ -7,16 +7,17 @@ public class UserCustomRepository {
 
     public String getAllChosenOne(){
         return """
-                select us.id as id,
-                spi.images as imageProduct,
-                p.name as productName,
-                p.rating as rating,
-                sp.price as priceProduct
-                 from users us
-                        join users_favorites uf on us.id = uf.user_id
-                        join sub_products sp on sp.id = uf.favorites_id
-                        join products p on p.id = sp.product_id
-                        join sub_product_images spi on sp.id = spi.sub_product_id where us.id= ?
+                select uf.user_id as userId,
+                       (select spi.images from sub_product_images spi where spi.sub_product_id = sp.id limit 1) as productImage,
+                       p.name as productName,
+                       p.rating productRating,
+                       sp.price as productPrice
+                from categories c
+                join sub_categories sc on c.id = sc.category_id
+                join products p on sc.id = p.sub_category_id
+                join sub_products sp on p.id = sp.product_id
+                join users_favorites uf on sp.id = uf.favorites_id
+                where uf.user_id = ?
                 """;
     }
 }

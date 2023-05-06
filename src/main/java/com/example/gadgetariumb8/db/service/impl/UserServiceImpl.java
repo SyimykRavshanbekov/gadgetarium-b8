@@ -14,6 +14,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -34,15 +35,22 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserChosenOneResponse getAll() {
+    public List<UserChosenOneResponse> getAll() {
         User user = getAuthenticate();
-        return jdbcTemplate.query(userCustomRepository.getAllChosenOne(),
-                (result,i) -> new UserChosenOneResponse(result.getLong("id"),
-                        Collections.singletonList(result.getString("imageProduct")),
-                        result.getString("productName"),
-                        result.getDouble("rating"),
-                        result.getBigDecimal("priceProduct")
-                        ), user.getId()
-        ).stream().findFirst().orElseThrow(()->new NotFoundException("This find index is not found!!!"));
+        try {
+            List<UserChosenOneResponse> chosenOne = jdbcTemplate.query(userCustomRepository.getAllChosenOne(),
+                    (result,i) -> new UserChosenOneResponse(
+                            result.getLong("userId"),
+                            Collections.singletonList(result.getString("productImage")),
+                            result.getString("productName"),
+                            result.getDouble("productRating"),
+                            result.getBigDecimal("productPrice")
+                    ), user.getId()
+            );
+            userRepository.save(user);
+            return chosenOne;
+        }catch (NotFoundException notFoundException){
+            throw new NotFoundException(String.format("This user has no favorites!"));
+        }
     }
 }

@@ -82,7 +82,7 @@ public class ProductUserApi {
     @GetMapping("/chosen_one")
     @Operation(summary = "Chosen One User",description = "This method chosen one user profile")
     @PermitAll
-    public UserChosenOneResponse getAllChosenOne () {
+    public List<UserChosenOneResponse> getAllChosenOne () {
         return userService.getAll();
     }
 }
