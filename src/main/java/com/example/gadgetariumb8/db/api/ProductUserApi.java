@@ -2,16 +2,24 @@ package com.example.gadgetariumb8.db.api;
 
 import com.example.gadgetariumb8.db.dto.request.ProductUserRequest;
 import com.example.gadgetariumb8.db.dto.response.*;
+import com.example.gadgetariumb8.db.service.PdfService;
 import com.example.gadgetariumb8.db.service.ProductService;
 import com.example.gadgetariumb8.db.service.SubProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.security.PermitAll;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -22,6 +30,13 @@ import java.util.List;
 public class ProductUserApi {
     private final ProductService productService;
     private final SubProductService subProductService;
+    private final PdfService pdfService;
+
+    @GetMapping("/pdf/generate/{id}")
+    @PermitAll
+    public String generatePDF(@PathVariable("id") Long subProductId) {
+        return pdfService.exportPdf(subProductId);
+    }
 
     @GetMapping("/get-by-id")
     @PreAuthorize("hasAuthority('USER')")
@@ -75,4 +90,5 @@ public class ProductUserApi {
     public SimpleResponse deleteOrMoveToFavorites(@RequestBody List<Long> longList, @RequestParam String key) {
         return subProductService.deleteOrMoveToFavorites(key, longList);
     }
+
 }
