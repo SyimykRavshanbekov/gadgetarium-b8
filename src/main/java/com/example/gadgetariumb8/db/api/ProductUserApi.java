@@ -75,4 +75,18 @@ public class ProductUserApi {
     public SimpleResponse deleteOrMoveToFavorites(@RequestBody List<Long> longList, @RequestParam String key) {
         return subProductService.deleteOrMoveToFavorites(key, longList);
     }
+
+    @GetMapping("/countCompare")
+    @Operation(summary = "To count the Compare.", description = "This method count the Compare")
+    @PermitAll
+    public CompareCountResponse countCompare(){
+        return productService.countCompare();
+    }
+
+    @DeleteMapping
+    @Operation(summary = "To clean the Compare",description = "This method clean table Comparisons")
+    @PermitAll
+    public SimpleResponse cleanCompare(){
+        return productService.cleanCompare();
+    }
 }
