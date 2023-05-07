@@ -51,7 +51,7 @@ public class FavouriteRepositoryImpl implements FavouriteRepository {
                         CAST(sp.price - ((sp.price * d.percent) / 100) AS INTEGER) as discount
                     FROM sub_products sp
                         JOIN products p ON p.id = sp.product_id
-                        LEFT JOIN discounts d ON p.discount_id = d.id
+                        LEFT JOIN discounts d ON sp.discount_id = d.id
                         JOIN sub_categories sc ON p.sub_category_id = sc.id
                         JOIN categories c ON sc.category_id = c.id
                         JOIN sub_product_characteristics spc ON sp.id = spc.sub_product_id

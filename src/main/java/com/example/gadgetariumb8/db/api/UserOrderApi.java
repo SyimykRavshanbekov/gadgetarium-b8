@@ -1,16 +1,13 @@
 package com.example.gadgetariumb8.db.api;
 
 import com.example.gadgetariumb8.db.dto.request.UserOrderRequest;
-import com.example.gadgetariumb8.db.dto.response.OrderResponse;
 import com.example.gadgetariumb8.db.dto.response.UserOrderResponse;
 import com.example.gadgetariumb8.db.service.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -22,7 +19,8 @@ public class UserOrderApi {
 
     @PostMapping
     @Operation(summary = "Order products", description = "This method validates the request and to order products")
-    public UserOrderResponse ordering(UserOrderRequest userOrderRequest) {
+    @PreAuthorize("hasAuthority('USER')")
+    public UserOrderResponse ordering(@RequestBody UserOrderRequest userOrderRequest) {
         return orderService.ordering(userOrderRequest);
     }
 }

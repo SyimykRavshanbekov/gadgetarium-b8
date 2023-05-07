@@ -1,9 +1,7 @@
 package com.example.gadgetariumb8.db.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Size;
 import lombok.*;
-import org.hibernate.validator.constraints.Length;
 
 import java.math.BigDecimal;
 import java.util.HashMap;

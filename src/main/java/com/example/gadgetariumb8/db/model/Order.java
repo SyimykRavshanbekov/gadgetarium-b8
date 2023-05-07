@@ -23,7 +23,7 @@ import static jakarta.persistence.CascadeType.*;
 @AllArgsConstructor
 public class Order {
     @Id
-    @SequenceGenerator(name = "order_gen", sequenceName = "order_seq")
+    @SequenceGenerator(name = "order_gen", sequenceName = "order_seq", allocationSize = 1, initialValue = 6)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "order_gen")
     private Long id;
     private LocalDate date;
@@ -42,14 +42,14 @@ public class Order {
             inverseJoinColumns = @JoinColumn(name = "sub_products_id"))
     private List<SubProduct> subProducts;
 
-    private void addAllSubProducts(List<SubProduct> subProducts){
+    public void addAllSubProducts(List<SubProduct> subProducts){
         if (this.subProducts == null){
             this.subProducts = new ArrayList<>();
         }
         this.subProducts.addAll(subProducts);
     }
 
-    @ManyToOne(cascade = ALL)
+    @OneToOne(cascade = ALL)
     @JoinColumn(name = "customer_id")
     private Customer customer;
 }
