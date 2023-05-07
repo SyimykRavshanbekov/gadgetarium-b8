@@ -2,6 +2,7 @@ package com.example.gadgetariumb8.db.api;
 
 import com.example.gadgetariumb8.db.dto.request.ProductUserRequest;
 import com.example.gadgetariumb8.db.dto.response.*;
+import com.example.gadgetariumb8.db.service.PdfService;
 import com.example.gadgetariumb8.db.service.ProductService;
 import com.example.gadgetariumb8.db.service.SubProductService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -22,6 +23,13 @@ import java.util.List;
 public class ProductUserApi {
     private final ProductService productService;
     private final SubProductService subProductService;
+    private final PdfService pdfService;
+
+    @GetMapping("/pdf/generate/{id}")
+    @PermitAll
+    public String generatePDF(@PathVariable("id") Long subProductId) {
+        return pdfService.exportPdf(subProductId);
+    }
 
     @GetMapping("/get-by-id")
     @PreAuthorize("hasAuthority('USER')")
@@ -74,5 +82,19 @@ public class ProductUserApi {
     @PermitAll
     public SimpleResponse deleteOrMoveToFavorites(@RequestBody List<Long> longList, @RequestParam String key) {
         return subProductService.deleteOrMoveToFavorites(key, longList);
+    }
+
+    @GetMapping("/countCompare")
+    @Operation(summary = "To count the Compare.", description = "This method count the Compare")
+    @PermitAll
+    public CompareCountResponse countCompare(){
+        return productService.countCompare();
+    }
+
+    @DeleteMapping
+    @Operation(summary = "To clean the Compare",description = "This method clean table Comparisons")
+    @PermitAll
+    public SimpleResponse cleanCompare(){
+        return productService.cleanCompare();
     }
 }

@@ -7,10 +7,7 @@ import com.example.gadgetariumb8.db.dto.response.*;
 import com.example.gadgetariumb8.db.exception.exceptions.BadRequestException;
 import com.example.gadgetariumb8.db.exception.exceptions.NotFoundException;
 import com.example.gadgetariumb8.db.model.*;
-import com.example.gadgetariumb8.db.repository.BrandRepository;
-import com.example.gadgetariumb8.db.repository.SubCategoryRepository;
-import com.example.gadgetariumb8.db.repository.SubProductRepository;
-import com.example.gadgetariumb8.db.repository.UserRepository;
+import com.example.gadgetariumb8.db.repository.*;
 import com.example.gadgetariumb8.db.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +33,7 @@ public class ProductServiceImpl implements ProductService {
     private final SubProductRepository subProductRepository;
     private final JdbcTemplate jdbcTemplate;
     private final UserRepository userRepository;
+    private final CustomProductRepository customProductRepository;
 
     private User getAuthenticate() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -150,6 +148,31 @@ public class ProductServiceImpl implements ProductService {
                         resultSet.getString("simCard")
                 ), getAuthenticate().getId()
         );
+    }
+
+    @Override
+    public CompareCountResponse countCompare() {
+        User user = getAuthenticate();
+        if (user.getComparisons().size()!=0){
+            return jdbcTemplate.query(customProductRepository.countCompare(), (result, i) -> {
+                        Map<String, Integer> count = new LinkedHashMap<>();
+                        count.put(result.getString("categoryName"),
+                                result.getInt("countComparisons"));
+                        return new CompareCountResponse(count);
+                    },
+                    user.getId()
+            ).stream().findFirst().orElseThrow(() -> new NotFoundException("Not found"));
+        }else {
+            throw new NotFoundException(String.format("There is no comparison on this User"));
+        }
+    }
+
+    @Override
+    public SimpleResponse cleanCompare() {
+        User user = getAuthenticate();
+        user.getComparisons().clear();
+        userRepository.save(user);
+        return SimpleResponse.builder().message(String.format("Clean Compare!")).httpStatus(HttpStatus.OK).build();
     }
 
     @Override

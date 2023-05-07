@@ -76,5 +76,4 @@ public class User {
     @OneToOne(cascade = ALL, orphanRemoval = true)
     @JoinColumn(name = "user_info_id")
     private UserInfo userInfo;
-    private BigDecimal bigDecimal;
 }
