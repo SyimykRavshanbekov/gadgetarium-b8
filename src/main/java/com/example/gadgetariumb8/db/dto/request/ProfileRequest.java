@@ -22,11 +22,6 @@ public record ProfileRequest(
         @Email(message = "Write valid email!")
         String email,
         @NotBlank(message = "address should not be empty")
-        String address,
-
-        String currentPassword,
-        String newPassword
-
-
+        String address
 ) {
 }

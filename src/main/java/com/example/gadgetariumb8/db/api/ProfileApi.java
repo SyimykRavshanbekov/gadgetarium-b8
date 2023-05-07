@@ -1,6 +1,7 @@
 package com.example.gadgetariumb8.db.api;
 
 import com.example.gadgetariumb8.db.dto.request.ProfileImageRequest;
+import com.example.gadgetariumb8.db.dto.request.ProfilePasswordResetRequest;
 import com.example.gadgetariumb8.db.dto.request.ProfileRequest;
 import com.example.gadgetariumb8.db.dto.response.ProfileResponse;
 import com.example.gadgetariumb8.db.dto.response.SimpleResponse;
@@ -18,13 +19,19 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class ProfileApi {
     private final ProfileService profileService;
-    @PutMapping("/update")
-    @PreAuthorize("hasAuthority('USER')")
-    public ProfileResponse update(@RequestBody @Valid ProfileRequest request) {
-        return profileService.update(request);
+    @PutMapping
+    @PreAuthorize("hasAnyAuthority('USER','ADMIN')")
+    public ProfileResponse updateUserDetails(@RequestBody @Valid ProfileRequest request) {
+        return profileService.updateUserDetails(request);
     }
 
-    @PostMapping("/set-image")
+    @PutMapping("/reset-password")
+    @PreAuthorize("hasAnyAuthority('USER','ADMIN')")
+    public SimpleResponse resetUserPassword(@RequestBody @Valid ProfilePasswordResetRequest request) {
+        return profileService.resetPassword(request);
+    }
+
+    @PostMapping
     @PreAuthorize("hasAnyAuthority('USER','ADMIN')")
     public SimpleResponse setProfileImage(@RequestBody @Valid ProfileImageRequest request) {
         return profileService.setImage(request);
