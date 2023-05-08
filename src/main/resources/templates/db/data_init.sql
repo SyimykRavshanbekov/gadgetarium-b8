@@ -167,8 +167,8 @@ insert into users_favorites (user_id,favorites_id)
 values (1,1),
        (1,2),
        (1,3),
-       (1,4),
-       (1,5);
+       (2,4),
+       (2,5);
 
 insert into users_last_views (user_id,last_views_id)
 values (1,1),
