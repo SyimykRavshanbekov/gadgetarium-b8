@@ -23,7 +23,7 @@ public class PdfServiceImpl implements PdfService {
         context.setVariable("model", subProduct.getProduct().getName());
         context.setVariable("color", subProduct.getColour());
         context.setVariable("price", subProduct.getPrice());
-        context.setVariable("discount", subProduct.getProduct().getDiscount().getPercent());
+        context.setVariable("discount", subProduct.getDiscount().getPercent());
         context.setVariable("date_of_issue", subProduct.getProduct().getDateOfIssue());
         context.setVariable("image", subProduct.getImages().stream().findAny().orElseThrow(() -> new NotFoundException("Find image is null or not found!!")));
         String process = templateEngine.process("templates/pdf_template/download-pdf-template.html", context);
