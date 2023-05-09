@@ -5,6 +5,7 @@ import com.example.gadgetariumb8.db.dto.response.*;
 import com.example.gadgetariumb8.db.service.PdfService;
 import com.example.gadgetariumb8.db.service.ProductService;
 import com.example.gadgetariumb8.db.service.SubProductService;
+import com.example.gadgetariumb8.db.service.impl.UserServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -30,6 +31,8 @@ public class ProductUserApi {
     public String generatePDF(@PathVariable("id") Long subProductId) {
         return pdfService.exportPdf(subProductId);
     }
+
+    private final UserServiceImpl userService;
 
     @GetMapping("/get-by-id")
     @PreAuthorize("hasAuthority('USER')")
@@ -84,6 +87,12 @@ public class ProductUserApi {
         return subProductService.deleteOrMoveToFavorites(key, longList);
     }
 
+    @GetMapping("/chosen_one")
+    @Operation(summary = "Chosen One User",description = "This method chosen one user profile")
+    @PermitAll
+    public List<UserChosenOneResponse> getAllChosenOne () {
+        return userService.getAll();
+
     @GetMapping("/countCompare")
     @Operation(summary = "To count the Compare.", description = "This method count the Compare")
     @PermitAll
@@ -96,5 +105,6 @@ public class ProductUserApi {
     @PermitAll
     public SimpleResponse cleanCompare(){
         return productService.cleanCompare();
+
     }
 }
