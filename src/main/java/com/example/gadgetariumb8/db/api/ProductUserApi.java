@@ -92,6 +92,7 @@ public class ProductUserApi {
     @PermitAll
     public List<UserChosenOneResponse> getAllChosenOne () {
         return userService.getAll();
+    }
 
     @GetMapping("/countCompare")
     @Operation(summary = "To count the Compare.", description = "This method count the Compare")
