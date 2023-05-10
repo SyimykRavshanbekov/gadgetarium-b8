@@ -20,9 +20,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -116,6 +114,10 @@ public class UserOrderHistoryServiceImpl implements UserOrderHistoryService {
         }
 
         String[] address = order.getCustomer().getAddress().split(",");
+
+        Queue<String> addr = new LinkedList<>();
+        Arrays.stream(address).forEach(addr::offer);
+
         return UserOrderResponse
                 .builder()
                 .orderNumber(order.getOrderNumber())
@@ -124,9 +126,9 @@ public class UserOrderHistoryServiceImpl implements UserOrderHistoryService {
                 .client(order.getCustomer().getFirstName() + " " + order.getCustomer().getLastName())
                 .firstName(order.getCustomer().getFirstName())
                 .lastName(order.getCustomer().getLastName())
-                .region(address[0])
-                .city(address[1])
-                .address(address[2])
+                .region(addr.poll())
+                .city(addr.poll())
+                .address(addr.poll())
                 .email(order.getCustomer().getEmail())
                 .payment_type(order.getPaymentType().toString())
                 .tel_number(order.getCustomer().getPhoneNumber())
