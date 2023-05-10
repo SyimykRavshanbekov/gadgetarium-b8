@@ -5,6 +5,7 @@ import com.example.gadgetariumb8.db.dto.response.OrderResponse;
 import com.example.gadgetariumb8.db.dto.response.PaginationResponse;
 import com.example.gadgetariumb8.db.dto.response.UserOrderResponse;
 import com.example.gadgetariumb8.db.exception.exceptions.BadRequestException;
+import com.example.gadgetariumb8.db.exception.exceptions.MessageSendingException;
 import com.example.gadgetariumb8.db.exception.exceptions.NotFoundException;
 import com.example.gadgetariumb8.db.model.Customer;
 import com.example.gadgetariumb8.db.model.Order;
@@ -12,23 +13,37 @@ import com.example.gadgetariumb8.db.model.SubProduct;
 import com.example.gadgetariumb8.db.model.User;
 import com.example.gadgetariumb8.db.model.enums.Status;
 import com.example.gadgetariumb8.db.repository.CustomOrderRepository;
-import com.example.gadgetariumb8.db.repository.OrderRepository;
 import com.example.gadgetariumb8.db.repository.SubProductRepository;
 import com.example.gadgetariumb8.db.repository.UserRepository;
+import com.example.gadgetariumb8.db.service.EmailService;
 import com.example.gadgetariumb8.db.service.OrderService;
+import freemarker.template.Configuration;
+import freemarker.template.Template;
+import freemarker.template.TemplateException;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
+import software.amazon.awssdk.services.s3.endpoints.internal.Value;
 
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -41,6 +56,9 @@ public class OrderServiceImpl implements OrderService {
     private final CustomOrderRepository customOrderRepository;
     private final SubProductRepository subProductRepository;
     private final UserRepository userRepository;
+    private final JavaMailSender javaMailSender;
+    private final TemplateEngine templateEngine;
+    private final Configuration configuration;
 
     @Override
     public PaginationResponse<OrderResponse> getAllOrders(String keyWord, String status, LocalDate from, LocalDate before, int page, int pageSize) {
@@ -149,6 +167,35 @@ public class OrderServiceImpl implements OrderService {
         order.addAllSubProducts(subProducts);
         order.setCustomer(customer);
         getAuthenticate().addOrder(order);
+
+        Map<String, Object> model = new HashMap<>();
+        model.put("orderNumber", order.getOrderNumber());
+        model.put("dateOfOrder", order.getDate());
+        model.put("statusOfOrder", "В ожидании");
+        model.put("datePurchase", order.getDate());
+        model.put("customer", order.getCustomer().getFirstName() + " " +order.getCustomer().getLastName());
+        model.put("phoneNumber",order.getCustomer().getPhoneNumber());
+        String deliveryType = "Самовывоз из магазина";
+        if (order.isDeliveryType()){
+            deliveryType = "Доставка курьером";
+        }
+        model.put("deliveryType", deliveryType);
+        model.put("link", "https://t.me/erkurss");
+
+        try {
+            MimeMessage message = javaMailSender.createMimeMessage();
+            MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(message, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED,
+                    StandardCharsets.UTF_8.name());
+            Template template = configuration.getTemplate("order-email-template.html");
+            String html = FreeMarkerTemplateUtils.processTemplateIntoString(template, model);
+            mimeMessageHelper.setTo(order.getCustomer().getEmail());
+            mimeMessageHelper.setText(html, true);
+            mimeMessageHelper.setSubject("Gadgetarium");
+            mimeMessageHelper.setFrom("Gadgetarium@gmail.com");
+            javaMailSender.send(message);
+        } catch (MessagingException | IOException | TemplateException e) {
+            throw new MessageSendingException("Ошибка при отправке сообщения!");
+        }
 
         return UserOrderResponse.builder()
                 .httpStatus(HttpStatus.OK)
