@@ -12,6 +12,5 @@ import lombok.Setter;
 public class ProductUserRequest {
     private Long productId;
     private String color;
-    private int quantity;
     private int page;
 }
