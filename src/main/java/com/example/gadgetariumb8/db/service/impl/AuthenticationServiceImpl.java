@@ -124,7 +124,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         context.setVariable("tokenTitle", "Reset Password");
 
         String htmlContent = templateEngine.process("reset-password-template.html", context);
-
         emailService.sendEmail(email, subject, htmlContent);
         log.info("The password reset was sent to your email. Please check your email.");
         return SimpleResponse.builder()

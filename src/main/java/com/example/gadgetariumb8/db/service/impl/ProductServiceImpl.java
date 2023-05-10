@@ -176,7 +176,6 @@ public class ProductServiceImpl implements ProductService {
                 throw new NotFoundException("Not found");
             });
         } else {
-            log.error(String.format("There is no comparison on this User"));
             throw new NotFoundException(String.format("There is no comparison on this User"));
         }
     }
@@ -554,7 +553,7 @@ public class ProductServiceImpl implements ProductService {
     public ProductUserResponse getProductById(ProductUserRequest productUserRequest) {
         log.info("Getting product by id");
         String sql = """
-                select sp.id as sub_product_id
+                select sp.id as sub_product_id,
                        b.logo as logo,
                        p.name as product_name,
                        sp.quantity as quantity,
@@ -566,8 +565,7 @@ public class ProductServiceImpl implements ProductService {
                         where p.id = ? ) as count_of_reviews,
                        sp.colour as color,
                        d.percent as percent_of_discount,
-                       ((sp.price - (sp.price * d.percent / 100)) *  ?  ) as price,
-                       sp.price as old_price,
+                       sp.price as price,
                        p.date_of_issue  as date_of_issue,
                        p.description as description,
                        p.video as video_link
@@ -590,14 +588,12 @@ public class ProductServiceImpl implements ProductService {
                     productUserResponse.setColor(resulSet.getString("color"));
                     productUserResponse.setPercentOfDiscount(resulSet.getInt("percent_of_discount"));
                     productUserResponse.setPrice(resulSet.getBigDecimal("price"));
-                    productUserResponse.setOldPrice(resulSet.getBigDecimal("old_price"));
                     productUserResponse.setDateOfIssue(resulSet.getDate("date_of_issue").toLocalDate());
                     productUserResponse.setDescription(resulSet.getString("description"));
                     productUserResponse.setVideo(resulSet.getString("video_link"));
                     return productUserResponse;
                 }
                 , productUserRequest.getProductId()
-                , productUserRequest.getQuantity()
                 , productUserRequest.getProductId()
                 , productUserRequest.getColor()
         );
@@ -647,7 +643,7 @@ public class ProductServiceImpl implements ProductService {
                         .commentary(resultSet.getString("commentary"))
                         .answer(resultSet.getString("answer")).build(),
                 productUserRequest.getProductId(),
-                productUserRequest.getPage()
+                productUserRequest.getPage() + 1
         );
         productUserResponse.setReviews(reviewsResponses);
         log.info("Product is a successfully got!");

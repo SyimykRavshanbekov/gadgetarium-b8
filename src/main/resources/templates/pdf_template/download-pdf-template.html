@@ -1,0 +1,104 @@
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ru">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Java Techie Mail</title>
+  <style>
+    .main{
+      margin: 20px 10px;
+      background-color: #FFFFFF;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.15);
+      border: 1px solid #5E5E5E;
+      border-radius: 6px;
+      min-height: auto;
+      width: 500px;
+
+    }
+    .image-holder{
+      width: 500px;
+      height: 130px;
+      font-size: 48px;
+      background-color: #1A1A25;
+      border-radius: 6px 6px 0 0;
+    }
+    .image{
+      width: 210px;
+      height: 40px;
+      padding: 45px 145px;
+    }
+    .container{
+      padding: 10px 45px;
+    }
+    .text-header{
+      font-family: 'Inter',sans-serif;
+      font-style: normal;
+      font-weight: 800;
+      font-size: 19px;
+      line-height: 120%;
+    }
+    .header-text{
+      font-family: 'Inter',sans-serif;
+      font-style: normal;
+      font-weight: 700;
+      font-size: 16px;
+      line-height: 150%;
+      color: #1A1A25;
+    }
+    .description{
+      font-family: 'Inter',sans-serif;
+      font-style: normal;
+      font-weight: 400;
+      font-size: 16px;
+      line-height: 150%;
+      color: #384255;
+    }
+  </style>
+</head>
+
+<body style="padding: 0; margin: 0; color: black">
+<div class="main">
+  <div class = "image-holder">
+    <img src="data:image/png;base64,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" alt="" class="image">
+  </div>
+  <div class="container">
+    <div class="text-header">
+      <br>Здравствуйте!<br> Гаджеты в вашем распоряжении!!<br>
+    </div>
+    <div>
+      <div>
+        <p class="header-text">Бренд  <span class="description" th:value="${brand}"></span></p>
+
+      </div>
+      <div>
+        <p class="header-text">Модель  <span class="description" th:value="${model}"></span></p>
+
+      </div>
+      <div>
+        <p class="header-text">Цвет  <span class="description" th:value="${color}"></span></p>
+
+      </div>
+      <div>
+        <p class="header-text">Цена  <span class="description" th:value="${price}"></span></p>
+
+      </div>
+      <div>
+        <p class="header-text">Скидка  <span class="description" th:value="${discount}"></span></p>
+
+      </div>
+      <div>
+        <p class="header-text">Дата выдачи  <span class="description" th:value="${date_of_issue}"></span></p>
+
+      </div>
+      <div>
+        <img src="${image}" alt="" style="width: 410px" >
+      </div>
+      <br>
+      <hr>
+      <div>
+        <p class="date-header"><span style="color:#1A1A25;">Лучшие гаджеты и большой выбор нa<a href="https://t.me/altynvl"> нашем сайте.</a></span> </p>
+      </div>
+
+    </div>
+  </div>
+</div>
+</body>
+</html>
