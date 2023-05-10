@@ -3,6 +3,7 @@ package com.example.gadgetariumb8.db.config.security;
 import com.example.gadgetariumb8.db.exception.exceptions.NotFoundException;
 import com.example.gadgetariumb8.db.repository.UserInfoRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -15,6 +16,10 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.ui.freemarker.FreeMarkerConfigurationFactoryBean;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
 
 import javax.sql.DataSource;
 
@@ -22,11 +27,17 @@ import javax.sql.DataSource;
  * @author kurstan
  * @created at 03.04.2023 6:38
  */
- 
+
 @Configuration
 @RequiredArgsConstructor
 public class ApplicationConfig {
 
+    @Value("${aws-access-key}")
+    private String AWS_ACCESS_KEY;
+    @Value("${aws-secret-key}")
+    private String AWS_SECRET_KEY;
+    @Value("${aws-region}")
+    private String AWS_REGION;
     private final UserInfoRepository userRepository;
 
     @Bean
@@ -64,5 +75,15 @@ public class ApplicationConfig {
     @Bean
     public JdbcTemplate jdbcTemplate(DataSource dataSource) {
         return new JdbcTemplate(dataSource);
+    }
+
+    @Bean
+    S3Client s3Client() {
+        Region region = Region.of(AWS_REGION);
+        final AwsBasicCredentials credentials = AwsBasicCredentials.create(AWS_ACCESS_KEY, AWS_SECRET_KEY);
+        return S3Client.builder()
+                .region(region)
+                .credentialsProvider(StaticCredentialsProvider.create(credentials))
+                .build();
     }
 }

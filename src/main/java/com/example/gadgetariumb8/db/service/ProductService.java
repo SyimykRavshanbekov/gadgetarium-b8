@@ -1,5 +1,6 @@
 package com.example.gadgetariumb8.db.service;
 import com.example.gadgetariumb8.db.dto.request.ProductRequest;
+import com.example.gadgetariumb8.db.dto.request.ProductUserRequest;
 import com.example.gadgetariumb8.db.dto.response.*;
 
 import java.time.LocalDate;
@@ -9,12 +10,17 @@ import java.util.Optional;
 public interface ProductService {
 
     SimpleResponse saveProduct(ProductRequest productRequest);
+    ProductUserResponse getProductById(ProductUserRequest productUserRequest);
 
    CatalogResponse findByCategoryIdAndFilter(Long categoryId, Optional<Long> subCategoryId,
                                                      String[] brand, String priceFrom, String priceTo,
                                                      String[] colour, String[] memory, String[] RAM, String[] watch_material,
                                                      String gender, String sortBy, int pageSize);
     List<CompareProductResponse> compare();
+
+    CompareCountResponse countCompare ();
+
+    SimpleResponse cleanCompare();
 
     PaginationResponse<ProductsResponse> getAllDiscountProducts(int page, int pageSize);
 

@@ -1,9 +1,13 @@
 package com.example.gadgetariumb8.db.api;
 
+import com.example.gadgetariumb8.db.dto.request.ProductUserRequest;
 import com.example.gadgetariumb8.db.dto.response.*;
+import com.example.gadgetariumb8.db.service.PdfService;
 import com.example.gadgetariumb8.db.service.ProductService;
 import com.example.gadgetariumb8.db.service.SubProductService;
+import com.example.gadgetariumb8.db.service.impl.UserServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.security.PermitAll;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +24,22 @@ import java.util.List;
 public class ProductUserApi {
     private final ProductService productService;
     private final SubProductService subProductService;
+    private final PdfService pdfService;
+
+    @GetMapping("/pdf/generate/{id}")
+    @PermitAll
+    public String generatePDF(@PathVariable("id") Long subProductId) {
+        return pdfService.exportPdf(subProductId);
+    }
+
+    private final UserServiceImpl userService;
+
+    @GetMapping("/get-by-id")
+    @PreAuthorize("hasAuthority('USER')")
+    @Operation(summary = "To get by product id the product.", description = "This method to get by product id  the product.")
+    public ProductUserResponse getByProductId(@RequestBody ProductUserRequest productUserRequest) {
+        return productService.getProductById(productUserRequest);
+    }
 
     @GetMapping("/discount")
     @Operation(summary = "Get discount products", description = "This method gets all discount products")
@@ -81,5 +101,26 @@ public class ProductUserApi {
     @PermitAll
     public SimpleResponse deleteOrMoveToFavorites(@RequestBody List<Long> longList, @RequestParam String key) {
         return subProductService.deleteOrMoveToFavorites(key, longList);
+    }
+
+    @GetMapping("/chosen_one")
+    @Operation(summary = "Chosen One User",description = "This method chosen one user profile")
+    @PermitAll
+    public List<UserChosenOneResponse> getAllChosenOne () {
+        return userService.getAll();
+
+    @GetMapping("/countCompare")
+    @Operation(summary = "To count the Compare.", description = "This method count the Compare")
+    @PermitAll
+    public CompareCountResponse countCompare(){
+        return productService.countCompare();
+    }
+
+    @DeleteMapping
+    @Operation(summary = "To clean the Compare",description = "This method clean table Comparisons")
+    @PermitAll
+    public SimpleResponse cleanCompare(){
+        return productService.cleanCompare();
+
     }
 }
