@@ -153,7 +153,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public CompareCountResponse countCompare() {
         User user = getAuthenticate();
-        if (user.getComparisons().size()!=0){
+        if (user.getComparisons().size() != 0) {
             return jdbcTemplate.query(customProductRepository.countCompare(), (result, i) -> {
                         Map<String, Integer> count = new LinkedHashMap<>();
                         count.put(result.getString("categoryName"),
@@ -162,7 +162,7 @@ public class ProductServiceImpl implements ProductService {
                     },
                     user.getId()
             ).stream().findFirst().orElseThrow(() -> new NotFoundException("Not found"));
-        }else {
+        } else {
             throw new NotFoundException(String.format("There is no comparison on this User"));
         }
     }
@@ -525,7 +525,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductUserResponse getProductById(ProductUserRequest productUserRequest) {
         String sql = """
-                select sp.id as sub_product_id
+                select sp.id as sub_product_id,
                        b.logo as logo,
                        p.name as product_name,
                        sp.quantity as quantity,
@@ -537,8 +537,7 @@ public class ProductServiceImpl implements ProductService {
                         where p.id = ? ) as count_of_reviews,
                        sp.colour as color,
                        d.percent as percent_of_discount,
-                       ((sp.price - (sp.price * d.percent / 100)) *  ?  ) as price,
-                       sp.price as old_price,
+                       sp.price as price,
                        p.date_of_issue  as date_of_issue,
                        p.description as description,
                        p.video as video_link
@@ -561,18 +560,16 @@ public class ProductServiceImpl implements ProductService {
                     productUserResponse.setColor(resulSet.getString("color"));
                     productUserResponse.setPercentOfDiscount(resulSet.getInt("percent_of_discount"));
                     productUserResponse.setPrice(resulSet.getBigDecimal("price"));
-                    productUserResponse.setOldPrice(resulSet.getBigDecimal("old_price"));
                     productUserResponse.setDateOfIssue(resulSet.getDate("date_of_issue").toLocalDate());
                     productUserResponse.setDescription(resulSet.getString("description"));
                     productUserResponse.setVideo(resulSet.getString("video_link"));
                     return productUserResponse;
                 }
                 , productUserRequest.getProductId()
-                , productUserRequest.getQuantity()
                 , productUserRequest.getProductId()
                 , productUserRequest.getColor()
         );
-        String sqlColours= """
+        String sqlColours = """
                 select sp.colour as colours from sub_products sp where sp.product_id=?
                 """;
         List<String> colours = jdbcTemplate.query(sqlColours, (resultSet, i) -> resultSet.getString("colours"), productUserRequest.getProductId());
@@ -618,7 +615,7 @@ public class ProductServiceImpl implements ProductService {
                         .commentary(resultSet.getString("commentary"))
                         .answer(resultSet.getString("answer")).build(),
                 productUserRequest.getProductId(),
-                productUserRequest.getPage()
+                productUserRequest.getPage() + 1
         );
         productUserResponse.setReviews(reviewsResponses);
         return productUserResponse;
