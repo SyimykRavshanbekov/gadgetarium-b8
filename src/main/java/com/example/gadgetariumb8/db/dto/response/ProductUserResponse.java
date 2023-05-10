@@ -27,7 +27,6 @@ public class ProductUserResponse {
     private String color;
     private int percentOfDiscount;
     private BigDecimal price;
-    private BigDecimal oldPrice;
     private LocalDate dateOfIssue;
     private Map<String, String> characteristics;
     private String description;
