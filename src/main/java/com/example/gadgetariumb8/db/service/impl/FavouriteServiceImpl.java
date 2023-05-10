@@ -14,7 +14,6 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Transactional
-@Slf4j
 public class FavouriteServiceImpl implements FavouriteService {
     private final FavouriteRepositoryImpl favouriteRepository;
 

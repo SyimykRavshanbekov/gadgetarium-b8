@@ -28,6 +28,7 @@ import org.thymeleaf.context.Context;
 import org.webjars.NotFoundException;
 
 import java.util.UUID;
+import java.util.logging.Logger;
 
 @Service
 @RequiredArgsConstructor
@@ -78,7 +79,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public AuthenticationResponse authenticate(AuthenticateRequest request) {
-
         UserInfo userInfo = userInfoRepository.findByEmail(request.email())
                 .orElseThrow(() -> {
                     log.error(String.format("User with email %s does not exists", request.email()));
@@ -107,7 +107,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public SimpleResponse forgotPassword(String email) {
         UserInfo userInfo = userRepository.findUserInfoByEmail(email)
-                .orElseThrow(() -> new NotFoundException("User was not found"));
+                .orElseThrow(() -> {
+                    log.error(String.format("User with email %s does not exists", email));
+                    throw new NotFoundException(String.format("User with email %s does not exists", email));
+                });
         String token = UUID.randomUUID().toString();
         userInfo.setResetPasswordToken(token);
 
@@ -123,6 +126,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         String htmlContent = templateEngine.process("reset-password-template.html", context);
 
         emailService.sendEmail(email, subject, htmlContent);
+        log.info("The password reset was sent to your email. Please check your email.");
         return SimpleResponse.builder()
                 .httpStatus(HttpStatus.OK)
                 .message("The password reset was sent to your email. Please check your email.")
@@ -132,11 +136,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public SimpleResponse resetPassword(String token, String newPassword) {
         UserInfo userInfo = userInfoRepository.findByResetPasswordToken(token)
-                .orElseThrow(() -> new NotFoundException("User was not found"));
+                .orElseThrow(() -> {
+                    log.error("User does not exists");
+                    throw new NotFoundException("User does not exists");});
 
         userInfo.setPassword(passwordEncoder.encode(newPassword));
         userInfo.setResetPasswordToken(null);
-
+        log.info("User password changed successfully!");
         return SimpleResponse.builder()
                 .httpStatus(HttpStatus.OK)
                 .message("User password changed successfully!")

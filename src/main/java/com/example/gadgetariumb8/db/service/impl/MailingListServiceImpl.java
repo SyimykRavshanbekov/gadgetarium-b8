@@ -15,6 +15,7 @@ import freemarker.template.TemplateException;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -30,6 +31,7 @@ import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class MailingListServiceImpl implements MailingListService {
 
     private final MailingListRepository mailingListRepository;
@@ -39,6 +41,7 @@ public class MailingListServiceImpl implements MailingListService {
 
     @Override
     public SimpleResponse sendEmail(MailingListRequest mail) {
+        log.info("Sending email!");
         List<MallingListSubscriber> subscriberList = subscriberRepository.findAll();
 
         Map<String, Object> model = new HashMap<>();
@@ -64,6 +67,7 @@ public class MailingListServiceImpl implements MailingListService {
                 javaMailSender.send(message);
             }
         } catch (IOException | TemplateException | MessagingException e) {
+            log.error("Ошибка при отправке сообщения!");
             throw new MessageSendingException("Ошибка при отправке сообщения!");
         }
 
@@ -76,6 +80,7 @@ public class MailingListServiceImpl implements MailingListService {
                 .build();
 
         mailingListRepository.save(mallingList);
+        log.info("Сообщение успешно отправлено всем подписчикам.");
         return SimpleResponse.builder()
                 .httpStatus(HttpStatus.OK)
                 .message("Сообщение успешно отправлено всем подписчикам.")
@@ -84,6 +89,7 @@ public class MailingListServiceImpl implements MailingListService {
 
     @Override
     public SimpleResponse subscribe(MailingListSubscriberRequest subscriber) {
+        log.info("Subscribing");
         MallingListSubscriber mallingListSubscriber = MallingListSubscriber.builder()
                 .userEmail(subscriber.userEmail())
                 .build();
@@ -95,6 +101,7 @@ public class MailingListServiceImpl implements MailingListService {
         simpleMailMessage.setSubject("Gadgetarium");
         simpleMailMessage.setText("Здраствуйте! Вы успешно подписались на Gadgetarium");
         javaMailSender.send(simpleMailMessage);
+        log.info("Подписчик успешно добавлен в базу данных.");
         return SimpleResponse.builder()
                 .httpStatus(HttpStatus.CREATED)
                 .message("Подписчик успешно добавлен в базу данных.")

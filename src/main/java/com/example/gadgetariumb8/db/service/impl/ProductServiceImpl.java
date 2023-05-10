@@ -48,10 +48,16 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public SimpleResponse saveProduct(ProductRequest productRequest) {
         SubCategory subCategory = subCategoryRepository.findById(productRequest.subCategoryId())
-                .orElseThrow(() -> new NotFoundException("Sub category with id:" + productRequest.subCategoryId() + " not found!"));
+                .orElseThrow(() -> {
+                    log.error("Sub category with id:" + productRequest.subCategoryId() + " not found!");
+                    throw new NotFoundException("Sub category with id:" + productRequest.subCategoryId() + " not found!");
+                });
 
         Brand brand = brandRepository.findById(productRequest.brandId())
-                .orElseThrow(() -> new NotFoundException("Brand with id:" + productRequest.brandId() + " not found!"));
+                .orElseThrow(() -> {
+                    log.error("Brand with id:" + productRequest.brandId() + " not found!");
+                    throw new NotFoundException("Brand with id:" + productRequest.brandId() + " not found!");
+                });
         Product product = new Product();
         product.setSubCategory(subCategory);
         product.setBrand(brand);
@@ -73,11 +79,13 @@ public class ProductServiceImpl implements ProductService {
             product.addSubProduct(subProduct);
             subProductRepository.save(subProduct);
         }
+        log.info("Successfully saved!!");
         return SimpleResponse.builder().httpStatus(HttpStatus.OK).message("Successfully saved!!").build();
     }
 
     @Override
     public PaginationResponse<ProductsResponse> getAllDiscountProducts(int page, int pageSize) {
+        log.info("Getting all discount products!");
         String sql = """
                 SELECT sp.id as subProductId,
                 (select i.images from sub_product_images i where i.sub_product_id = sp.id limit 1) as image,
@@ -108,7 +116,7 @@ public class ProductServiceImpl implements ProductService {
                 resultSet.getBigDecimal("price"),
                 resultSet.getInt("discount")
         ));
-
+        log.info("Products are successfully got!");
         return PaginationResponse.<ProductsResponse>builder()
                 .foundProducts(count)
                 .elements(products)
@@ -119,6 +127,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<CompareProductResponse> compare() {
+        log.info("Getting all compare products!");
         String sql = """
                 SELECT (SELECT sci FROM sub_product_images sci where sci.sub_product_id = sp.id LIMIT 1) as image,(p.name) as name
                      ,p.description as description,sp.price as price ,b.name as brand_name,
@@ -133,6 +142,7 @@ public class ProductServiceImpl implements ProductService {
                     JOIN users_comparisons uc on uc.comparisons_id = sp.id
                     JOIN users u on uc.user_id = u.id JOIN brands b on p.brand_id = b.id where u.id = ?
                  """;
+        log.info("Products are successfully got!");
         return jdbcTemplate.query(sql, (resultSet, i) ->
                 new CompareProductResponse(
                         resultSet.getString("image"),
@@ -153,7 +163,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public CompareCountResponse countCompare() {
         User user = getAuthenticate();
-        if (user.getComparisons().size()!=0){
+        if (user.getComparisons().size() != 0) {
             return jdbcTemplate.query(customProductRepository.countCompare(), (result, i) -> {
                         Map<String, Integer> count = new LinkedHashMap<>();
                         count.put(result.getString("categoryName"),
@@ -161,8 +171,12 @@ public class ProductServiceImpl implements ProductService {
                         return new CompareCountResponse(count);
                     },
                     user.getId()
-            ).stream().findFirst().orElseThrow(() -> new NotFoundException("Not found"));
-        }else {
+            ).stream().findFirst().orElseThrow(() -> {
+                log.error("Not found!");
+                throw new NotFoundException("Not found");
+            });
+        } else {
+            log.error(String.format("There is no comparison on this User"));
             throw new NotFoundException(String.format("There is no comparison on this User"));
         }
     }
@@ -172,11 +186,13 @@ public class ProductServiceImpl implements ProductService {
         User user = getAuthenticate();
         user.getComparisons().clear();
         userRepository.save(user);
+        log.error(String.format("Clean Compare!"));
         return SimpleResponse.builder().message(String.format("Clean Compare!")).httpStatus(HttpStatus.OK).build();
     }
 
     @Override
     public PaginationResponse<ProductsResponse> getNewProducts(int page, int pageSize) {
+        log.info("Getting all new products!");
         String sql = """
                 SELECT sp.id as subProductId, (select i.images from sub_product_images i where i.sub_product_id = sp.id limit 1) as image,
                  sp.quantity as quantity, CONCAT(c.name, ' ', p.brand_id, ' ', p.name, ' ', spc.characteristics,' ', sp.colour) as product_info,
@@ -206,6 +222,7 @@ public class ProductServiceImpl implements ProductService {
                 resultSet.getBigDecimal("price"),
                 resultSet.getInt("discount")
         ));
+        log.info("Products are successfully got!");
         return PaginationResponse.<ProductsResponse>builder()
                 .foundProducts(count)
                 .elements(products)
@@ -216,6 +233,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public PaginationResponse<ProductsResponse> getRecommendedProducts(int page, int pageSize) {
+        log.info("Getting all recommended products!");
         String sql = """
                 SELECT sp.id AS subProductId, (select i.images from sub_product_images i where i.sub_product_id = sp.id limit 1) as image,
                 sp.quantity as quantity,
@@ -245,6 +263,7 @@ public class ProductServiceImpl implements ProductService {
                 resultSet.getBigDecimal("price"),
                 resultSet.getInt("discount")
         ));
+        log.info("Products are successfully got!");
         return PaginationResponse.<ProductsResponse>builder()
                 .foundProducts(count)
                 .elements(products)
@@ -255,6 +274,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public PaginationResponse<ProductAdminResponse> getAll(String keyWord, String status, LocalDate from, LocalDate before, String sortBy, int page, int pageSize) {
+        log.info("Getting all products!");
         String sql = """
                 SELECT DISTINCT sp.id AS subProductId, (
                     SELECT i.images FROM sub_product_images i WHERE i.sub_product_id = sp.id LIMIT 1
@@ -281,18 +301,22 @@ public class ProductServiceImpl implements ProductService {
         String dateClause = "";
         if (from != null && before != null) {
             if (from.isAfter(before)) {
+                log.error("The from date must be earlier than the date before");
                 throw new BadRequestException("The from date must be earlier than the date before");
             } else if (from.isAfter(LocalDate.now()) || before.isAfter(LocalDate.now())) {
+                log.error("The date must be in the past tense");
                 throw new BadRequestException("The date must be in the past tense");
             }
             dateClause = String.format("AND p.created_at BETWEEN '%s' AND '%s'", from, before);
         } else if (from != null) {
             if (from.isAfter(LocalDate.now())) {
+                log.error("The date must be in the past tense");
                 throw new BadRequestException("The date must be in the past tense");
             }
             dateClause = "AND p.created_at >= '%s'".formatted(from);
         } else if (before != null) {
             if (before.isAfter(LocalDate.now())) {
+                log.error("The date must be in the past tense");
                 throw new BadRequestException("The date must be in the past tense");
             }
             dateClause = "AND p.created_at <= '%s'".formatted(before);
@@ -348,7 +372,7 @@ public class ProductServiceImpl implements ProductService {
                 resultSet.getInt("percent"),
                 resultSet.getBigDecimal("total_price")
         ));
-
+        log.info("Products are successfully got!");
         return PaginationResponse.<ProductAdminResponse>builder()
                 .foundProducts(count)
                 .elements(products)
@@ -362,7 +386,7 @@ public class ProductServiceImpl implements ProductService {
                                                      String[] brand, String priceFrom, String priceTo,
                                                      String[] colour, String[] memory, String[] RAM, String[] watch_material,
                                                      String gender, String sortBy, int pageSize) {
-
+        log.info("Finding products by category id.");
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String login = authentication.getName();
         User user = userRepository.findUserByEmail(login).orElseThrow(() -> new NotFoundException("User not found!"));
@@ -412,13 +436,14 @@ public class ProductServiceImpl implements ProductService {
         catalogProductsResponse.addAll(jdbcTemplate.query(sql,
                 new Object[]{subCategory.getId(), pageSize},
                 (resultSet, i) -> rowMapper(resultSet)));
-
+        log.info("Products are successfully got!");
         return getCatalogResponse(usersFavourites, catalogProductsResponse, quantityColours);
     }
 
     private CatalogResponse getCatalogResponse(List<SubProduct> usersFavourites,
                                                List<CatalogProductsResponse> catalogProductsResponse,
                                                Map<String, Long> quantityColours) {
+        log.info("Getting catalog response!");
         for (CatalogProductsResponse productsResponse : catalogProductsResponse) {
             productsResponse.setIsLiked(usersFavourites.stream()
                     .map(SubProduct::getId)
@@ -434,6 +459,7 @@ public class ProductServiceImpl implements ProductService {
         quantityColours.put("Rose Gold", catalogProductsResponse.stream().filter(item -> Objects.equals(item.getColour(), "Rose Gold")).count());
         quantityColours.put("Silver", catalogProductsResponse.stream().filter(item -> Objects.equals(item.getColour(), "Silver")).count());
         quantityColours.put("Purple", catalogProductsResponse.stream().filter(item -> Objects.equals(item.getColour(), "Purple")).count());
+        log.info("CatalogResponse is successfully got!");
         return CatalogResponse.builder()
                 .productsResponses(catalogProductsResponse)
                 .colourQuantity(quantityColours)
@@ -494,6 +520,7 @@ public class ProductServiceImpl implements ProductService {
         sql = String.format(sql, joiningForFilterByBrand, conditionForFilterByBrand, filterByPrice,
                 filterByColour, conditionForFilterByMemory, conditionForFilterByRAM, joinTypeOfDiscount,
                 conditionForFilterByMaterial, conditionForFilterByGender, orderBy);
+        log.info("Products are successfully got!");
         return sql;
     }
 
@@ -507,6 +534,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     public CatalogProductsResponse rowMapper(ResultSet resultSet) throws SQLException {
+        log.info("rowMapper is successfully got");
         return CatalogProductsResponse.builder()
                 .sub_product_id(resultSet.getLong("id"))
                 .price(resultSet.getBigDecimal("price"))
@@ -524,6 +552,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductUserResponse getProductById(ProductUserRequest productUserRequest) {
+        log.info("Getting product by id");
         String sql = """
                 select sp.id as sub_product_id
                        b.logo as logo,
@@ -572,7 +601,7 @@ public class ProductServiceImpl implements ProductService {
                 , productUserRequest.getProductId()
                 , productUserRequest.getColor()
         );
-        String sqlColours= """
+        String sqlColours = """
                 select sp.colour as colours from sub_products sp where sp.product_id=?
                 """;
         List<String> colours = jdbcTemplate.query(sqlColours, (resultSet, i) -> resultSet.getString("colours"), productUserRequest.getProductId());
@@ -621,6 +650,7 @@ public class ProductServiceImpl implements ProductService {
                 productUserRequest.getPage()
         );
         productUserResponse.setReviews(reviewsResponses);
+        log.info("Product is a successfully got!");
         return productUserResponse;
     }
 }
