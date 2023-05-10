@@ -1,11 +1,13 @@
 package com.example.gadgetariumb8.db.service.impl;
 
 import com.example.gadgetariumb8.db.dto.request.AnswerRequest;
+import com.example.gadgetariumb8.db.dto.response.FeedbackResponse;
 import com.example.gadgetariumb8.db.dto.response.ReviewResponse;
 import com.example.gadgetariumb8.db.dto.response.SimpleResponse;
 import com.example.gadgetariumb8.db.exception.exceptions.NotFoundException;
 import com.example.gadgetariumb8.db.model.Review;
 import com.example.gadgetariumb8.db.repository.ReviewRepository;
+import com.example.gadgetariumb8.db.repository.ReviewsRepository;
 import com.example.gadgetariumb8.db.service.ReviewService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +22,7 @@ import java.util.List;
 public class ReviewServiceImpl implements ReviewService {
 
     private final ReviewRepository reviewRepository;
+    private final ReviewsRepository reviewsRepository;
 
     @Override
     public SimpleResponse deleteById(Long id) {
@@ -59,5 +62,10 @@ public class ReviewServiceImpl implements ReviewService {
             case "AllReviews" -> getAll;
             default -> null;
         };
+    }
+
+    @Override
+    public FeedbackResponse getFeedbacks(Long productId) {
+        return reviewsRepository.getFeedbacks(productId);
     }
 }

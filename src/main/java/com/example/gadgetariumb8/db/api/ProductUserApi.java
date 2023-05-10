@@ -65,6 +65,22 @@ public class ProductUserApi {
         return productService.getRecommendedProducts(page, pageSize);
     }
 
+
+
+    @GetMapping("/basket")
+    @Operation(summary = "Get all basket", description = "this method shows the cart")
+    @PermitAll
+    public PaginationResponse<SubProductBasketResponse> basket(@RequestParam(defaultValue = "1") int page,
+                                                               @RequestParam(defaultValue = "5") int pageSize) {
+        return subProductService.getAllBasket(page, pageSize);
+    }
+
+    @PostMapping("/delete_or_move_to_favorites")
+    @Operation(summary = "delete or move to favorites", description = "This method moves to favorites and deletes")
+    @PermitAll
+    public SimpleResponse deleteOrMoveToFavorites(@RequestBody List<Long> longList, @RequestParam String key) {
+        return subProductService.deleteOrMoveToFavorites(key, longList);
+    }
     @GetMapping("/compare-product")
     @Operation(summary = "To compare the product.", description = "This method to compare product.")
     @PreAuthorize("hasAuthority('USER')")
