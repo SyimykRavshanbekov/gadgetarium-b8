@@ -3,7 +3,7 @@ package com.example.gadgetariumb8.db.service.impl;
 import com.example.gadgetariumb8.db.dto.response.OrderHistoryResponse;
 import com.example.gadgetariumb8.db.dto.response.ProductsResponse;
 import com.example.gadgetariumb8.db.dto.response.SimpleResponse;
-import com.example.gadgetariumb8.db.dto.response.UserOrderResponse;
+import com.example.gadgetariumb8.db.dto.response.UserOrderHistoryResponse;
 import com.example.gadgetariumb8.db.exception.exceptions.NotFoundException;
 import com.example.gadgetariumb8.db.model.Order;
 import com.example.gadgetariumb8.db.model.SubProduct;
@@ -81,7 +81,7 @@ public class UserOrderHistoryServiceImpl implements UserOrderHistoryService {
     }
 
     @Override
-    public UserOrderResponse getUserOrderById(Long order_id) {
+    public UserOrderHistoryResponse getUserOrderById(Long order_id) {
         User user = getAuthenticate();
         List<Order> userOrders = user.getOrder();
         Order order = userOrders
@@ -118,7 +118,7 @@ public class UserOrderHistoryServiceImpl implements UserOrderHistoryService {
         Queue<String> addr = new LinkedList<>();
         Arrays.stream(address).forEach(addr::offer);
 
-        return UserOrderResponse
+        return UserOrderHistoryResponse
                 .builder()
                 .orderNumber(order.getOrderNumber())
                 .orderedProducts(newProductResponse)

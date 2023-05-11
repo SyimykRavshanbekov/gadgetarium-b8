@@ -7,7 +7,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Builder
-public record UserOrderResponse (
+public record UserOrderHistoryResponse(
         String orderNumber,
         List<ProductsResponse> orderedProducts,
         String status,

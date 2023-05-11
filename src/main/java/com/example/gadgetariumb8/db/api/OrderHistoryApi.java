@@ -2,7 +2,7 @@ package com.example.gadgetariumb8.db.api;
 
 import com.example.gadgetariumb8.db.dto.response.OrderHistoryResponse;
 import com.example.gadgetariumb8.db.dto.response.SimpleResponse;
-import com.example.gadgetariumb8.db.dto.response.UserOrderResponse;
+import com.example.gadgetariumb8.db.dto.response.UserOrderHistoryResponse;
 import com.example.gadgetariumb8.db.service.UserOrderHistoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -41,7 +41,7 @@ public class OrderHistoryApi {
     @PreAuthorize("hasAuthority('USER')")
     @Operation(summary = "Get one order",
             description = "This method deletes all user's order history")
-    public UserOrderResponse getOrder(@PathVariable("order_id") Long order_id) {
+    public UserOrderHistoryResponse getOrder(@PathVariable("order_id") Long order_id) {
         return orderHistoryService.getUserOrderById(order_id);
     }
 }
