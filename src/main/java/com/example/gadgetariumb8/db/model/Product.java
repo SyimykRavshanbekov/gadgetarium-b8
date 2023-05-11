@@ -56,8 +56,4 @@ public class Product {
         }
         subProducts.add(subProduct);
     }
-
-    @OneToOne(cascade = ALL)
-    @JoinColumn(name = "discount_id")
-    private Discount discount;
 }
