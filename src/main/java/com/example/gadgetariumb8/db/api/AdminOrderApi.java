@@ -28,14 +28,14 @@ public class AdminOrderApi {
                                                           @RequestParam(required = false) LocalDate from,
                                                           @RequestParam(required = false) LocalDate before,
                                                           @RequestParam(required = false, defaultValue = "1") int page,
-                                                          @RequestParam(required = false, defaultValue = "5") int pageSize){
-        return orderService.getAllOrders(keyWord, status,from,before,page,pageSize);
+                                                          @RequestParam(required = false, defaultValue = "5") int pageSize) {
+        return orderService.getAllOrders(keyWord, status, from, before, page, pageSize);
     }
 
     @PostMapping
-    @Operation(summary = "", description = "")
+    @Operation(summary = "Change status of orders", description = "This method to change status of orders")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public SimpleResponse changeStatusOfOrder(@RequestParam Long orderId, @RequestParam String status){
+    public SimpleResponse changeStatusOfOrder(@RequestParam Long orderId, @RequestParam String status) {
         return orderService.changeStatusOfOrder(orderId, status);
     }
 }

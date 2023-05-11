@@ -14,9 +14,9 @@ import com.example.gadgetariumb8.db.model.SubProduct;
 import com.example.gadgetariumb8.db.model.User;
 import com.example.gadgetariumb8.db.model.enums.Status;
 import com.example.gadgetariumb8.db.repository.CustomOrderRepository;
+import com.example.gadgetariumb8.db.repository.OrderRepository;
 import com.example.gadgetariumb8.db.repository.SubProductRepository;
 import com.example.gadgetariumb8.db.repository.UserRepository;
-import com.example.gadgetariumb8.db.service.EmailService;
 import com.example.gadgetariumb8.db.service.OrderService;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -35,8 +35,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 import org.thymeleaf.TemplateEngine;
-import org.thymeleaf.context.Context;
-import software.amazon.awssdk.services.s3.endpoints.internal.Value;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -53,6 +51,7 @@ import java.util.Map;
 @Slf4j
 @Transactional
 public class OrderServiceImpl implements OrderService {
+    private final OrderRepository orderRepository;
     private final JdbcTemplate jdbcTemplate;
     private final CustomOrderRepository customOrderRepository;
     private final SubProductRepository subProductRepository;
@@ -174,10 +173,10 @@ public class OrderServiceImpl implements OrderService {
         model.put("dateOfOrder", order.getDate());
         model.put("statusOfOrder", "В ожидании");
         model.put("datePurchase", order.getDate());
-        model.put("customer", order.getCustomer().getFirstName() + " " +order.getCustomer().getLastName());
-        model.put("phoneNumber",order.getCustomer().getPhoneNumber());
+        model.put("customer", order.getCustomer().getFirstName() + " " + order.getCustomer().getLastName());
+        model.put("phoneNumber", order.getCustomer().getPhoneNumber());
         String deliveryType = "Самовывоз из магазина";
-        if (order.isDeliveryType()){
+        if (order.isDeliveryType()) {
             deliveryType = "Доставка курьером";
         }
         model.put("deliveryType", deliveryType);
@@ -225,17 +224,73 @@ public class OrderServiceImpl implements OrderService {
             log.error(String.format("Order with id - %s is not found!", orderId));
             throw new NotFoundException(String.format("Order with id - %s is not found!", orderId));
         });
-        Status newStatus = switch (status){
-            case "В ожидании" -> Status.PENDING;
-            case "Готов к выдаче" -> Status.READY_FOR_DELIVERY;
-            case "Получен" -> Status.RECEIVED;
-            case "Отменить" -> Status.CANCEL;
-            case "Курьер в пути" -> Status.COURIER_ON_THE_WAY;
-            case "Доставлен" -> Status.DELIVERED;
-        };
+        Status newStatus;
+        String statusRu;
+        switch (status) {
+            case "В ожидании" -> {
+                newStatus = Status.PENDING;
+                statusRu = "В ожидании";
+            }
+            case "Готов к выдаче" -> {
+                newStatus = Status.READY_FOR_DELIVERY;
+                statusRu = "Готов к выдаче";
+            }
+            case "Получен" -> {
+                newStatus = Status.RECEIVED;
+                statusRu = "Получен";
+            }
+            case "Отменить" -> {
+                newStatus = Status.CANCEL;
+                statusRu = "Отменен";
+            }
+            case "Курьер в пути" -> {
+                newStatus = Status.COURIER_ON_THE_WAY;
+                statusRu = "Курьер в пути";
+            }
+            case "Доставлен" -> {
+                newStatus = Status.DELIVERED;
+                statusRu = "Доставлен";
+            }
+            default -> {
+                log.error("Status doesn't match!");
+                return SimpleResponse.builder()
+                        .httpStatus(HttpStatus.BAD_REQUEST)
+                        .message("Status doesn't match!")
+                        .build();
+            }
+        }
         order.setStatus(newStatus);
 
+        Map<String, Object> model = new HashMap<>();
+        model.put("orderNumber", order.getOrderNumber());
+        model.put("dateOfOrder", order.getDate());
+        model.put("statusOfOrder", statusRu);
+        model.put("datePurchase", order.getDate());
+        model.put("customer", order.getCustomer().getFirstName() + " " + order.getCustomer().getLastName());
+        model.put("phoneNumber", order.getCustomer().getPhoneNumber());
+        String deliveryType = "Самовывоз из магазина";
+        if (order.isDeliveryType()) {
+            deliveryType = "Доставка курьером";
+        }
+        model.put("deliveryType", deliveryType);
+        model.put("link", "https://t.me/erkurss");
+        model.put("dateOfChangeStatus", LocalDate.now());
 
+        try {
+            MimeMessage message = javaMailSender.createMimeMessage();
+            MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(message, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED,
+                    StandardCharsets.UTF_8.name());
+            Template template = configuration.getTemplate("order-status-template.html");
+            String html = FreeMarkerTemplateUtils.processTemplateIntoString(template, model);
+            mimeMessageHelper.setTo(order.getCustomer().getEmail());
+            mimeMessageHelper.setText(html, true);
+            mimeMessageHelper.setSubject("Gadgetarium");
+            mimeMessageHelper.setFrom("Gadgetarium@gmail.com");
+            javaMailSender.send(message);
+        } catch (MessagingException | IOException | TemplateException e) {
+            log.error("Ошибка при отправке сообщения!");
+            throw new MessageSendingException("Ошибка при отправке сообщения!");
+        }
 
         return SimpleResponse.builder()
                 .httpStatus(HttpStatus.OK)
