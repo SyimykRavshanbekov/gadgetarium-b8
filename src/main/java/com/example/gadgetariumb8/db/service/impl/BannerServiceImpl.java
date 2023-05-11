@@ -21,7 +21,7 @@ public class BannerServiceImpl implements BannerService {
     public SimpleResponse saveBanners(BannerRequest request) {
         log.info("Saving banner!");
         for (String banner : request.getBannerList()) {
-            if (bannerRepository.findAll().size() < 6) {
+            if (request.getBannerList().size() < 7) {
                 if (!banner.isBlank()) {
                     bannerRepository.save(new Banner(banner));
                 } else {

@@ -43,7 +43,7 @@ public class DiscountServiceImpl implements DiscountService {
         discount.setDateOfFinish(discountRequest.dateOfFinish());
 
         for (SubProduct subProduct : subProducts) {
-            subProduct.getProduct().setDiscount(discount);
+            subProduct.setDiscount(discount);
         }
         log.info("Discount successfully saved!");
         return SimpleResponse.builder()

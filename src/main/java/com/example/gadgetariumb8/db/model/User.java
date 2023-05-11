@@ -5,9 +5,7 @@ import lombok.*;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
-
 import java.util.ArrayList;
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -64,7 +62,14 @@ public class User {
 
     @OneToMany(cascade = {REFRESH, DETACH, MERGE, PERSIST})
     @JoinColumn(name = "user_id")
-    private List<Order> order;
+    private List<Order> orders;
+
+    public void addOrder(Order order){
+        if (orders == null){
+            orders = new ArrayList<>();
+        }
+        orders.add(order);
+    }
 
     @OneToOne(cascade = ALL, orphanRemoval = true)
     @JoinColumn(name = "user_info_id")

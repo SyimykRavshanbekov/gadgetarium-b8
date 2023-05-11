@@ -51,25 +51,25 @@ values (1,'2023-02-01','2023-01-01','Скидка только для вас!','
 insert into products (id,pdf,created_at,
                       date_of_issue,description,
                       guarantee,name,
-                      rating,video,brand_id,discount_id,
+                      rating,video,brand_id,
                       sub_category_id)
-values (1,'pdf link','2023-04-01','2020-01-01','Good product',12,'IPHONE 12',5,'https://youtu.be/Mla7Y-iQSq0',1,1,1),
-       (2,'pdf link','2023-02-15','2019-01-01','Good product',12,'Vivobook S 14 Flip OLED',4.5,'https://youtu.be/MZavnAdb-_s',4,2,3),
-       (3,'pdf link','2023-01-29','2021-01-01','Good product',12,'Smart Watch',3,'https://youtu.be/mLwVeGK0ViA',1,1,1),
-       (4,'pdf link','2022-12-11','2022-01-01','Good product',12,'IPHONE 14 PRO MAX',5,'https://youtu.be/Mla7Y-iQSq0',1,1,1),
-       (5,'pdf link','2023-03-19','2018-01-01','Good product',12,'Mac Book',1,'https://youtu.be/Hw7iB-zkYrk',1,1,1);
+values (1,'pdf link','2023-04-01','2020-01-01','Good product',12,'IPHONE 12',5,'https://youtu.be/Mla7Y-iQSq0',1,1),
+       (2,'pdf link','2023-02-15','2019-01-01','Good product',12,'Vivobook S 14 Flip OLED',4.5,'https://youtu.be/MZavnAdb-_s',4,3),
+       (3,'pdf link','2023-01-29','2021-01-01','Good product',12,'Smart Watch',3,'https://youtu.be/mLwVeGK0ViA',1,1),
+       (4,'pdf link','2022-12-11','2022-01-01','Good product',12,'IPHONE 14 PRO MAX',5,'https://youtu.be/Mla7Y-iQSq0',1,1),
+       (5,'pdf link','2023-03-19','2018-01-01','Good product',12,'Mac Book',1,'https://youtu.be/Hw7iB-zkYrk',1,1);
 
-insert into sub_products (id,colour,price,quantity,item_number,product_id)
-values (1,'Blue',120000,1,'123',1),
-       (2,'Red',76000,1,'321',2),
-       (3,'Black',76000,1,'321',2),
-       (4,'Pink',76000,1,'321',2),
-       (5,'Black',111000,1,'234',3),
-       (6,'Green',111000,1,'234',3),
-       (7,'Space grey',111000,1,'234',3),
-       (8,'Purple',55000,1,'432',4),
-       (9,'Blue',55000,1,'432',4),
-       (10,'White',3236000,1,'345',5);
+insert into sub_products (id,colour,price,quantity,item_number,product_id,discount_id)
+values (1,'Blue',120000,1,'123',1,2),
+       (2,'Red',76000,1,'321',2,3),
+       (3,'Black',76000,1,'321',2,5),
+       (4,'Pink',76000,1,'321',2,2),
+       (5,'Black',111000,1,'234',3,1),
+       (6,'Green',111000,1,'234',3,4),
+       (7,'Space grey',111000,1,'234',3,5),
+       (8,'Purple',55000,1,'432',4,1),
+       (9,'Blue',55000,1,'432',4,2),
+       (10,'White',3236000,1,'345',5,3);
 
 insert into orders (id,date,delivery_type,order_number,payment_type,quantity,status,total_price,customer_id,user_id)
 values (1,'2023-01-01',true,'1','BY_CARD_ONLINE',1,'PENDING',55000,1,1),
