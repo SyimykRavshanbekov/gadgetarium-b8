@@ -86,7 +86,7 @@ public class ProductServiceImpl implements ProductService {
                  CAST(sp.price - ((sp.price * d.percent) / 100) AS INTEGER) as discount
                 FROM products p
                     JOIN sub_products sp ON p.id = sp.product_id
-                    JOIN discounts d ON p.discount_id = d.id
+                    JOIN discounts d ON sp.discount_id = d.id
                     JOIN sub_categories sc ON p.sub_category_id = sc.id
                     JOIN categories c ON sc.category_id = c.id
                     LEFT JOIN sub_product_characteristics spc ON sp.id = spc.sub_product_id
@@ -184,7 +184,7 @@ public class ProductServiceImpl implements ProductService {
                  coalesce(CAST(sp.price - ((sp.price * d.percent) / 100) AS INTEGER),0) as discount
                 FROM products p
                     JOIN sub_products sp ON p.id = sp.product_id
-                    LEFT JOIN discounts d ON p.discount_id = d.id
+                    LEFT JOIN discounts d ON sp.discount_id = d.id
                     JOIN sub_categories sc ON p.sub_category_id = sc.id
                     JOIN categories c ON sc.category_id = c.id
                     JOIN sub_product_characteristics spc ON sp.id = spc.sub_product_id
@@ -224,7 +224,7 @@ public class ProductServiceImpl implements ProductService {
                 coalesce(CAST(sp.price - ((sp.price * d.percent) / 100) AS INTEGER),0) as discount
                 FROM products p
                     JOIN sub_products sp ON p.id = sp.product_id
-                    LEFT JOIN discounts d ON p.discount_id = d.id
+                    LEFT JOIN discounts d ON sp.discount_id = d.id
                     JOIN sub_categories sc ON p.sub_category_id = sc.id
                     JOIN categories c ON sc.category_id = c.id
                     JOIN sub_product_characteristics spc ON sp.id = spc.sub_product_id
@@ -267,7 +267,7 @@ public class ProductServiceImpl implements ProductService {
                 JOIN sub_categories sc ON sc.id = p.sub_category_id
                 %s
                 LEFT JOIN sub_product_characteristics spc ON spc.sub_product_id = sp.id
-                %s JOIN discounts d ON d.id = p.discount_id
+                %s JOIN discounts d ON d.id = sp.discount_id
                 WHERE %s %s AND spc.characteristics_key  like 'память'
                 %s
                 """;
@@ -382,7 +382,7 @@ public class ProductServiceImpl implements ProductService {
                  FROM sub_products sub
                         JOIN products prod ON sub.product_id = prod.id
                         LEFT JOIN sub_product_characteristics spc on sub.id = spc.sub_product_id
-                        %7$s JOIN discounts dis ON prod.discount_id = dis.id
+                        %7$s JOIN discounts dis ON sub.discount_id = dis.id
                         %1$s
                  WHERE sub_category_id=? %2$s  %3$s  %4$s  %5$s  %6$s  %8$s %9$s %10$s
                  LIMIT ?
@@ -545,7 +545,7 @@ public class ProductServiceImpl implements ProductService {
                          join brands b on b.id = p.brand_id
                          join sub_products sp on p.id = sp.product_id
                          join reviews r on p.id = r.product_id
-                         left join discounts d on d.id = p.discount_id
+                         left join discounts d on d.id = sp.discount_id
                 where p.id =  ?  and sp.colour =  ?
                 """;
         ProductUserResponse productUserResponse = new ProductUserResponse();

@@ -1,0 +1,102 @@
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ru">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>Java Techie Mail</title>
+    <style>
+        .main {
+            margin: 20px 10px;
+            background-color: #FFFFFF;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.15);
+            border: 1px solid #5E5E5E;
+            border-radius: 6px;
+            min-height: auto;
+            width: 500px;
+
+        }
+
+        .image-holder {
+            width: 500px;
+            height: 130px;
+            font-size: 48px;
+            background-color: #1A1A25;
+            border-radius: 6px 6px 0 0;
+        }
+
+        .image {
+            width: 310px;
+            height: 80px;
+            padding: 35px 100px;
+        }
+
+        .container {
+            padding: 10px 45px;
+        }
+
+        .text-header {
+            font-family: 'Inter', sans-serif;
+            font-style: normal;
+            font-weight: 800;
+            font-size: 20px;
+            line-height: 120%;
+            color: black;
+        }
+
+        .header-text {
+            font-family: 'Inter', sans-serif;
+            font-style: normal;
+            font-weight: 700;
+            font-size: 16px;
+            line-height: 150%;
+            color: #1A1A25;
+            padding-right: 50px;
+        }
+
+        .description {
+            font-family: 'Inter', sans-serif;
+            font-style: normal;
+            font-weight: 400;
+            font-size: 16px;
+            line-height: 150%;
+            color: #384255;
+
+        }
+    </style>
+</head>
+
+<body style="padding: 0; margin: 0; color: black">
+<div class="main">
+    <div class="image-holder">
+        <img  src="https://gadgetariumbucket.s3.eu-central-1.amazonaws.com/1683720417266gadget logo.PNG"
+             alt="" class="image">
+    </div>
+    <div class="container">
+        <div class="text-header">
+            <br>Здравствуйте!<br> Ваша заявка на заказ принята<br>
+        </div>
+        <div>
+            <div>
+                <p class="description"><span class="date-header">Номер заявки:</span> ${orderNumber}</p>
+                <p class="description"><span class="date-header">Дата заявки:</span> ${dateOfOrder}</p>
+            </div>
+            <br>
+            <hr>
+            <br>
+            <div>
+                <p class="description"><span class="header-text">Статус заказа</span> ${statusOfOrder}</p>
+                <p class="description"><span class="header-text">Дата покупки</span> ${datePurchase}</p>
+                <p class="description"><span class="header-text">Ваши данные</span> ${customer}</p>
+                <p class="description"><span class="header-text">Телефон</span> ${phoneNumber}</p>
+                <p class="description"><span class="header-text">Доставка</span> ${deliveryType}</p>
+            </div>
+            <br>
+            <hr>
+            <br>
+            <p class="description">Посмотреть историю заявки вы можете в своем <a href=${link}>личном кабинете.</a></p>
+            <br>
+            <br>
+            <br>
+        </div>
+    </div>
+</div>
+</body>
+</html>

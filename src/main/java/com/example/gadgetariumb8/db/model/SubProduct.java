@@ -1,9 +1,7 @@
 package com.example.gadgetariumb8.db.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Size;
 import lombok.*;
-import org.hibernate.validator.constraints.Length;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
@@ -46,4 +44,8 @@ public class SubProduct {
     @ManyToOne(cascade = {REFRESH, PERSIST, MERGE, DETACH})
     @JoinColumn(name = "product_id")
     private Product product;
+
+    @OneToOne(cascade = ALL)
+    @JoinColumn(name = "discount_id")
+    private Discount discount;
 }
