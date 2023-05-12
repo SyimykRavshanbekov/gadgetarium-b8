@@ -83,7 +83,7 @@ public class UserOrderHistoryServiceImpl implements UserOrderHistoryService {
     @Override
     public UserOrderHistoryResponse getUserOrderById(Long order_id) {
         User user = getAuthenticate();
-        List<Order> userOrders = user.getOrder();
+        List<Order> userOrders = user.getOrders();
         Order order = userOrders
                 .stream()
                 .filter(item -> Objects.equals(item.getId(), order_id))
@@ -105,11 +105,11 @@ public class UserOrderHistoryServiceImpl implements UserOrderHistoryService {
                             + "GB " + item.getColour())
                     .quantity(item.getProduct().getReviews().size())
                     .rating(item.getProduct().getRating())
-                    .discount(item.getProduct().getDiscount().getPercent())
+                    .discount(item.getDiscount().getPercent())
                     .build());
             totalPrice = totalPrice.add(item.getPrice());
             discountPrice = discountPrice.add(item.getPrice()
-                    .multiply(BigDecimal.valueOf(item.getProduct().getDiscount().getPercent()))
+                    .multiply(BigDecimal.valueOf(item.getDiscount().getPercent()))
                     .divide(BigDecimal.valueOf(100)));
         }
 
