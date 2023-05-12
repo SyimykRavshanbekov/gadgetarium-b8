@@ -268,7 +268,7 @@ public class ProductServiceImpl implements ProductService {
                 %s
                 LEFT JOIN sub_product_characteristics spc ON spc.sub_product_id = sp.id
                 %s JOIN discounts d ON d.id = sp.discount_id
-                WHERE %s %s AND spc.characteristics_key  like 'память'
+                WHERE spc.characteristics_key  like 'память' %s %s
                 %s
                 """;
         String sqlStatus = switch (status) {
@@ -299,8 +299,9 @@ public class ProductServiceImpl implements ProductService {
         }
 
         List<Object> params = new ArrayList<>();
-        String keywordCondition = "1=1";
+        String keywordCondition = "AND(1=1)";
         if (keyWord != null) {
+            params.add("%" + keyWord + "%");
             params.add("%" + keyWord + "%");
             params.add("%" + keyWord + "%");
             params.add("%" + keyWord + "%");
@@ -308,9 +309,9 @@ public class ProductServiceImpl implements ProductService {
             params.add("%" + keyWord + "%");
 
             keywordCondition = """
-                    p.name iLIKE ? OR CAST(sp.item_number AS TEXT) iLIKE ?
+                    AND(sc.name iLIKE ? OR p.name iLIKE ? OR CAST(sp.item_number AS TEXT) iLIKE ?
                     OR p.description iLIKE ? OR CAST(sp.price AS TEXT) iLIKE ?
-                    OR spc.characteristics iLIKE ?
+                    OR spc.characteristics iLIKE ?)
                     """;
         }
         String joinType = "LEFT";
