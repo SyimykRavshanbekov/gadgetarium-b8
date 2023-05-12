@@ -587,13 +587,15 @@ public class ProductServiceImpl implements ProductService {
                  , spc.characteristics as characteristics
                  from sub_product_characteristics spc
                           join sub_products sp on sp.id = spc.sub_product_id
-                          where sp.product_id = ?
+                          where sp.product_id = ? and sp.colour = ?
                 """;
         Map<String, String> characteristics = new LinkedHashMap<>();
         jdbcTemplate.query(sql2, (resultSet, i) ->
                         characteristics.put(resultSet.getString("characteristics_key")
-                                , resultSet.getString("characteristics"))
-                , productUserRequest.getProductId());
+                                , resultSet.getString("characteristics")),
+                productUserRequest.getProductId(),
+                productUserRequest.getColor() != null ? productUserRequest.getColor() : colours.get(0)
+                );
         productUserResponse.setCharacteristics(characteristics);
         String sql3 = """
                 select spi.images as images
