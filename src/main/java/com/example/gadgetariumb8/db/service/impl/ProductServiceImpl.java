@@ -625,7 +625,7 @@ public class ProductServiceImpl implements ProductService {
                         .commentary(resultSet.getString("commentary"))
                         .answer(resultSet.getString("answer")).build(),
                 productUserRequest.getProductId(),
-                productUserRequest.getPage() + 1
+                productUserRequest.getPage()
         );
         productUserResponse.setReviews(reviewsResponses);
         return productUserResponse;
