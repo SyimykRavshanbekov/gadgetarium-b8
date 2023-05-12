@@ -599,10 +599,12 @@ public class ProductServiceImpl implements ProductService {
                 select spi.images as images
                 from sub_product_images spi
                          join sub_products sp on sp.id = spi.sub_product_id
-                         where sp.product_id = ?
+                         where sp.product_id = ? and sp.colour = ?
                 """;
         List<String> images = jdbcTemplate.query(sql3, (resultSet, i) ->
-                resultSet.getString("images"), productUserRequest.getProductId());
+                resultSet.getString("images"),
+                productUserRequest.getProductId(),
+                productUserRequest.getColor() != null ? productUserRequest.getColor() : colours.get(0));
         productUserResponse.setImages(images);
         String sql4 = """
                 select u.image as image,
