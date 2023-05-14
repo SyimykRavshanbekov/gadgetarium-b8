@@ -287,7 +287,7 @@ public class ProductServiceImpl implements ProductService {
                 %s
                 LEFT JOIN sub_product_characteristics spc ON spc.sub_product_id = sp.id
                 %s JOIN discounts d ON d.id = sp.discount_id
-                WHERE %s %s AND spc.characteristics_key  like 'память'
+                WHERE spc.characteristics_key  like 'память' %s %s
                 %s
                 """;
         String sqlStatus = switch (status) {
@@ -322,8 +322,9 @@ public class ProductServiceImpl implements ProductService {
         }
 
         List<Object> params = new ArrayList<>();
-        String keywordCondition = "1=1";
+        String keywordCondition = "AND(1=1)";
         if (keyWord != null) {
+            params.add("%" + keyWord + "%");
             params.add("%" + keyWord + "%");
             params.add("%" + keyWord + "%");
             params.add("%" + keyWord + "%");
@@ -331,9 +332,9 @@ public class ProductServiceImpl implements ProductService {
             params.add("%" + keyWord + "%");
 
             keywordCondition = """
-                    p.name iLIKE ? OR CAST(sp.item_number AS TEXT) iLIKE ?
+                    AND(sc.name iLIKE ? OR p.name iLIKE ? OR CAST(sp.item_number AS TEXT) iLIKE ?
                     OR p.description iLIKE ? OR CAST(sp.price AS TEXT) iLIKE ?
-                    OR spc.characteristics iLIKE ?
+                    OR spc.characteristics iLIKE ?)
                     """;
         }
         String joinType = "LEFT";
@@ -552,6 +553,15 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductUserResponse getProductById(ProductUserRequest productUserRequest) {
         log.info("Getting product by id");
+        String sqlColours = """
+                select sp.colour as colours from sub_products sp where sp.product_id=?
+                """;
+        List<String> colours = jdbcTemplate.query(sqlColours, (resultSet, i) -> resultSet.getString("colours"), productUserRequest.getProductId());
+
+        if (productUserRequest.getColor() != null && !colours.contains(productUserRequest.getColor())) {
+            log.error(String.format("Product with colour - %s is not found!", productUserRequest.getColor()));
+            throw new NotFoundException(String.format("Product with colour - %s is not found!", productUserRequest.getColor()));
+        }
         String sql = """
                 select sp.id as sub_product_id,
                        b.logo as logo,
@@ -595,34 +605,35 @@ public class ProductServiceImpl implements ProductService {
                 }
                 , productUserRequest.getProductId()
                 , productUserRequest.getProductId()
-                , productUserRequest.getColor()
+                , productUserRequest.getColor() != null ? productUserRequest.getColor() : colours.get(0)
         );
-        String sqlColours = """
-                select sp.colour as colours from sub_products sp where sp.product_id=?
-                """;
-        List<String> colours = jdbcTemplate.query(sqlColours, (resultSet, i) -> resultSet.getString("colours"), productUserRequest.getProductId());
+
         productUserResponse.setColours(colours);
         String sql2 = """
                  select spc.characteristics_key as characteristics_key
                  , spc.characteristics as characteristics
                  from sub_product_characteristics spc
                           join sub_products sp on sp.id = spc.sub_product_id
-                          where sp.product_id = ?
+                          where sp.product_id = ? and sp.colour = ?
                 """;
         Map<String, String> characteristics = new LinkedHashMap<>();
         jdbcTemplate.query(sql2, (resultSet, i) ->
                         characteristics.put(resultSet.getString("characteristics_key")
-                                , resultSet.getString("characteristics"))
-                , productUserRequest.getProductId());
+                                , resultSet.getString("characteristics")),
+                productUserRequest.getProductId(),
+                productUserRequest.getColor() != null ? productUserRequest.getColor() : colours.get(0)
+                );
         productUserResponse.setCharacteristics(characteristics);
         String sql3 = """
                 select spi.images as images
                 from sub_product_images spi
                          join sub_products sp on sp.id = spi.sub_product_id
-                         where sp.product_id = ? 
+                         where sp.product_id = ? and sp.colour = ?
                 """;
         List<String> images = jdbcTemplate.query(sql3, (resultSet, i) ->
-                resultSet.getString("images"), productUserRequest.getProductId());
+                resultSet.getString("images"),
+                productUserRequest.getProductId(),
+                productUserRequest.getColor() != null ? productUserRequest.getColor() : colours.get(0));
         productUserResponse.setImages(images);
         String sql4 = """
                 select u.image as image,
@@ -633,7 +644,7 @@ public class ProductServiceImpl implements ProductService {
                         r.answer as answer
                 from reviews r
                          join users u on u.id = r.user_id where r.product_id= ?
-                         ORDER BY r.created_at_data DESC LIMIT ?            
+                         ORDER BY r.created_at_data DESC LIMIT ?
                 """;
         List<ReviewsResponse> reviewsResponses = jdbcTemplate.query(sql4, (resultSet, i) -> ReviewsResponse.builder()
                         .image(resultSet.getString("image"))
@@ -643,7 +654,7 @@ public class ProductServiceImpl implements ProductService {
                         .commentary(resultSet.getString("commentary"))
                         .answer(resultSet.getString("answer")).build(),
                 productUserRequest.getProductId(),
-                productUserRequest.getPage() + 1
+                productUserRequest.getPage()
         );
         productUserResponse.setReviews(reviewsResponses);
         log.info("Product is a successfully got!");
