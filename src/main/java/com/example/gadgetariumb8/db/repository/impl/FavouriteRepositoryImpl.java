@@ -31,9 +31,11 @@ public class FavouriteRepositoryImpl implements FavouriteRepository {
     public SimpleResponse addOrDeleteFavourites(Boolean addOrDelete, Long subProductId) {
         if (addOrDelete.equals(true)) {
             SubProduct subProduct = subProductRepository.findById(subProductId).orElseThrow(() -> new NotFoundException("SubProduct with id: " + subProductId + " is no exist!"));
+            log.info("Adding favourites!");
             getAuthenticate().addFavourites(subProduct);
             return SimpleResponse.builder().httpStatus(HttpStatus.OK).message("Product is successfully added to favourites!").build();
         } else {
+            log.info("Deleting favourites");
             getAuthenticate().getFavorites().removeIf(favorite -> favorite.getId().equals(subProductId));
             return SimpleResponse.builder().httpStatus(HttpStatus.OK).message("SubProduct is successfully deleted from favourites!").build();
         }
@@ -41,6 +43,7 @@ public class FavouriteRepositoryImpl implements FavouriteRepository {
 
     @Override
     public List<ProductsResponse> getAllFavouriteProducts() {
+        log.info("Getting all favourite products!");
         List<ProductsResponse> productsResponses = new ArrayList<>();
         for (SubProduct favorite : getAuthenticate().getFavorites()) {
             String sql = """
@@ -69,12 +72,14 @@ public class FavouriteRepositoryImpl implements FavouriteRepository {
                             resultSet.getInt("discount")
                     ), favorite.getId()));
         }
+        log.info("Favorite products are successfully got!");
         return productsResponses;
     }
 
     @Override
     public SimpleResponse deleteAll() {
         getAuthenticate().setFavorites(null);
+        log.info("Cleaned favourite products!");
         return SimpleResponse.builder().httpStatus(HttpStatus.OK).message("Favourites are successfully cleaned!").build();
     }
 

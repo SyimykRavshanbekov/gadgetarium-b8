@@ -26,7 +26,7 @@ import jakarta.mail.internet.MimeMessage;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatus
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -63,22 +63,27 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public PaginationResponse<OrderResponse> getAllOrders(String keyWord, String status, LocalDate from, LocalDate before, int page, int pageSize) {
         String sql = customOrderRepository.getAllOrder();
+        log.info("Getting all orders.");
 
         String dateClause = "";
         if (from != null && before != null) {
             if (from.isAfter(before)) {
+                log.error("The from date must be earlier than the date before");
                 throw new BadRequestException("The from date must be earlier than the date before");
             } else if (from.isAfter(LocalDate.now()) || before.isAfter(LocalDate.now())) {
+                log.error("The date must be in the past tense");
                 throw new BadRequestException("The date must be in the past tense");
             }
             dateClause = customOrderRepository.dateClauseFromBefore();
         } else if (from != null) {
             if (from.isAfter(LocalDate.now())) {
+                log.error("The date must be in the past tense");
                 throw new BadRequestException("The date must be in the past tense");
             }
             dateClause = customOrderRepository.dateClauseFrom();
         } else if (before != null) {
             if (before.isAfter(LocalDate.now())) {
+                log.error("The date must be in the past tense");
                 throw new BadRequestException("The date must be in the past tense");
             }
             dateClause = customOrderRepository.dateClauseBefore();
@@ -113,7 +118,7 @@ public class OrderServiceImpl implements OrderService {
                 resultSet.getBoolean("deliveryType"),
                 resultSet.getString("status")
         ));
-
+      log.info("Orders are successfully got!");
         return PaginationResponse.<OrderResponse>builder()
                 .foundProducts(count)
                 .elements(orders)

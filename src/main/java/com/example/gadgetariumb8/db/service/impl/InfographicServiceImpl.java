@@ -4,17 +4,20 @@ import com.example.gadgetariumb8.db.dto.response.InfographicsResponse;
 import com.example.gadgetariumb8.db.exception.exceptions.NotFoundException;
 import com.example.gadgetariumb8.db.service.InfographicService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class InfographicServiceImpl implements InfographicService {
 
     private final JdbcTemplate jdbcTemplate;
 
     @Override
     public InfographicsResponse getInfographics(String period) {
+        log.info("Getting infographics!");
         String sql = """
                 SELECT COALESCE(SUM(CASE WHEN o.delivery_type IS TRUE THEN total_price END), 0) AS redeemed_for_the_amount,
                        COALESCE(COUNT(CASE WHEN o.delivery_type IS TRUE THEN total_price END), 0) AS count_redeemed,
@@ -51,6 +54,9 @@ public class InfographicServiceImpl implements InfographicService {
                 period,
                 period,
                 period
-        ).stream().findFirst().orElseThrow(() -> new NotFoundException("This response Not found!!"));
+        ).stream().findFirst().orElseThrow(() -> {
+            log.error("This response Not found!!");
+            throw new NotFoundException("This response Not found!!");
+        });
     }
 }

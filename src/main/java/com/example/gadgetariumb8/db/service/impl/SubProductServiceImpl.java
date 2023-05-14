@@ -20,7 +20,7 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class SubProductServiceImpl implements SubProductService {
+public class  SubProductServiceImpl implements SubProductService {
     private final SubProductRepository subProductRepository;
     private final UserRepository userRepository;
     private final JdbcTemplate jdbcTemplate;
@@ -36,6 +36,7 @@ public class SubProductServiceImpl implements SubProductService {
 
     @Override
     public PaginationResponse<SubProductResponse> lastViews(int page, int pageSize) {
+        log.info("Getting last views!");
         List<SubProductResponse> subProductResponseList = new LinkedList<>();
         List<SubProduct> subProductList = subProductRepository.getAllLastReviews(getAuthenticate().getId());
         for (SubProduct subProduct : subProductList) {
@@ -48,6 +49,7 @@ public class SubProductServiceImpl implements SubProductService {
                     subProduct.getPrice()
             ));
         }
+        log.info("Last views are successfully got!");
         return PaginationResponse.<SubProductResponse>builder()
                 .elements(subProductResponseList)
                 .totalPages(pageSize)
@@ -57,6 +59,7 @@ public class SubProductServiceImpl implements SubProductService {
 
     @Override
     public PaginationResponse<SubProductBasketResponse> getAllBasket(int page, int pageSize) {
+        log.info("Getting al basket!");
         String sql = """
                 SELECT (SELECT spi FROM sub_product_images spi WHERE spi.sub_product_id = sp.id LIMIT 1) AS img,
                        p.name AS names,
@@ -87,6 +90,7 @@ public class SubProductServiceImpl implements SubProductService {
                         resultSet.getBigDecimal("price")
                 )
         );
+        log.info("All baskets are successfully got!");
         return PaginationResponse.<SubProductBasketResponse>builder()
                 .elements(getAll)
                 .totalPages(pageSize)
