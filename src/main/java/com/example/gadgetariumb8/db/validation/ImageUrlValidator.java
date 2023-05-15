@@ -16,7 +16,7 @@ public class ImageUrlValidator implements ConstraintValidator<ImageUrlValid, Str
     @Override
     public boolean isValid(String imageUrl, ConstraintValidatorContext constraintValidatorContext) {
         if (imageUrl == null) {
-            return true; // null values are considered valid
+            return true;
         }
         String extension = imageUrl.substring(imageUrl.lastIndexOf(".") + 1).toLowerCase();
 
