@@ -25,14 +25,13 @@ public class ProductUserApi {
     private final ProductService productService;
     private final SubProductService subProductService;
     private final PdfService pdfService;
+    private final UserServiceImpl userService;
 
     @GetMapping("/pdf/generate/{id}")
     @PermitAll
     public String generatePDF(@PathVariable("id") Long subProductId) {
         return pdfService.exportPdf(subProductId);
     }
-
-    private final UserServiceImpl userService;
 
     @GetMapping("/get-by-id")
     @PreAuthorize("hasAuthority('USER')")
@@ -66,7 +65,6 @@ public class ProductUserApi {
     }
 
 
-
     @GetMapping("/basket")
     @Operation(summary = "Get all basket", description = "this method shows the cart")
     @PermitAll
@@ -81,6 +79,7 @@ public class ProductUserApi {
     public SimpleResponse deleteOrMoveToFavorites(@RequestBody List<Long> longList, @RequestParam String key) {
         return subProductService.deleteOrMoveToFavorites(key, longList);
     }
+
     @GetMapping("/compare-product")
     @Operation(summary = "To compare the product.", description = "This method to compare product.")
     @PreAuthorize("hasAuthority('USER')")
