@@ -28,7 +28,6 @@ import org.thymeleaf.context.Context;
 import org.webjars.NotFoundException;
 
 import java.util.UUID;
-import java.util.logging.Logger;
 
 @Service
 @RequiredArgsConstructor
@@ -79,6 +78,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public AuthenticationResponse authenticate(AuthenticateRequest request) {
+
         UserInfo userInfo = userInfoRepository.findByEmail(request.email())
                 .orElseThrow(() -> {
                     log.error(String.format("User with email %s does not exists", request.email()));
@@ -124,8 +124,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         context.setVariable("tokenTitle", "Reset Password");
 
         String htmlContent = templateEngine.process("reset-password-template.html", context);
+
         emailService.sendEmail(email, subject, htmlContent);
-        log.info("The password reset was sent to your email. Please check your email.");
         return SimpleResponse.builder()
                 .httpStatus(HttpStatus.OK)
                 .message("The password reset was sent to your email. Please check your email.")
