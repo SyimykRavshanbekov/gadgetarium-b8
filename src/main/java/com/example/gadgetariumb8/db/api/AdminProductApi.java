@@ -22,19 +22,20 @@ import java.util.List;
 @RequiredArgsConstructor
 @Tag(name = "Product Admin API")
 @CrossOrigin(origins = "*", maxAge = 3600)
-//@PreAuthorize("hasAuthority('ADMIN')")
 public class AdminProductApi {
     private final ProductService productService;
     private final SubProductService subProductService;
 
     @Operation(summary = "To save the product.", description = "This method to save the product.")
     @PostMapping
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
     public SimpleResponse saveProduct(@RequestBody @Valid ProductRequest productRequest) {
         return productService.saveProduct(productRequest);
     }
 
     @Operation(summary = "Get all products", description = "This method to find all products in admin page")
     @GetMapping
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
     public PaginationResponse<ProductAdminResponse> getAll(@RequestParam(required = false) String keyWord,
                                                            @RequestParam(defaultValue = "все товары") String status,
                                                            @RequestParam(required = false) LocalDate from,
