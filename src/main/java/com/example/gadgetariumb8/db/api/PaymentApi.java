@@ -32,12 +32,18 @@ public class PaymentApi {
             description = "This method.")
     public Object payment(@RequestBody OrderPaymentRequest order) {
         try {
-            Payment payment = service.createPayment(order.getPrice(), order.getCurrency(), "paypal",
-                    "sale", order.getDescription(), "http://localhost:2023/" + CANCEL_URL,
-                    "http://localhost:2023/" + SUCCESS_URL);
+            Payment payment = service.createPayment(
+                    order.getPrice(),
+                    order.getCurrency(),
+                    "paypal",
+                    "sale",
+                    order.getDescription(),
+                    "http://localhost:2023/" + CANCEL_URL,
+                    "http://localhost:2023/" + SUCCESS_URL
+            );
             for (Links link : payment.getLinks()) {
                 if (link.getRel().equals("approval_url")) {
-                    System.out.println(link.getHref());
+                    System.out.println("link : "+link.getHref());
                     return link.getHref();
                 }
             }
@@ -50,6 +56,7 @@ public class PaymentApi {
                 .message("Incorrect data entry!!!")
                 .build();
     }
+
     @GetMapping(value = CANCEL_URL)
     public SimpleResponse cancelPay() {
         return SimpleResponse
