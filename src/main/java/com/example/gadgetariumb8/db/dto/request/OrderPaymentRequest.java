@@ -12,7 +12,5 @@ import lombok.ToString;
 public class OrderPaymentRequest {
     private double price;
     private String currency;
-    private String method;
-    private String intent;
     private String description;
 }
