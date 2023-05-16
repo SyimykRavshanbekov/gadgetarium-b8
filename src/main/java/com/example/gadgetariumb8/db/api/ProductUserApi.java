@@ -65,7 +65,13 @@ public class ProductUserApi {
         return productService.getRecommendedProducts(page, pageSize);
     }
 
-
+    @GetMapping("/last_views")
+    @Operation(summary = "Last viewed products ", description = "This method shows the last 7 items viewed")
+    @PreAuthorize("hasAuthority('USER')")
+    public PaginationResponse<SubProductResponse> findAllSubProductLastViews(@RequestParam(defaultValue = "1") int page,
+                                                                             @RequestParam(defaultValue = "5") int pageSize) {
+        return subProductService.lastViews(page, pageSize);
+    }
 
     @GetMapping("/basket")
     @Operation(summary = "Get all basket", description = "this method shows the cart")
@@ -81,6 +87,7 @@ public class ProductUserApi {
     public SimpleResponse deleteOrMoveToFavorites(@RequestBody List<Long> longList, @RequestParam String key) {
         return subProductService.deleteOrMoveToFavorites(key, longList);
     }
+
     @GetMapping("/compare-product")
     @Operation(summary = "To compare the product.", description = "This method to compare product.")
     @PreAuthorize("hasAuthority('USER')")
@@ -107,7 +114,5 @@ public class ProductUserApi {
     @PermitAll
     public SimpleResponse cleanCompare() {
         return productService.cleanCompare();
-
-
     }
 }
