@@ -638,7 +638,7 @@ public class ProductServiceImpl implements ProductService {
         String sql4 = """
                 select u.image as image,
                         concat(u.first_name, ' ', u.last_name) as full_name,
-                        concat(r.created_at_data,' ',r.created_at_time) as created_at,
+                        r.created_at_time as created_at,
                         r.grade as grade,
                         r.commentary as commentary,
                         r.answer as answer
