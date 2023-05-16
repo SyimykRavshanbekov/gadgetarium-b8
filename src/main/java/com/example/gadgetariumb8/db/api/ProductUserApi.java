@@ -25,14 +25,13 @@ public class ProductUserApi {
     private final ProductService productService;
     private final SubProductService subProductService;
     private final PdfService pdfService;
+    private final UserServiceImpl userService;
 
     @GetMapping("/pdf/generate/{id}")
     @PermitAll
     public String generatePDF(@PathVariable("id") Long subProductId) {
         return pdfService.exportPdf(subProductId);
     }
-
-    private final UserServiceImpl userService;
 
     @GetMapping("/get-by-id")
     @PreAuthorize("hasAuthority('USER')")
@@ -65,6 +64,8 @@ public class ProductUserApi {
         return productService.getRecommendedProducts(page, pageSize);
     }
 
+
+
     @GetMapping("/last_views")
     @Operation(summary = "Last viewed products ", description = "This method shows the last 7 items viewed")
     @PreAuthorize("hasAuthority('USER')")
@@ -72,6 +73,7 @@ public class ProductUserApi {
                                                                              @RequestParam(defaultValue = "5") int pageSize) {
         return subProductService.lastViews(page, pageSize);
     }
+
 
     @GetMapping("/basket")
     @Operation(summary = "Get all basket", description = "this method shows the cart")

@@ -1,10 +1,15 @@
 package com.example.gadgetariumb8.db.api;
 
 import com.example.gadgetariumb8.db.dto.request.ProductRequest;
+import com.example.gadgetariumb8.db.dto.response.*;
+import com.example.gadgetariumb8.db.model.Category;
+import com.example.gadgetariumb8.db.service.BrandService;
+import com.example.gadgetariumb8.db.service.CategoryService;
 import com.example.gadgetariumb8.db.dto.response.PaginationResponse;
 import com.example.gadgetariumb8.db.dto.response.ProductAdminResponse;
 import com.example.gadgetariumb8.db.dto.response.ProductDetailsResponse;
 import com.example.gadgetariumb8.db.dto.response.SimpleResponse;
+
 import com.example.gadgetariumb8.db.service.ProductService;
 import com.example.gadgetariumb8.db.service.SubProductService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,6 +30,8 @@ import java.util.List;
 public class AdminProductApi {
     private final ProductService productService;
     private final SubProductService subProductService;
+    private final BrandService brandService;
+    private final CategoryService categoryService;
 
     @Operation(summary = "To save the product.", description = "This method to save the product.")
     @PostMapping
@@ -46,10 +53,32 @@ public class AdminProductApi {
         return productService.getAll(keyWord, status, from, before, sortBy, page, pageSize);
     }
 
+    @GetMapping("/last_views")
+    @Operation(summary = "Last viewed products ", description = "This method shows the last 7 items viewed")
+    @PreAuthorize("hasAuthority('USER')")
+    public PaginationResponse<SubProductResponse> findAllSubProductLastViews(@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "5") int pageSize) {
+        return subProductService.lastViews(page, pageSize);
+
     @GetMapping("/{id}/product_details")
     @Operation(summary = "Get product details", description = "This method to get product details by product id")
     @PreAuthorize("hasAnyAuthority('ADMIN')")
     public List<ProductDetailsResponse> productDetails(@PathVariable("id") Long productId) {
         return subProductService.getProductDetails(productId);
+
     }
+
+    @GetMapping("/get_all/categories")
+    @Operation(summary = "Find all categories", description = "This endpoints the find all categories. ;)")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public List<Category> getAllCategories() {
+        return categoryService.getAllCategories();
+    }
+
+    @GetMapping("/get_all/{id}/brands_and_sub_categories")
+    @Operation(summary = "Find all brands", description = "This endpoints the find all brands. ;)")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public BrandAndSubCategoryResponse getAllBrandsAndSubCategoriesByCategoryId(@PathVariable("id") Long categoryId) {
+        return brandService.getAllBrands(categoryId);
+    }
+
 }
