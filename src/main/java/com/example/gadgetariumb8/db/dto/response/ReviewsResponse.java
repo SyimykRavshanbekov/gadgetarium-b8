@@ -4,6 +4,7 @@ import lombok.Builder;
 
 @Builder
 public record ReviewsResponse(
+        Long reviewsId,
         String image,
         String fullName,
         String createdAt,
