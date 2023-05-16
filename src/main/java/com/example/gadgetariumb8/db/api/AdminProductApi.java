@@ -58,6 +58,7 @@ public class AdminProductApi {
     @PreAuthorize("hasAuthority('USER')")
     public PaginationResponse<SubProductResponse> findAllSubProductLastViews(@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "5") int pageSize) {
         return subProductService.lastViews(page, pageSize);
+    }
 
     @GetMapping("/{id}/product_details")
     @Operation(summary = "Get product details", description = "This method to get product details by product id")
