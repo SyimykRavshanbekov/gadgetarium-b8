@@ -5,6 +5,11 @@ import com.example.gadgetariumb8.db.dto.response.*;
 import com.example.gadgetariumb8.db.model.Category;
 import com.example.gadgetariumb8.db.service.BrandService;
 import com.example.gadgetariumb8.db.service.CategoryService;
+import com.example.gadgetariumb8.db.dto.response.PaginationResponse;
+import com.example.gadgetariumb8.db.dto.response.ProductAdminResponse;
+import com.example.gadgetariumb8.db.dto.response.ProductDetailsResponse;
+import com.example.gadgetariumb8.db.dto.response.SimpleResponse;
+
 import com.example.gadgetariumb8.db.service.ProductService;
 import com.example.gadgetariumb8.db.service.SubProductService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -22,7 +27,6 @@ import java.util.List;
 @RequiredArgsConstructor
 @Tag(name = "Product Admin API")
 @CrossOrigin(origins = "*", maxAge = 3600)
-@PreAuthorize("hasAuthority('ADMIN')")
 public class AdminProductApi {
     private final ProductService productService;
     private final SubProductService subProductService;
@@ -31,12 +35,14 @@ public class AdminProductApi {
 
     @Operation(summary = "To save the product.", description = "This method to save the product.")
     @PostMapping
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
     public SimpleResponse saveProduct(@RequestBody @Valid ProductRequest productRequest) {
         return productService.saveProduct(productRequest);
     }
 
     @Operation(summary = "Get all products", description = "This method to find all products in admin page")
     @GetMapping
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
     public PaginationResponse<ProductAdminResponse> getAll(@RequestParam(required = false) String keyWord,
                                                            @RequestParam(defaultValue = "все товары") String status,
                                                            @RequestParam(required = false) LocalDate from,
@@ -52,6 +58,13 @@ public class AdminProductApi {
     @PreAuthorize("hasAuthority('USER')")
     public PaginationResponse<SubProductResponse> findAllSubProductLastViews(@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "5") int pageSize) {
         return subProductService.lastViews(page, pageSize);
+
+    @GetMapping("/{id}/product_details")
+    @Operation(summary = "Get product details", description = "This method to get product details by product id")
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    public List<ProductDetailsResponse> productDetails(@PathVariable("id") Long productId) {
+        return subProductService.getProductDetails(productId);
+
     }
 
     @GetMapping("/get_all/categories")

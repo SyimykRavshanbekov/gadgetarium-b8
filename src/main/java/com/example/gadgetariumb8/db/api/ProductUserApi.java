@@ -65,6 +65,16 @@ public class ProductUserApi {
     }
 
 
+
+    @GetMapping("/last_views")
+    @Operation(summary = "Last viewed products ", description = "This method shows the last 7 items viewed")
+    @PreAuthorize("hasAuthority('USER')")
+    public PaginationResponse<SubProductResponse> findAllSubProductLastViews(@RequestParam(defaultValue = "1") int page,
+                                                                             @RequestParam(defaultValue = "5") int pageSize) {
+        return subProductService.lastViews(page, pageSize);
+    }
+
+
     @GetMapping("/basket")
     @Operation(summary = "Get all basket", description = "this method shows the cart")
     @PermitAll
@@ -106,7 +116,5 @@ public class ProductUserApi {
     @PermitAll
     public SimpleResponse cleanCompare() {
         return productService.cleanCompare();
-
-
     }
 }
