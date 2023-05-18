@@ -38,8 +38,8 @@ public class PaymentApi {
                     "paypal",
                     "sale",
                     order.getDescription(),
-                    "http://localhost:2023/" + CANCEL_URL,
-                    "http://localhost:2023/" + SUCCESS_URL
+                    "http://localhost:3000/" + CANCEL_URL,
+                    "http://localhost:3000/" + SUCCESS_URL
             );
             for (Links link : payment.getLinks()) {
                 if (link.getRel().equals("approval_url")) {
