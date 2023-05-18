@@ -31,7 +31,7 @@ public class ReviewServiceImpl implements ReviewService {
         Review review = reviewRepository.findById(id)
                 .orElseThrow(() -> {
                     log.error(String.format("Review with id %s not found", id));
-                    throw new NotFoundException(String.format("Review with id %s not found", id));
+                    return new NotFoundException(String.format("Review with id %s not found", id));
                 });
         reviewRepository.deleteById(review.getId());
         log.info(String.format("Review with id %s deleted", id));
@@ -43,21 +43,23 @@ public class ReviewServiceImpl implements ReviewService {
         Review review = reviewRepository.findById(answerRequest.reviewId())
                 .orElseThrow(() -> {
                     log.error(String.format("Review with id %s does not exists", answerRequest.reviewId()));
-                    throw new NotFoundException(String.format("Review with id %s does not exists", answerRequest.reviewId()));
+                    return new NotFoundException(String.format("Review with id %s does not exists", answerRequest.reviewId()));
                 });
-        if (!review.getAnswer().isEmpty()) {
+        if (review.getAnswer()==null){
+            review.setAnswer(answerRequest.answer());
+            reviewRepository.save(review);
+            log.info("answer successfully saved");
+            return SimpleResponse.builder()
+                    .httpStatus(HttpStatus.OK)
+                    .message("answer successfully saved")
+                    .build();
+        }else {
             log.info(String.format("Review with id - %s has already been answered", answerRequest.reviewId()));
             return SimpleResponse.builder()
                     .httpStatus(HttpStatus.BAD_REQUEST)
                     .message(String.format("Review with id - %s has already been answered", answerRequest.reviewId()))
                     .build();
         }
-        review.setAnswer(answerRequest.answer());
-        log.info("answer successfully saved");
-        return SimpleResponse.builder()
-                .httpStatus(HttpStatus.OK)
-                .message("answer successfully saved")
-                .build();
     }
 
     @Override
@@ -80,5 +82,37 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public FeedbackResponse getFeedbacks(Long productId) {
         return reviewsRepository.getFeedbacks(productId);
+    }
+
+    @Override
+    public SimpleResponse updateFeedback(Long id, String answer) {
+        Review review = reviewRepository.findById(id)
+                .orElseThrow(() -> {
+                    log.error(String.format("Review with id %s not found", id));
+                    return new NotFoundException(String.format("Review with id %s not found", id));
+                });
+        if (!review.getAnswer().isEmpty()) {
+            if (!answer.isBlank()) {
+                review.setAnswer(answer);
+                reviewRepository.save(review);
+                return SimpleResponse
+                        .builder()
+                        .message("Answer successfully updated!")
+                        .httpStatus(HttpStatus.OK)
+                        .build();
+            }else {
+                return SimpleResponse
+                        .builder()
+                        .message("Response is empty !!!")
+                        .httpStatus(HttpStatus.BAD_REQUEST)
+                        .build();
+            }
+        } else {
+            return SimpleResponse
+                    .builder()
+                    .message("Comment with id no reply !!!")
+                    .httpStatus(HttpStatus.BAD_REQUEST)
+                    .build();
+        }
     }
 }
