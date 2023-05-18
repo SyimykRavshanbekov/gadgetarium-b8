@@ -12,7 +12,7 @@ services:
       POSTGRES_USER: gadgetariumdbuser
       POSTGRES_PASSWORD: gadgetariumdb2023
   database:
-    image: postgres:latest
+    image: postgres:15-alpine
     restart: always
     container_name: database
     ports:
