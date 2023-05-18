@@ -274,7 +274,8 @@ public class ProductServiceImpl implements ProductService {
     public PaginationResponse<ProductAdminResponse> getAll(String keyWord, String status, LocalDate from, LocalDate before, String sortBy, int page, int pageSize) {
         log.info("Getting all products!");
         String sql = """
-                SELECT DISTINCT sp.id AS subProductId, (
+                SELECT DISTINCT p.id as product_id,
+                            sp.id AS subProductId, (
                     SELECT i.images FROM sub_product_images i WHERE i.sub_product_id = sp.id LIMIT 1
                 ) AS image, sp.item_number, CONCAT(sc.name, ' ', p.name, ' ', spc.characteristics,' ', sp.colour) AS name, p.created_at, sp.quantity, sp.price,
                 COALESCE(d.percent, 0) AS percent,
@@ -361,6 +362,7 @@ public class ProductServiceImpl implements ProductService {
         params.add(pageSize);
         params.add(offset);
         List<ProductAdminResponse> products = jdbcTemplate.query(sql, params.toArray(), (resultSet, i) -> new ProductAdminResponse(
+                resultSet.getLong("product_id"),
                 resultSet.getLong("subProductId"),
                 resultSet.getString("image"),
                 resultSet.getInt("item_number"),
