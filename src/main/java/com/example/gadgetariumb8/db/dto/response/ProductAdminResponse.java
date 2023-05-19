@@ -7,6 +7,7 @@ import java.time.LocalDate;
 
 @Builder
 public record ProductAdminResponse(
+        Long productId,
         Long subProductId,
         String image,
         int itemNumber,
