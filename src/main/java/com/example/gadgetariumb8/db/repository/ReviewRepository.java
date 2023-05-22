@@ -13,7 +13,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     @Query("select new com.example.gadgetariumb8.db.dto.response.ReviewResponse(r.id,r.product.PDF," +
             "s.itemNumber,r.commentary,r.grade,r.answer,concat(r.user.firstName,' ',r.user.lastName) ," +
-            "r.user.userInfo.email,r.user.image) from Review r join r.product.subProducts s")
+            "r.user.userInfo.email,r.user.image,r.createdAtTime,r.product.name) from Review r join r.product.subProducts s")
     List<ReviewResponse> findAllResponse();
 
     @Query("select r.images from Review r where r.id=?1")

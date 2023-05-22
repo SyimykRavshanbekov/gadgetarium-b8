@@ -2,10 +2,7 @@ package com.example.gadgetariumb8.db.service;
 
 import com.example.gadgetariumb8.db.dto.request.AnswerRequest;
 import com.example.gadgetariumb8.db.dto.response.FeedbackResponse;
-import com.example.gadgetariumb8.db.dto.response.ReviewResponse;
 import com.example.gadgetariumb8.db.dto.response.SimpleResponse;
-
-import java.util.List;
 
 public interface ReviewService {
 
@@ -13,7 +10,7 @@ public interface ReviewService {
 
     SimpleResponse replyToFeedback(AnswerRequest answerRequest);
 
-    List<ReviewResponse> getAllReview(String param);
+    Object getAllReview(String param);
     FeedbackResponse getFeedbacks(Long productId);
     SimpleResponse updateFeedback(Long id,String feedback);
 

@@ -2,6 +2,7 @@ package com.example.gadgetariumb8.db.dto.response;
 
 import lombok.*;
 
+import java.util.Date;
 import java.util.List;
 
 @NoArgsConstructor
@@ -20,16 +21,6 @@ public class ReviewResponse {
     private String userName;
     private String userEmail;
     private String userImg;
-
-    public ReviewResponse(Long id, String productImg, int productItemNumber, String commentary, int grade, String answer, String userName, String userEmail, String userImg) {
-        this.id = id;
-        this.productImg = productImg;
-        this.productItemNumber = productItemNumber;
-        this.commentary = commentary;
-        this.grade = grade;
-        this.answer = answer;
-        this.userName = userName;
-        this.userEmail = userEmail;
-        this.userImg = userImg;
-    }
+    private Date date;
+    private String productName;
 }

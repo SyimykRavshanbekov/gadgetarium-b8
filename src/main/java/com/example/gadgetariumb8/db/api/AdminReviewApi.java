@@ -1,7 +1,6 @@
 package com.example.gadgetariumb8.db.api;
 
 import com.example.gadgetariumb8.db.dto.request.AnswerRequest;
-import com.example.gadgetariumb8.db.dto.response.ReviewResponse;
 import com.example.gadgetariumb8.db.dto.response.SimpleResponse;
 import com.example.gadgetariumb8.db.service.ReviewService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -10,8 +9,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/reviews")
@@ -24,7 +21,7 @@ public class AdminReviewApi {
 
     @GetMapping
     @Operation(summary = "All Review", description = "This method is needed to display all review")
-    public List<ReviewResponse> getAll(@RequestParam String param) {
+    public Object getAll(@RequestParam String param) {
         return reviewService.getAllReview(param);
     }
 
