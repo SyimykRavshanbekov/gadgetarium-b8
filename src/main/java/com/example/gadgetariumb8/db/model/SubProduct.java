@@ -41,7 +41,7 @@ public class SubProduct {
         this.characteristics.putAll(characteristics);
     }
 
-    @ManyToOne(cascade = {REFRESH, PERSIST, MERGE, DETACH})
+    @ManyToOne(cascade = {REFRESH, PERSIST, MERGE, DETACH}, fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
     private Product product;
 

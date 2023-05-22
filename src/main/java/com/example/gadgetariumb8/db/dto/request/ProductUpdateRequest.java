@@ -4,9 +4,8 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 
 import java.time.LocalDate;
-import java.util.List;
 
-public record ProductRequest(
+public record ProductUpdateRequest(
         @NotNull(message = "Sub category must be specified!!!")
         Long subCategoryId,
         @NotNull(message = "Brand must be specified!!!")
@@ -26,7 +25,7 @@ public record ProductRequest(
         @NotBlank(message = "Description must be specified!!!")
         String description,
         @Valid
-        @NotEmpty(message = "Sub products doesn't be empty!!!")
-        List<SubProductRequest> subProducts
+        @NotNull(message = "Sub product doesn't be null")
+        SubProductRequest subProducts
 ) {
 }

@@ -1,6 +1,7 @@
 package com.example.gadgetariumb8.db.api;
 
 import com.example.gadgetariumb8.db.dto.request.ProductRequest;
+import com.example.gadgetariumb8.db.dto.request.ProductUpdateRequest;
 import com.example.gadgetariumb8.db.dto.response.*;
 import com.example.gadgetariumb8.db.model.Category;
 import com.example.gadgetariumb8.db.service.BrandService;
@@ -68,5 +69,20 @@ public class AdminProductApi {
     @PreAuthorize("hasAuthority('ADMIN')")
     public BrandAndSubCategoryResponse getAllBrandsAndSubCategoriesByCategoryId(@PathVariable("id") Long categoryId) {
         return brandService.getAllBrands(categoryId);
+    }
+
+    @PutMapping("/{id}/update")
+    @Operation(summary = "Update products", description = "This method to update products")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public SimpleResponse updateProduct(@PathVariable("id")Long subProductId,
+                                        @RequestBody @Valid ProductUpdateRequest request){
+        return productService.update(subProductId, request);
+    }
+
+    @DeleteMapping("/{id}/delete")
+    @Operation(summary = "Delete products", description = "This method to delete products")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public SimpleResponse deleteProduct(@PathVariable("id")Long subProductId){
+        return productService.delete(subProductId);
     }
 }
