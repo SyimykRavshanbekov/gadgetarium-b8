@@ -15,5 +15,6 @@ public interface ReviewService {
 
     List<ReviewResponse> getAllReview(String param);
     FeedbackResponse getFeedbacks(Long productId);
+    SimpleResponse updateFeedback(Long id,String feedback);
 
 }

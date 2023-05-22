@@ -53,11 +53,11 @@ insert into products (id,pdf,created_at,
                       guarantee,name,
                       rating,video,brand_id,
                       sub_category_id)
-values (1,'pdf link','2023-04-01','2020-01-01','Good product',12,'IPHONE 12',5,'https://youtu.be/Mla7Y-iQSq0',1,1),
-       (2,'pdf link','2023-02-15','2019-01-01','Good product',12,'Vivobook S 14 Flip OLED',4.5,'https://youtu.be/MZavnAdb-_s',4,3),
-       (3,'pdf link','2023-01-29','2021-01-01','Good product',12,'Smart Watch',3,'https://youtu.be/mLwVeGK0ViA',1,1),
-       (4,'pdf link','2022-12-11','2022-01-01','Good product',12,'IPHONE 14 PRO MAX',5,'https://youtu.be/Mla7Y-iQSq0',1,1),
-       (5,'pdf link','2023-03-19','2018-01-01','Good product',12,'Mac Book',1,'https://youtu.be/Hw7iB-zkYrk',1,1);
+values (1,'https://media.cnn.com/api/v1/images/stellar/prod/220920215114-iphone-14-lead.jpg?c=16x9&q=h_720,w_1280,c_fill/f_webp','2023-04-01','2020-01-01','Good product',12,'IPHONE 12',5,'https://youtu.be/Mla7Y-iQSq0',1,1),
+       (2,'https://media.cnn.com/api/v1/images/stellar/prod/220920220014-iphone-14-home-screen.jpg?c=16x9&q=h_720,w_1280,c_fill/f_webp','2023-02-15','2019-01-01','Good product',12,'Vivobook S 14 Flip OLED',4.5,'https://youtu.be/MZavnAdb-_s',4,3),
+       (3,'https://media.cnn.com/api/v1/images/stellar/prod/220920215923-iphone-14-design-1.jpg?c=16x9&q=h_720,w_1280,c_fill/f_webp','2023-01-29','2021-01-01','Good product',12,'Smart Watch',3,'https://youtu.be/mLwVeGK0ViA',1,1),
+       (4,'https://media.cnn.com/api/v1/images/stellar/prod/220920215155-iphone-14-display-1.jpg?c=16x9&q=h_720,w_1280,c_fill/f_webp','2022-12-11','2022-01-01','Good product',12,'IPHONE 14 PRO MAX',5,'https://youtu.be/Mla7Y-iQSq0',1,1),
+       (5,'https://www.apple.com/newsroom/images/product/iphone/standard/Apple-iPhone-14-Pro-iPhone-14-Pro-Max-hero-220907_Full-Bleed-Image.jpg.xlarge_2x.jpg','2023-03-19','2018-01-01','Good product',12,'Mac Book',1,'https://youtu.be/Hw7iB-zkYrk',1,1);
 
 insert into sub_products (id,colour,price,quantity,item_number,product_id,discount_id)
 values (1,'blue',120000,1,'123',1,2),

@@ -1,7 +1,6 @@
 package com.example.gadgetariumb8.db.service.impl;
 
 import com.example.gadgetariumb8.db.dto.request.ProductRequest;
-import com.example.gadgetariumb8.db.dto.request.ProductUserRequest;
 import com.example.gadgetariumb8.db.dto.request.SubProductRequest;
 import com.example.gadgetariumb8.db.dto.response.*;
 import com.example.gadgetariumb8.db.exception.exceptions.BadRequestException;
@@ -275,7 +274,8 @@ public class ProductServiceImpl implements ProductService {
     public PaginationResponse<ProductAdminResponse> getAll(String keyWord, String status, LocalDate from, LocalDate before, String sortBy, int page, int pageSize) {
         log.info("Getting all products!");
         String sql = """
-                SELECT DISTINCT sp.id AS subProductId, (
+                SELECT DISTINCT p.id as product_id,
+                            sp.id AS subProductId, (
                     SELECT i.images FROM sub_product_images i WHERE i.sub_product_id = sp.id LIMIT 1
                 ) AS image, sp.item_number, CONCAT(sc.name, ' ', p.name, ' ', spc.characteristics,' ', sp.colour) AS name, p.created_at, sp.quantity, sp.price,
                 COALESCE(d.percent, 0) AS percent,
@@ -362,6 +362,7 @@ public class ProductServiceImpl implements ProductService {
         params.add(pageSize);
         params.add(offset);
         List<ProductAdminResponse> products = jdbcTemplate.query(sql, params.toArray(), (resultSet, i) -> new ProductAdminResponse(
+                resultSet.getLong("product_id"),
                 resultSet.getLong("subProductId"),
                 resultSet.getString("image"),
                 resultSet.getInt("item_number"),
@@ -551,19 +552,20 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductUserResponse getProductById(ProductUserRequest productUserRequest) {
+    public ProductUserResponse getProductById(Long productId, String colour) {
         log.info("Getting product by id");
         String sqlColours = """
                 select sp.colour as colours from sub_products sp where sp.product_id=?
                 """;
-        List<String> colours = jdbcTemplate.query(sqlColours, (resultSet, i) -> resultSet.getString("colours"), productUserRequest.getProductId());
+        List<String> colours = jdbcTemplate.query(sqlColours, (resultSet, i) -> resultSet.getString("colours"), productId);
 
-        if (productUserRequest.getColor() != null && !colours.contains(productUserRequest.getColor())) {
-            log.error(String.format("Product with colour - %s is not found!", productUserRequest.getColor()));
-            throw new NotFoundException(String.format("Product with colour - %s is not found!", productUserRequest.getColor()));
+        if (!colour.isBlank() && !colours.contains(colour)) {
+            log.error(String.format("Product with colour - %s is not found!", colour));
+            throw new NotFoundException(String.format("Product with colour - %s is not found!", colour));
         }
         String sql = """
                 select sp.id as sub_product_id,
+                       p.id as product_id,
                        b.logo as logo,
                        p.name as product_name,
                        sp.quantity as quantity,
@@ -589,6 +591,7 @@ public class ProductServiceImpl implements ProductService {
         ProductUserResponse productUserResponse = new ProductUserResponse();
         jdbcTemplate.query(sql, (resulSet, i) -> {
                     productUserResponse.setSubProductId(resulSet.getLong("sub_product_id"));
+                    productUserResponse.setProductId(resulSet.getLong("product_id"));
                     productUserResponse.setLogo(resulSet.getString("logo"));
                     productUserResponse.setName(resulSet.getString("product_name"));
                     productUserResponse.setQuantity(resulSet.getInt("quantity"));
@@ -603,9 +606,9 @@ public class ProductServiceImpl implements ProductService {
                     productUserResponse.setVideo(resulSet.getString("video_link"));
                     return productUserResponse;
                 }
-                , productUserRequest.getProductId()
-                , productUserRequest.getProductId()
-                , productUserRequest.getColor() != null ? productUserRequest.getColor() : colours.get(0)
+                , productId
+                , productId
+                , !colour.isBlank() ? colour : colours.get(0)
         );
 
         productUserResponse.setColours(colours);
@@ -620,9 +623,9 @@ public class ProductServiceImpl implements ProductService {
         jdbcTemplate.query(sql2, (resultSet, i) ->
                         characteristics.put(resultSet.getString("characteristics_key")
                                 , resultSet.getString("characteristics")),
-                productUserRequest.getProductId(),
-                productUserRequest.getColor() != null ? productUserRequest.getColor() : colours.get(0)
-                );
+                productId,
+                !colour.isBlank() ? colour : colours.get(0)
+        );
         productUserResponse.setCharacteristics(characteristics);
         String sql3 = """
                 select spi.images as images
@@ -631,33 +634,38 @@ public class ProductServiceImpl implements ProductService {
                          where sp.product_id = ? and sp.colour = ?
                 """;
         List<String> images = jdbcTemplate.query(sql3, (resultSet, i) ->
-                resultSet.getString("images"),
-                productUserRequest.getProductId(),
-                productUserRequest.getColor() != null ? productUserRequest.getColor() : colours.get(0));
+                        resultSet.getString("images"),
+                productId,
+                !colour.isBlank() ? colour : colours.get(0));
         productUserResponse.setImages(images);
+        log.info("Product is a successfully got!");
+        return productUserResponse;
+    }
+
+    @Override
+    public List<ReviewsResponse> getAllReviewsByProductId(Long productId, int page) {
         String sql4 = """
-                select u.image as image,
+                select  r.id as id,
+                        u.image as image,
                         concat(u.first_name, ' ', u.last_name) as full_name,
-                        concat(r.created_at_data,' ',r.created_at_time) as created_at,
+                        r.created_at_time as created_at,
                         r.grade as grade,
                         r.commentary as commentary,
                         r.answer as answer
                 from reviews r
                          join users u on u.id = r.user_id where r.product_id= ?
-                         ORDER BY r.created_at_data DESC LIMIT ?
+                         ORDER BY r.created_at_time DESC LIMIT ?
                 """;
-        List<ReviewsResponse> reviewsResponses = jdbcTemplate.query(sql4, (resultSet, i) -> ReviewsResponse.builder()
+        return jdbcTemplate.query(sql4, (resultSet, i) -> ReviewsResponse.builder()
+                        .reviewsId(resultSet.getLong("id"))
                         .image(resultSet.getString("image"))
                         .fullName(resultSet.getString("full_name"))
                         .createdAt(resultSet.getString("created_at"))
                         .grade(resultSet.getInt("grade"))
                         .commentary(resultSet.getString("commentary"))
                         .answer(resultSet.getString("answer")).build(),
-                productUserRequest.getProductId(),
-                productUserRequest.getPage()
+                productId,
+                page
         );
-        productUserResponse.setReviews(reviewsResponses);
-        log.info("Product is a successfully got!");
-        return productUserResponse;
     }
 }

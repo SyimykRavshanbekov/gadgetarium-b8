@@ -1,6 +1,5 @@
 package com.example.gadgetariumb8.db.api;
 
-import com.example.gadgetariumb8.db.dto.request.ProductUserRequest;
 import com.example.gadgetariumb8.db.dto.response.*;
 import com.example.gadgetariumb8.db.service.PdfService;
 import com.example.gadgetariumb8.db.service.ProductService;
@@ -25,6 +24,8 @@ public class ProductUserApi {
     private final ProductService productService;
     private final SubProductService subProductService;
     private final PdfService pdfService;
+    private final UserServiceImpl userService;
+
 
     @GetMapping("/pdf/generate/{id}")
     @PermitAll
@@ -32,13 +33,20 @@ public class ProductUserApi {
         return pdfService.exportPdf(subProductId);
     }
 
-    private final UserServiceImpl userService;
-
     @GetMapping("/get-by-id")
-    @PreAuthorize("hasAuthority('USER')")
+    @PreAuthorize("hasAnyAuthority('USER','ADMIN')")
     @Operation(summary = "To get by product id the product.", description = "This method to get by product id  the product.")
-    public ProductUserResponse getByProductId(@RequestBody ProductUserRequest productUserRequest) {
-        return productService.getProductById(productUserRequest);
+    public ProductUserResponse getByProductId(@RequestParam Long productId,
+                                              @RequestParam(defaultValue = "", required = false) String colour) {
+        return productService.getProductById(productId, colour);
+    }
+
+    @GetMapping("/get_all_reviews_by_product_id/{id}")
+    @PreAuthorize("hasAnyAuthority('USER','ADMIN')")
+    @Operation(summary = "To get all reviews by product id the product.", description = "This method to get all reviews by product id  the product.")
+    public List<ReviewsResponse> getAllReviewsByProductId(@PathVariable("id") Long productId,
+                                                          @RequestParam(defaultValue = "3", required = false) int page) {
+        return productService.getAllReviewsByProductId(productId, page);
     }
 
     @GetMapping("/discount")
@@ -65,7 +73,13 @@ public class ProductUserApi {
         return productService.getRecommendedProducts(page, pageSize);
     }
 
-
+    @GetMapping("/last_views")
+    @Operation(summary = "Last viewed products ", description = "This method shows the last 7 items viewed")
+    @PreAuthorize("hasAuthority('USER')")
+    public PaginationResponse<SubProductResponse> findAllSubProductLastViews(@RequestParam(defaultValue = "1") int page,
+                                                                             @RequestParam(defaultValue = "5") int pageSize) {
+        return subProductService.lastViews(page, pageSize);
+    }
 
     @GetMapping("/basket")
     @Operation(summary = "Get all basket", description = "this method shows the cart")
@@ -81,6 +95,7 @@ public class ProductUserApi {
     public SimpleResponse deleteOrMoveToFavorites(@RequestBody List<Long> longList, @RequestParam String key) {
         return subProductService.deleteOrMoveToFavorites(key, longList);
     }
+
     @GetMapping("/compare-product")
     @Operation(summary = "To compare the product.", description = "This method to compare product.")
     @PreAuthorize("hasAuthority('USER')")
@@ -107,7 +122,5 @@ public class ProductUserApi {
     @PermitAll
     public SimpleResponse cleanCompare() {
         return productService.cleanCompare();
-
-
     }
 }

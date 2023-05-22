@@ -31,6 +31,7 @@ public class ReviewsRepositoryImpl implements ReviewsRepository {
             FeedbackResponse feedbackResponse = new FeedbackResponse();
             feedbackResponse.setOne(resultSet.getInt("one"));
             feedbackResponse.setTwo(resultSet.getInt("two"));
+            feedbackResponse.setThree(resultSet.getInt("three"));
             feedbackResponse.setFour(resultSet.getInt("four"));
             feedbackResponse.setFive(resultSet.getInt("five"));
             feedbackResponse.setRating(resultSet.getDouble("rating"));

@@ -40,4 +40,10 @@ public class AdminReviewApi {
         return reviewService.deleteById(id);
     }
 
+    @PutMapping
+    @Operation(summary = "Update Feedback", description = "This method updates the comment response")
+    public SimpleResponse updateFeedback(@RequestBody @Valid AnswerRequest request){
+        return reviewService.updateFeedback(request.reviewId(), request.answer());
+    }
+
 }

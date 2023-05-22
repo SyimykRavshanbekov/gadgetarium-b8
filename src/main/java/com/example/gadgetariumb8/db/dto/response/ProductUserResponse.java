@@ -15,6 +15,7 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProductUserResponse {
+    private Long productId;
     private Long subProductId;
     private String logo;
     private List<String> images;
@@ -31,5 +32,5 @@ public class ProductUserResponse {
     private Map<String, String> characteristics;
     private String description;
     private String video;
-    private List<ReviewsResponse> reviews;
+
 }
