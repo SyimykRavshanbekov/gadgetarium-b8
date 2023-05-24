@@ -20,7 +20,8 @@ public class AdminReviewApi {
     private final ReviewService reviewService;
 
     @GetMapping
-    @Operation(summary = "All Review", description = "This method is needed to display all review")
+    @Operation(summary = "All Review", description = "This method is needed to display all review. " +
+                                                     " The request param must accept the word -(AllReviews, Answered, Unanswered)")
     public Object getAll(@RequestParam String param) {
         return reviewService.getAllReview(param);
     }
