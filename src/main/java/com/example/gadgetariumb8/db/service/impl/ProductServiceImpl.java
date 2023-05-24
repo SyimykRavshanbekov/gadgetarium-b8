@@ -722,34 +722,35 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public SimpleResponse delete(Long subProductId) {
-        SubProduct subProduct = subProductRepository.findById(subProductId).orElseThrow(
-                () -> new NotFoundException("Sub product with id %s is not found!".formatted(subProductId)));
-        List<Order> orders = orderRepository.findAll();
-        boolean isItPossibleToRemove = false;
-        for (Order order : orders) {
+        if (subProductRepository.existsById(subProductId)) {
+            log.error("Sub product with id %s is not found!".formatted(subProductId));
+            throw new NotFoundException("Sub product with id %s is not found!".formatted(subProductId));
+        }
+
+        for (Order order : orderRepository.findAll()) {
             for (SubProduct product : order.getSubProducts()) {
                 if (product.getId().equals(subProductId)
-                        && order.getStatus().equals(Status.DELIVERED)
-                        || order.getStatus().equals(Status.RECEIVED)) {
-                    isItPossibleToRemove = true;
-                    break;
+                        && !order.getStatus().equals(Status.DELIVERED)
+                        && !order.getStatus().equals(Status.CANCEL)
+                        && !order.getStatus().equals(Status.RECEIVED)) {
+                    log.error("Sub product with id %s cannot be removed as it is currently on sale."
+                            .formatted(subProductId));
+                    throw new BadRequestException("Sub product with id %s cannot be removed as it is currently on sale."
+                            .formatted(subProductId));
                 }
             }
         }
-        if (!isItPossibleToRemove) {
-            return SimpleResponse.builder()
-                    .httpStatus(HttpStatus.BAD_REQUEST)
-                    .message("This item cannot be removed as it is currently on sale.")
-                    .build();
-        }
-//        orders.forEach(order -> order.getSubProducts().removeIf(s -> s.getId().equals(subProductId)));
-        for (int i = 0; i < orders.size(); i++) {
-            orders.get(i).getSubProducts().removeIf(s-> s.getId().equals(subProductId));
-        }
-        subProductRepository.deleteSubProductById(subProductId);
+
+        subProductRepository.deleteFromOrders(subProductId);
+        subProductRepository.deleteFromBaskets(subProductId);
+        subProductRepository.deleteFromComparisons(subProductId);
+        subProductRepository.deleteFromFavorites(subProductId);
+        subProductRepository.deleteFromLastViews(subProductId);
+        subProductRepository.deleteSubProduct(subProductId);
+
         return SimpleResponse.builder()
                 .httpStatus(HttpStatus.OK)
-                .message("Sub product with id %s")
+                .message("Sub product with id %s is deleted.".formatted(subProductId))
                 .build();
     }
 }

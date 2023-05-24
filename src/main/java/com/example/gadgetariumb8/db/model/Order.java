@@ -36,7 +36,7 @@ public class Order {
     private PaymentType paymentType;
     private String orderNumber;
 
-    @ManyToMany(cascade = {REFRESH, PERSIST, MERGE, DETACH})
+    @ManyToMany(cascade = {REFRESH, PERSIST, MERGE, DETACH}, fetch = FetchType.EAGER)
     @JoinTable(name = "orders_sub_products",
             joinColumns = @JoinColumn(name = "order_id"),
             inverseJoinColumns = @JoinColumn(name = "sub_products_id"))

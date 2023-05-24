@@ -14,6 +14,26 @@ public interface SubProductRepository extends JpaRepository<SubProduct, Long> {
   List<SubProduct>getAllLastReviews(Long userId);
 
   @Modifying
+  @Query(nativeQuery = true, value = "delete from orders_sub_products osp where osp.sub_products_id = ?1")
+  void deleteFromOrders(Long id);
+
+  @Modifying
+  @Query(nativeQuery = true, value = "delete from user_basket ub where ub.basket_key = ?1")
+  void deleteFromBaskets(Long id);
+
+  @Modifying
+  @Query(nativeQuery = true, value = "delete from users_comparisons uc where uc.comparisons_id = ?1")
+  void deleteFromComparisons(Long id);
+
+  @Modifying
+  @Query(nativeQuery = true, value = "delete from users_favorites uf where uf.favorites_id = ?1")
+  void deleteFromFavorites(Long id);
+
+  @Modifying
+  @Query(nativeQuery = true, value = "delete from users_last_views ulv where ulv.last_views_id = ?1")
+  void deleteFromLastViews(Long id);
+
+  @Modifying
   @Query("delete from SubProduct s where s.id = ?1")
-  void deleteSubProductById(Long id);
+  void deleteSubProduct(Long id);
 }
