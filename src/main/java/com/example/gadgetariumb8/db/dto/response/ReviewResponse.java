@@ -21,6 +21,6 @@ public class ReviewResponse {
     private String userName;
     private String userEmail;
     private String userImg;
-    private Date date;
+    private String date;
     private String productName;
 }

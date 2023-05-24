@@ -134,7 +134,7 @@ public class ReviewServiceImpl implements ReviewService {
                                concat(u.first_name, ' ', u.last_name) as user_name,
                                ui.email                               as email,
                                u.image                                as user_image,
-                               r.created_at_time                      as date,
+                               r.created_at_time                      as dates,
                                p.name                                 as product_name
                         FROM reviews r
                                  JOIN products p on p.id = r.product_id
@@ -163,7 +163,7 @@ public class ReviewServiceImpl implements ReviewService {
                                     resultSet.getString("user_name"),
                                     resultSet.getString("email"),
                                     resultSet.getString("user_image"),
-                                    resultSet.getDate("date"),
+                                    resultSet.getString("dates"),
                                     resultSet.getString("product_name")
                             )
                     ),
