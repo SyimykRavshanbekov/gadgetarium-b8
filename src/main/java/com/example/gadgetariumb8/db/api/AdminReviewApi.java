@@ -1,6 +1,7 @@
 package com.example.gadgetariumb8.db.api;
 
 import com.example.gadgetariumb8.db.dto.request.AnswerRequest;
+import com.example.gadgetariumb8.db.dto.response.FeedbackInfographic;
 import com.example.gadgetariumb8.db.dto.response.SimpleResponse;
 import com.example.gadgetariumb8.db.service.ReviewService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -44,4 +45,9 @@ public class AdminReviewApi {
         return reviewService.updateFeedback(request.reviewId(), request.answer());
     }
 
+    @GetMapping("/feedback-infographic")
+    @Operation(summary = "Feedback infographic", description = "This method to get infographic of all feedbacks")
+    public FeedbackInfographic getFeedbackInfographic(){
+        return reviewService.getFeedbackInfographic();
+    }
 }

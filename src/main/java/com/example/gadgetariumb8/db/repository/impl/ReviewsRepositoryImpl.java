@@ -1,5 +1,6 @@
 package com.example.gadgetariumb8.db.repository.impl;
 
+import com.example.gadgetariumb8.db.dto.response.FeedbackInfographic;
 import com.example.gadgetariumb8.db.dto.response.FeedbackResponse;
 import com.example.gadgetariumb8.db.exception.exceptions.NotFoundException;
 import com.example.gadgetariumb8.db.repository.ReviewsRepository;
@@ -38,7 +39,26 @@ public class ReviewsRepositoryImpl implements ReviewsRepository {
             feedbackResponse.setTotalReviews(resultSet.getInt("total_reviews"));
             return feedbackResponse;
         }, productId).stream().findAny().orElseThrow(() -> new NotFoundException("Find first index is not found!!!"));
+    }
 
-
+    @Override
+    public FeedbackInfographic getFeedbackInfographic() {
+        String sql = """
+                SELECT
+                SUM(CASE WHEN r.grade = 5 THEN 1 END) AS five,
+                SUM(CASE WHEN r.grade = 4 THEN 1 END) AS four,
+                SUM(CASE WHEN r.grade = 3 THEN 1 END) AS three,
+                SUM(CASE WHEN r.grade = 2 THEN 1 END) AS two,
+                SUM(CASE WHEN r.grade = 1 THEN 1 END) AS one
+                FROM reviews r
+                """;
+        return jdbcTemplate.query(sql, (resultSet, i) ->
+                new FeedbackInfographic(
+                        resultSet.getInt("five"),
+                        resultSet.getInt("four"),
+                        resultSet.getInt("three"),
+                        resultSet.getInt("two"),
+                        resultSet.getInt("one")
+                )).stream().findFirst().orElseThrow(() -> new NotFoundException("Find first index is not found!!!"));
     }
 }
