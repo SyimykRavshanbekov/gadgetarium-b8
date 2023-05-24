@@ -67,7 +67,7 @@ public class ReviewServiceImpl implements ReviewService {
     public Object getAllReview(String param) {
         log.info("Getting all reviews");
         String sql = null;
-        String countSql = null;
+        String countSql = "SELECT count(r) as count FROM reviews r WHERE r.answer IS NULL";
         switch (param) {
             case "Unanswered" -> {
                 sql = """
@@ -89,10 +89,7 @@ public class ReviewServiceImpl implements ReviewService {
                                  JOIN sub_products sp on r.product_id = sp.product_id
                                  JOIN review_images ri on r.id = ri.review_id
                                  JOIN users u on u.id = r.user_id
-                                 JOIN users_info ui on ui.id = r.user_id where r.answer is not null
-                        """;
-                countSql = """
-                        SELECT count(r) as count FROM reviews r WHERE r.answer IS NOT NULL
+                                 JOIN users_info ui on ui.id = r.user_id where r.answer IS NULL
                         """;
             }
             case "Answered" -> {
@@ -115,10 +112,7 @@ public class ReviewServiceImpl implements ReviewService {
                                  JOIN sub_products sp on r.product_id = sp.product_id
                                  JOIN review_images ri on r.id = ri.review_id
                                  JOIN users u on u.id = r.user_id
-                                 JOIN users_info ui on ui.id = r.user_id where r.answer is null
-                        """;
-                countSql = """
-                        SELECT count(r) as count FROM reviews r WHERE r.answer IS NULL
+                                 JOIN users_info ui on ui.id = r.user_id WHERE r.answer IS NOT NULL
                         """;
             }
             case "AllReviews" -> {
@@ -143,9 +137,6 @@ public class ReviewServiceImpl implements ReviewService {
                                  JOIN users u on u.id = r.user_id
                                  JOIN users_info ui on ui.id = r.user_id
                         """;
-                countSql = """
-                        SELECT count(r) as count FROM reviews r
-                        """;
             }
         }
         if (sql != null) {
@@ -165,6 +156,7 @@ public class ReviewServiceImpl implements ReviewService {
                                     resultSet.getString("user_image"),
                                     resultSet.getString("dates"),
                                     resultSet.getString("product_name")
+
                             )
                     ),
                     jdbcTemplate.queryForObject(countSql, Integer.class)
