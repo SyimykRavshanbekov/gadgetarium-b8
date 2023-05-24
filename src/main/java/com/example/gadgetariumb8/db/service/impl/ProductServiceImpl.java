@@ -659,7 +659,7 @@ public class ProductServiceImpl implements ProductService {
                         r.answer as answer
                 from reviews r
                          join users u on u.id = r.user_id where r.product_id= ?
-                         ORDER BY r.created_at_time DESC LIMIT ?
+                         ORDER BY r.id DESC LIMIT ?
                 """;
         return jdbcTemplate.query(sql4, (resultSet, i) -> ReviewsResponse.builder()
                         .reviewsId(resultSet.getLong("id"))

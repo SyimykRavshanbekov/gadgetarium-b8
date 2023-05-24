@@ -1,5 +1,6 @@
 package com.example.gadgetariumb8.db.api;
 
+import com.example.gadgetariumb8.db.dto.request.BrandRequest;
 import com.example.gadgetariumb8.db.dto.request.ProductRequest;
 import com.example.gadgetariumb8.db.dto.request.ProductUpdateRequest;
 import com.example.gadgetariumb8.db.dto.response.*;
@@ -69,6 +70,13 @@ public class AdminProductApi {
     @PreAuthorize("hasAuthority('ADMIN')")
     public BrandAndSubCategoryResponse getAllBrandsAndSubCategoriesByCategoryId(@PathVariable("id") Long categoryId) {
         return brandService.getAllBrands(categoryId);
+    }
+
+    @PostMapping("/add_brand")
+    @Operation(summary = "Add brand!", description = "This endpoint adds new brand! ")
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    public SimpleResponse addBrand(@RequestBody @Valid BrandRequest request){
+        return brandService.saveBrand(request);
     }
 
     @PutMapping("/{id}/update")
