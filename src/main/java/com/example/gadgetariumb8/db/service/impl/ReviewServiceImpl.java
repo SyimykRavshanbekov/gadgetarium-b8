@@ -156,6 +156,7 @@ public class ReviewServiceImpl implements ReviewService {
                                     resultSet.getString("user_image"),
                                     resultSet.getString("dates"),
                                     resultSet.getString("product_name")
+
                             )
                     ),
                     jdbcTemplate.queryForObject(countSql, Integer.class)
