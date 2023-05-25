@@ -1,10 +1,7 @@
 package com.example.gadgetariumb8.db.service.impl;
 
 import com.example.gadgetariumb8.db.dto.request.AnswerRequest;
-import com.example.gadgetariumb8.db.dto.response.AdminReviewsResponse;
-import com.example.gadgetariumb8.db.dto.response.FeedbackResponse;
-import com.example.gadgetariumb8.db.dto.response.ReviewResponse;
-import com.example.gadgetariumb8.db.dto.response.SimpleResponse;
+import com.example.gadgetariumb8.db.dto.response.*;
 import com.example.gadgetariumb8.db.exception.exceptions.NotFoundException;
 import com.example.gadgetariumb8.db.model.Review;
 import com.example.gadgetariumb8.db.repository.ReviewRepository;
@@ -209,5 +206,10 @@ public class ReviewServiceImpl implements ReviewService {
                     .httpStatus(HttpStatus.BAD_REQUEST)
                     .build();
         }
+    }
+
+    @Override
+    public FeedbackInfographic getFeedbackInfographic() {
+        return reviewsRepository.getFeedbackInfographic();
     }
 }
