@@ -15,4 +15,6 @@ public interface OrderService {
     UserOrderResponse ordering(UserOrderRequest userOrderRequest);
 
     SimpleResponse changeStatusOfOrder(Long orderId, String status);
+
+    SimpleResponse delete(Long orderId);
 }

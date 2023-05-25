@@ -302,4 +302,24 @@ public class OrderServiceImpl implements OrderService {
                 .message("Status changed successfully!")
                 .build();
     }
+
+    @Override
+    public SimpleResponse delete(Long orderId) {
+        Order order = orderRepository.findById(orderId).orElseThrow(
+                () -> new NotFoundException("Order with id %s is not found.".formatted(orderId)));
+        if (!order.getStatus().equals(Status.DELIVERED)
+                && !order.getStatus().equals(Status.CANCEL)
+                && !order.getStatus().equals(Status.RECEIVED)
+        ) {
+            throw new BadRequestException("""
+                    Order with id %s cannot be deleted because it is not completed. Status of order - %s"""
+                    .formatted(orderId, order.getStatus()));
+        }
+        orderRepository.deleteById(orderId);
+
+        return SimpleResponse.builder()
+                .httpStatus(HttpStatus.OK)
+                .message("Order with id %s is deleted.".formatted(orderId))
+                .build();
+    }
 }

@@ -38,4 +38,11 @@ public class AdminOrderApi {
     public SimpleResponse changeStatusOfOrder(@RequestParam Long orderId, @RequestParam String status) {
         return orderService.changeStatusOfOrder(orderId, status);
     }
+
+    @DeleteMapping("/{id}")
+    @Operation(summary = "Delete order", description = "This method to delete orders")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public SimpleResponse delete(@PathVariable("id")Long orderId){
+        return orderService.delete(orderId);
+    }
 }

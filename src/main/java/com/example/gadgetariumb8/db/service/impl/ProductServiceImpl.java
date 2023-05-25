@@ -722,7 +722,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public SimpleResponse delete(Long subProductId) {
-        if (subProductRepository.existsById(subProductId)) {
+        if (!subProductRepository.existsById(subProductId)) {
             log.error("Sub product with id %s is not found!".formatted(subProductId));
             throw new NotFoundException("Sub product with id %s is not found!".formatted(subProductId));
         }
@@ -733,9 +733,9 @@ public class ProductServiceImpl implements ProductService {
                         && !order.getStatus().equals(Status.DELIVERED)
                         && !order.getStatus().equals(Status.CANCEL)
                         && !order.getStatus().equals(Status.RECEIVED)) {
-                    log.error("Sub product with id %s cannot be removed as it is currently on sale."
+                    log.error("Sub product with id %s cannot be deleted because it is currently on sale."
                             .formatted(subProductId));
-                    throw new BadRequestException("Sub product with id %s cannot be removed as it is currently on sale."
+                    throw new BadRequestException("Sub product with id %s cannot be deleted because it is currently on sale."
                             .formatted(subProductId));
                 }
             }

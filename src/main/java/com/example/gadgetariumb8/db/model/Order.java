@@ -52,4 +52,8 @@ public class Order {
     @OneToOne(cascade = ALL)
     @JoinColumn(name = "customer_id")
     private Customer customer;
+
+    @ManyToOne(cascade = {REFRESH, PERSIST, MERGE, DETACH})
+    @JoinColumn(name = "user_id")
+    private User user;
 }
