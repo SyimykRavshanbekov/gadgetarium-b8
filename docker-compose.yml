@@ -3,6 +3,7 @@ services:
   backend:
     image: '#image'
     container_name: gadgetarium
+    restart: always
     ports:
       - "80:2023"
     environment:
@@ -12,7 +13,7 @@ services:
       POSTGRES_USER: gadgetariumdbuser
       POSTGRES_PASSWORD: gadgetariumdb2023
   database:
-    image: postgres:15-alpine
+    image: postgres:15
     restart: always
     container_name: database
     ports:
