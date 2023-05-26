@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import static jakarta.persistence.CascadeType.*;
+
 @Getter
 @Setter
 @Entity
@@ -22,4 +24,8 @@ public class Customer {
     private String email;
     private String phoneNumber;
     private String address;
+
+    @OneToOne(cascade = {REFRESH, PERSIST, MERGE, DETACH}, mappedBy = "customer")
+    @JoinColumn(name = "order_id")
+    private Order order;
 }

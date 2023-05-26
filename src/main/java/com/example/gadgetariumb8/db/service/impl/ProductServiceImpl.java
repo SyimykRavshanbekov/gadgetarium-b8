@@ -1,13 +1,16 @@
 package com.example.gadgetariumb8.db.service.impl;
 
 import com.example.gadgetariumb8.db.dto.request.ProductRequest;
+import com.example.gadgetariumb8.db.dto.request.ProductUpdateRequest;
 import com.example.gadgetariumb8.db.dto.request.SubProductRequest;
 import com.example.gadgetariumb8.db.dto.response.*;
 import com.example.gadgetariumb8.db.exception.exceptions.BadRequestException;
 import com.example.gadgetariumb8.db.exception.exceptions.NotFoundException;
 import com.example.gadgetariumb8.db.model.*;
+import com.example.gadgetariumb8.db.model.enums.Status;
 import com.example.gadgetariumb8.db.repository.*;
 import com.example.gadgetariumb8.db.service.ProductService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -25,7 +28,9 @@ import java.util.*;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class ProductServiceImpl implements ProductService {
+    private final OrderRepository orderRepository;
 
     private final SubCategoryRepository subCategoryRepository;
     private final BrandRepository brandRepository;
@@ -667,5 +672,85 @@ public class ProductServiceImpl implements ProductService {
                 productId,
                 page
         );
+    }
+
+    @Override
+    public SimpleResponse update(Long subProductId, ProductUpdateRequest request) {
+        SubProduct oldSubProduct = subProductRepository.findById(subProductId).orElseThrow(() -> {
+            log.error("Sub product with id:" + subProductId + " is not found!");
+            throw new NotFoundException("Sub product with id:" + subProductId + " is not found!");
+        });
+
+        SubCategory subCategory = subCategoryRepository.findById(request.subCategoryId())
+                .orElseThrow(() -> {
+                    log.error("Sub category with id:" + request.subCategoryId() + " not found!");
+                    throw new NotFoundException("Sub category with id:" + request.subCategoryId() + " not found!");
+                });
+
+        Brand brand = brandRepository.findById(request.brandId())
+                .orElseThrow(() -> {
+                    log.error("Brand with id:" + request.brandId() + " not found!");
+                    throw new NotFoundException("Brand with id:" + request.brandId() + " not found!");
+                });
+        Product product = oldSubProduct.getProduct();
+        product.setSubCategory(subCategory);
+        product.setBrand(brand);
+        product.setGuarantee(request.guarantee());
+        product.setName(request.name());
+        product.setDateOfIssue(request.dateOfIssue());
+        product.setCreatedAt(LocalDate.now());
+        product.setVideo(request.video());
+        product.setPDF(request.PDF());
+        product.setDescription(request.description());
+
+        SubProductRequest s = request.subProducts();
+        oldSubProduct.getCharacteristics().clear();
+        oldSubProduct.addCharacteristics(s.characteristics());
+        oldSubProduct.setColour(s.colour());
+        oldSubProduct.setPrice(s.price());
+        oldSubProduct.setQuantity(s.quantity());
+        oldSubProduct.setImages(s.images());
+        log.info(String.format("Product with id %s and sub product with id %s are updated!",
+                product.getId(), oldSubProduct.getId()));
+
+        return SimpleResponse.builder()
+                .httpStatus(HttpStatus.OK)
+                .message(String.format("Product with id %s and sub product with id %s are updated!",
+                        product.getId(), oldSubProduct.getId()))
+                .build();
+    }
+
+    @Override
+    public SimpleResponse delete(Long subProductId) {
+        if (!subProductRepository.existsById(subProductId)) {
+            log.error("Sub product with id %s is not found!".formatted(subProductId));
+            throw new NotFoundException("Sub product with id %s is not found!".formatted(subProductId));
+        }
+
+        for (Order order : orderRepository.findAll()) {
+            for (SubProduct product : order.getSubProducts()) {
+                if (product.getId().equals(subProductId)
+                        && !order.getStatus().equals(Status.DELIVERED)
+                        && !order.getStatus().equals(Status.CANCEL)
+                        && !order.getStatus().equals(Status.RECEIVED)) {
+                    log.error("Sub product with id %s cannot be deleted because it is currently on sale."
+                            .formatted(subProductId));
+                    throw new BadRequestException("Sub product with id %s cannot be deleted because it is currently on sale."
+                            .formatted(subProductId));
+                }
+            }
+        }
+
+        subProductRepository.deleteFromOrders(subProductId);
+        subProductRepository.deleteFromBaskets(subProductId);
+        subProductRepository.deleteFromComparisons(subProductId);
+        subProductRepository.deleteFromFavorites(subProductId);
+        subProductRepository.deleteFromLastViews(subProductId);
+        subProductRepository.deleteSubProduct(subProductId);
+
+        return SimpleResponse.builder()
+                .httpStatus(HttpStatus.OK)
+                .message("Sub product with id %s is deleted.".formatted(subProductId))
+                .build();
     }
 }

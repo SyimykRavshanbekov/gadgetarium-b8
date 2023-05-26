@@ -1,5 +1,6 @@
 package com.example.gadgetariumb8.db.service;
 import com.example.gadgetariumb8.db.dto.request.ProductRequest;
+import com.example.gadgetariumb8.db.dto.request.ProductUpdateRequest;
 import com.example.gadgetariumb8.db.dto.response.*;
 
 import java.time.LocalDate;
@@ -30,4 +31,8 @@ public interface ProductService {
 
     PaginationResponse<ProductAdminResponse> getAll(String keyWord, String status, LocalDate from, LocalDate before,
                                                     String sortBy, int page, int pageSize);
+
+    SimpleResponse update(Long subProductId, ProductUpdateRequest request);
+
+    SimpleResponse delete(Long subProductId);
 }
