@@ -39,9 +39,12 @@ public class BasketServiceImpl implements BasketService {
 
     @Override
     public PaginationResponse<SubProductBasketResponse> getAllBasket(int page, int pageSize) {
+        User user = getAuthenticate();
         log.info("Getting all basket!");
         String sql = """
-                SELECT (SELECT spi FROM sub_product_images spi WHERE spi.sub_product_id = sp.id LIMIT 1) AS img,
+                SELECT (SELECT spi.images FROM sub_product_images spi WHERE spi.sub_product_id = sp.id LIMIT 1) AS img,
+                       p.id productId,
+                       sp.id subProductId,
                        p.name AS names,
                        p.description AS description,
                        ub.basket AS quantity,
@@ -56,10 +59,12 @@ public class BasketServiceImpl implements BasketService {
                          JOIN products p ON p.id = sp.product_id
                          JOIN user_basket ub ON sp.id = ub.basket_key
                          JOIN users u ON ub.user_id = u.id
-                WHERE u.id = 1;
+                WHERE u.id = ?;
                 """;
         List<SubProductBasketResponse> getAll = jdbcTemplate.query(sql, (resultSet, i) ->
                 new SubProductBasketResponse(
+                        resultSet.getLong("productId"),
+                        resultSet.getLong("subProductId"),
                         resultSet.getString("img"),
                         resultSet.getString("names"),
                         resultSet.getString("description"),
@@ -68,13 +73,14 @@ public class BasketServiceImpl implements BasketService {
                         resultSet.getInt("quantity"),
                         resultSet.getInt("itemNumber"),
                         resultSet.getBigDecimal("price")
-                )
+                ), user.getId()
         );
         log.info("All baskets are successfully got!");
         return PaginationResponse.<SubProductBasketResponse>builder()
+                .foundProducts(getAll.size())
                 .elements(getAll)
-                .totalPages(pageSize)
                 .currentPage(page)
+                .totalPages(pageSize)
                 .build();
     }
 
