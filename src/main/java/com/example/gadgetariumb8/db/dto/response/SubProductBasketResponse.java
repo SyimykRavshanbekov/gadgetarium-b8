@@ -11,6 +11,8 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 public class SubProductBasketResponse {
+    private Long productId;
+    private Long subProductId;
     private String image;
     private String name;
     private String description;
