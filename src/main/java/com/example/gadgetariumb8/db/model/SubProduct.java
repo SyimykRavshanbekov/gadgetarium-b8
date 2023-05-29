@@ -45,7 +45,7 @@ public class SubProduct {
     @JoinColumn(name = "product_id")
     private Product product;
 
-    @OneToOne(cascade = ALL)
+    @ManyToOne(cascade = ALL)
     @JoinColumn(name = "discount_id")
     private Discount discount;
 }

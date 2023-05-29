@@ -87,10 +87,10 @@ public class AdminProductApi {
         return productService.update(subProductId, request);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping
     @Operation(summary = "Delete products", description = "This method to delete products")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public SimpleResponse deleteProduct(@PathVariable("id")Long subProductId){
-        return productService.delete(subProductId);
+    public SimpleResponse deleteProduct(@RequestParam List<Long> subProductIds){
+        return productService.delete(subProductIds);
     }
 }

@@ -20,6 +20,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.sql.Array;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -31,7 +32,6 @@ import java.util.*;
 @Transactional
 public class ProductServiceImpl implements ProductService {
     private final OrderRepository orderRepository;
-
     private final SubCategoryRepository subCategoryRepository;
     private final BrandRepository brandRepository;
     private final SubProductRepository subProductRepository;
@@ -589,7 +589,7 @@ public class ProductServiceImpl implements ProductService {
                 from products p
                          join brands b on b.id = p.brand_id
                          join sub_products sp on p.id = sp.product_id
-                         join reviews r on p.id = r.product_id
+                         left join reviews r on p.id = r.product_id
                          left join discounts d on d.id = sp.discount_id
                 where p.id =  ?  and sp.colour =  ?
                 """;
@@ -650,28 +650,35 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<ReviewsResponse> getAllReviewsByProductId(Long productId, int page) {
         String sql4 = """
-                select  r.id as id,
-                        u.image as image,
-                        concat(u.first_name, ' ', u.last_name) as full_name,
-                        r.created_at_time as created_at,
-                        r.grade as grade,
-                        r.commentary as commentary,
-                        r.answer as answer
-                from reviews r
-                         join users u on u.id = r.user_id where r.product_id= ?
-                         ORDER BY r.id DESC LIMIT ?
-                """;
-        return jdbcTemplate.query(sql4, (resultSet, i) -> ReviewsResponse.builder()
-                        .reviewsId(resultSet.getLong("id"))
-                        .image(resultSet.getString("image"))
-                        .fullName(resultSet.getString("full_name"))
-                        .createdAt(resultSet.getString("created_at"))
-                        .grade(resultSet.getInt("grade"))
-                        .commentary(resultSet.getString("commentary"))
-                        .answer(resultSet.getString("answer")).build(),
-                productId,
-                page
-        );
+            SELECT r.id AS id,
+                   u.image AS userAvatar,
+                   CONCAT(u.first_name, ' ', u.last_name) AS full_name,
+                   r.created_at_time AS created_at,
+                   r.grade AS grade,
+                   r.commentary AS commentary,
+                   r.answer AS answer,
+                   ARRAY(SELECT ri.images FROM review_images ri WHERE ri.review_id = r.id) AS images
+            FROM reviews r
+                     JOIN users u ON u.id = r.user_id
+            WHERE r.product_id = ?
+            ORDER BY r.id DESC
+            LIMIT ?
+            """;
+        return jdbcTemplate.query(sql4, (resultSet, i) -> {
+            Array imagesArray = resultSet.getArray("images");
+            String[] images = (String[]) imagesArray.getArray();
+
+            return ReviewsResponse.builder()
+                    .reviewsId(resultSet.getLong("id"))
+                    .userAvatar(resultSet.getString("userAvatar"))
+                    .fullName(resultSet.getString("full_name"))
+                    .createdAt(resultSet.getString("created_at"))
+                    .grade(resultSet.getInt("grade"))
+                    .commentary(resultSet.getString("commentary"))
+                    .answer(resultSet.getString("answer"))
+                    .images(Arrays.asList(images))
+                    .build();
+        }, productId, page);
     }
 
     @Override
@@ -721,36 +728,40 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public SimpleResponse delete(Long subProductId) {
-        if (!subProductRepository.existsById(subProductId)) {
-            log.error("Sub product with id %s is not found!".formatted(subProductId));
-            throw new NotFoundException("Sub product with id %s is not found!".formatted(subProductId));
-        }
-
-        for (Order order : orderRepository.findAll()) {
-            for (SubProduct product : order.getSubProducts()) {
-                if (product.getId().equals(subProductId)
-                        && !order.getStatus().equals(Status.DELIVERED)
-                        && !order.getStatus().equals(Status.CANCEL)
-                        && !order.getStatus().equals(Status.RECEIVED)) {
-                    log.error("Sub product with id %s cannot be deleted because it is currently on sale."
-                            .formatted(subProductId));
-                    throw new BadRequestException("Sub product with id %s cannot be deleted because it is currently on sale."
-                            .formatted(subProductId));
-                }
+    public SimpleResponse delete(List<Long> subProductIds) {
+        for (Long id : subProductIds) {
+            if (!subProductRepository.existsById(id)) {
+                log.error("Sub product with id %s is not found!".formatted(subProductIds));
+                throw new NotFoundException("Sub product with id %s is not found!".formatted(subProductIds));
             }
         }
 
-        subProductRepository.deleteFromOrders(subProductId);
-        subProductRepository.deleteFromBaskets(subProductId);
-        subProductRepository.deleteFromComparisons(subProductId);
-        subProductRepository.deleteFromFavorites(subProductId);
-        subProductRepository.deleteFromLastViews(subProductId);
-        subProductRepository.deleteSubProduct(subProductId);
+        for (Long subProductId : subProductIds) {
+            for (Order order : orderRepository.findAll()) {
+                for (SubProduct product : order.getSubProducts()) {
+                    if (product.getId().equals(subProductId)
+                            && !order.getStatus().equals(Status.DELIVERED)
+                            && !order.getStatus().equals(Status.CANCEL)
+                            && !order.getStatus().equals(Status.RECEIVED)) {
+                        log.error("Sub product with id %s cannot be deleted because it is currently on sale."
+                                .formatted(subProductIds));
+                        throw new BadRequestException("Sub product with id %s cannot be deleted because it is currently on sale."
+                                .formatted(subProductIds));
+                    }
+                }
+            }
+
+            subProductRepository.deleteFromOrders(subProductId);
+            subProductRepository.deleteFromBaskets(subProductId);
+            subProductRepository.deleteFromComparisons(subProductId);
+            subProductRepository.deleteFromFavorites(subProductId);
+            subProductRepository.deleteFromLastViews(subProductId);
+            subProductRepository.deleteSubProduct(subProductId);
+        }
 
         return SimpleResponse.builder()
                 .httpStatus(HttpStatus.OK)
-                .message("Sub product with id %s is deleted.".formatted(subProductId))
+                .message("Sub products with id %s are deleted.".formatted(subProductIds))
                 .build();
     }
 }
