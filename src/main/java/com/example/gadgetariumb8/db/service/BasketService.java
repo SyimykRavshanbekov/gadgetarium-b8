@@ -7,7 +7,7 @@ import com.example.gadgetariumb8.db.dto.response.SubProductBasketResponse;
 import java.util.List;
 
 public interface BasketService {
-    PaginationResponse<SubProductBasketResponse> getAllBasket(int page, int pageSize);
+    List<SubProductBasketResponse> getAllBasket(int page, int pageSize);
 
     SimpleResponse deleteBasket(List<Long> longs);
 

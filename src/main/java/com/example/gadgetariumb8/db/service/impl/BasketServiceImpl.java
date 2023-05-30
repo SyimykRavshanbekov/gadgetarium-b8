@@ -38,7 +38,7 @@ public class BasketServiceImpl implements BasketService {
     }
 
     @Override
-    public PaginationResponse<SubProductBasketResponse> getAllBasket(int page, int pageSize) {
+    public List<SubProductBasketResponse> getAllBasket(int page, int pageSize) {
         User user = getAuthenticate();
         log.info("Getting all basket!");
         String sql = """
