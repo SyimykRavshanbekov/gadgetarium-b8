@@ -38,8 +38,7 @@ public class BasketServiceImpl implements BasketService {
     }
 
     @Override
-    public List<SubProductBasketResponse> getAllBasket(int page, int pageSize) {
-        User user = getAuthenticate();
+    public List<SubProductBasketResponse> getAllBasket() {
         log.info("Getting all basket!");
         String sql = """
                 SELECT (SELECT spi.images FROM sub_product_images spi WHERE spi.sub_product_id = sp.id LIMIT 1) AS img,
@@ -61,7 +60,8 @@ public class BasketServiceImpl implements BasketService {
                          JOIN users u ON ub.user_id = u.id
                 WHERE u.id = ?;
                 """;
-        List<SubProductBasketResponse> getAll = jdbcTemplate.query(sql, (resultSet, i) ->
+        log.info("All baskets are successfully got!");
+        return jdbcTemplate.query(sql, (resultSet, i) ->
                 new SubProductBasketResponse(
                         resultSet.getLong("productId"),
                         resultSet.getLong("subProductId"),
@@ -73,15 +73,8 @@ public class BasketServiceImpl implements BasketService {
                         resultSet.getInt("quantity"),
                         resultSet.getInt("itemNumber"),
                         resultSet.getBigDecimal("price")
-                ), user.getId()
+                ), getAuthenticate().getId()
         );
-        log.info("All baskets are successfully got!");
-        return PaginationResponse.<SubProductBasketResponse>builder()
-                .foundProducts(getAll.size())
-                .elements(getAll)
-                .currentPage(page)
-                .totalPages(pageSize)
-                .build();
     }
 
     @Override
@@ -95,7 +88,7 @@ public class BasketServiceImpl implements BasketService {
             userRepository.save(user);
             return SimpleResponse.builder()
                     .message("Products successfully deleted").httpStatus(HttpStatus.OK).build();
-        }else {
+        } else {
             return SimpleResponse.builder()
                     .httpStatus(HttpStatus.BAD_REQUEST)
                     .message("Array of IDs is empty!")
@@ -120,7 +113,7 @@ public class BasketServiceImpl implements BasketService {
     public SimpleResponse deleteBasketById(Long id) {
         User user = userRepository.findById(getAuthenticate().getId())
                 .orElseThrow(() -> new NotFoundException("User with id:" + getAuthenticate().getId() + " not found!!!"));
-        jdbcTemplate.update("DELETE FROM user_basket ub where ub.user_id = ? and ub.basket_key = ?",user.getId(),id);
+        jdbcTemplate.update("DELETE FROM user_basket ub where ub.user_id = ? and ub.basket_key = ?", user.getId(), id);
         userRepository.save(user);
         return SimpleResponse.builder()
                 .message("Product successfully deleted").httpStatus(HttpStatus.OK).build();

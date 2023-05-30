@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/basket")
@@ -23,9 +24,8 @@ public class BasketApi {
     @GetMapping("/basket")
     @Operation(summary = "Get all basket", description = "this method shows the cart")
     @PermitAll
-    public PaginationResponse<SubProductBasketResponse> basket(@RequestParam(defaultValue = "1") int page,
-                                                               @RequestParam(defaultValue = "5") int pageSize) {
-        return basketService.getAllBasket(page, pageSize);
+    public List<SubProductBasketResponse> basket() {
+        return basketService.getAllBasket();
     }
 
     @PostMapping("/move_to_favorites")
