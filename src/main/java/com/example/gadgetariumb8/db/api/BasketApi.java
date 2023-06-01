@@ -37,7 +37,7 @@ public class BasketApi {
     @DeleteMapping("/delete_all")
     @Operation(summary = "Deleted all basket", description = "This method to delete all basket!")
     @PreAuthorize("hasAuthority('USER')")
-    public SimpleResponse deletedToBasket(@RequestParam List<Long> subProductsId) {
+    public SimpleResponse deletedToBasket(@RequestBody List<Long> subProductsId) {
         return basketService.deleteBasket(subProductsId);
     }
 
