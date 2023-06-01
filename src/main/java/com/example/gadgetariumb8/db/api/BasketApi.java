@@ -55,4 +55,11 @@ public class BasketApi {
     public SimpleResponse moveToFavoritesById(@RequestParam Long id) {
         return basketService.moveToFavoriteById(id);
     }
+
+    @PostMapping("/save")
+    @Operation(summary = "Save basket", description = "This method save Basket!")
+    @PreAuthorize("hasAuthority('USER')")
+    public SimpleResponse saveBasket(@RequestParam int quantity,@RequestParam Long subProductId) {
+        return basketService.saveBasket(subProductId,quantity);
+    }
 }
