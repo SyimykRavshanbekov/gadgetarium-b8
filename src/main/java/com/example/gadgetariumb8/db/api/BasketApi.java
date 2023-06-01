@@ -1,5 +1,6 @@
 package com.example.gadgetariumb8.db.api;
 
+import com.example.gadgetariumb8.db.dto.request.BasketDeleteRequest;
 import com.example.gadgetariumb8.db.dto.response.SimpleResponse;
 import com.example.gadgetariumb8.db.dto.response.SubProductBasketResponse;
 import com.example.gadgetariumb8.db.service.BasketService;
@@ -37,8 +38,8 @@ public class BasketApi {
     @DeleteMapping("/delete_all")
     @Operation(summary = "Deleted all basket", description = "This method to delete all basket!")
     @PreAuthorize("hasAuthority('USER')")
-    public SimpleResponse deletedToBasket(@RequestBody List<Long> subProductsId) {
-        return basketService.deleteBasket(subProductsId);
+    public SimpleResponse deletedToBasket(@RequestBody BasketDeleteRequest basketDeleteRequest) {
+        return basketService.deleteBasket(basketDeleteRequest.subProductsId());
     }
 
     @DeleteMapping("/{id}")
