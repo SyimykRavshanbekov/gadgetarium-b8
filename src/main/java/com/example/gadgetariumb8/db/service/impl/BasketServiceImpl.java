@@ -1,6 +1,5 @@
 package com.example.gadgetariumb8.db.service.impl;
 
-import com.example.gadgetariumb8.db.dto.response.PaginationResponse;
 import com.example.gadgetariumb8.db.dto.response.SimpleResponse;
 import com.example.gadgetariumb8.db.dto.response.SubProductBasketResponse;
 import com.example.gadgetariumb8.db.exception.exceptions.NotFoundException;
@@ -78,12 +77,12 @@ public class BasketServiceImpl implements BasketService {
     }
 
     @Override
-    public SimpleResponse deleteBasket(List<Long> longs) {
+    public SimpleResponse deleteBasket(List<Long> subProductsId) {
         User user = userRepository.findById(getAuthenticate().getId())
                 .orElseThrow(() -> new NotFoundException("User with id:" + getAuthenticate().getId() + " not found!!!"));
-        if (longs != null) {
-            for (Long aLong : longs) {
-                jdbcTemplate.update("DELETE FROM user_basket ub where ub.user_id = ? and ub.basket_key = ?", user.getId(), aLong);
+        if (subProductsId != null) {
+            for (Long subProductId : subProductsId) {
+                jdbcTemplate.update("DELETE FROM user_basket ub where ub.user_id = ? and ub.basket_key = ?", user.getId(), subProductId);
             }
             userRepository.save(user);
             return SimpleResponse.builder()
