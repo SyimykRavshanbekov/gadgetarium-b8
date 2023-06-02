@@ -15,4 +15,6 @@ public interface BasketService {
     SimpleResponse moveToFavorite(List<Long> longs);
 
     SimpleResponse moveToFavoriteById(Long id);
+
+    SimpleResponse saveBasket(Long id,int quantity);
 }

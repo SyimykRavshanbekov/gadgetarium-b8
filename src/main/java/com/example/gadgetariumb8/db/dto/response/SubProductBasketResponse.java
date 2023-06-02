@@ -21,4 +21,6 @@ public class SubProductBasketResponse {
     private int quantity;
     private int itemNumber;
     private BigDecimal price;
+    private int percent;
+    private int quantityProduct;
 }

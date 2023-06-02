@@ -3,6 +3,7 @@ package com.example.gadgetariumb8.db.service.impl;
 import com.example.gadgetariumb8.db.dto.response.SimpleResponse;
 import com.example.gadgetariumb8.db.dto.response.SubProductBasketResponse;
 import com.example.gadgetariumb8.db.exception.exceptions.NotFoundException;
+import com.example.gadgetariumb8.db.model.SubProduct;
 import com.example.gadgetariumb8.db.model.User;
 import com.example.gadgetariumb8.db.repository.SubProductRepository;
 import com.example.gadgetariumb8.db.repository.UserRepository;
@@ -14,9 +15,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -41,24 +40,30 @@ public class BasketServiceImpl implements BasketService {
         log.info("Getting all basket!");
         String sql = """
                 SELECT (SELECT spi.images FROM sub_product_images spi WHERE spi.sub_product_id = sp.id LIMIT 1) AS img,
-                       p.id productId,
-                       sp.id subProductId,
-                       p.name AS names,
-                       p.description AS description,
-                       ub.basket AS quantity,
-                       sp.item_number AS itemNumber,
-                       sp.price AS price,
-                       p.rating as rating,
+                       p.id                                                                                        productId,
+                       sp.id                                                                                       subProductId,
+                       p.name                                                                                   AS names,
+                       p.description                                                                            AS description,
+                       ub.basket                                                                                AS quantity,
+                       sp.item_number                                                                           AS itemNumber,
+                       sp.price                                                                                 AS price,
+                       p.rating                                                                                 as rating,
                        (SELECT count(r2)
                         FROM products psd
                                  JOIN reviews r2 on psd.id = r2.product_id
-                        where psd.id = p.id) as numberOfReviews
+                        where psd.id = p.id)                                                                    as numberOfReviews,
+                       ub.basket                                                                                as basket,
+                       (SELECT ds.percent
+                               from discounts ds
+                               where d.date_of_start <= CURRENT_DATE
+                                 and d.date_of_finish >= CURRENT_DATE and ds.id = d.id)                                             as percents
                 FROM sub_products sp
                          JOIN products p ON p.id = sp.product_id
                          JOIN user_basket ub ON sp.id = ub.basket_key
                          JOIN users u ON ub.user_id = u.id
-                WHERE u.id = ?;
-                """;
+                         JOIN discounts d on d.id = sp.discount_id
+                WHERE u.id = ?
+                 """;
         log.info("All baskets are successfully got!");
         return jdbcTemplate.query(sql, (resultSet, i) ->
                 new SubProductBasketResponse(
@@ -71,7 +76,9 @@ public class BasketServiceImpl implements BasketService {
                         resultSet.getInt("numberOfReviews"),
                         resultSet.getInt("quantity"),
                         resultSet.getInt("itemNumber"),
-                        resultSet.getBigDecimal("price")
+                        resultSet.getBigDecimal("price"),
+                        resultSet.getInt("percents"),
+                        resultSet.getInt("basket")
                 ), getAuthenticate().getId()
         );
     }
@@ -127,5 +134,19 @@ public class BasketServiceImpl implements BasketService {
         userRepository.save(user);
         return SimpleResponse.builder()
                 .message("Products have successfully moved to Favorites").httpStatus(HttpStatus.OK).build();
+    }
+
+    @Override
+    public SimpleResponse saveBasket(Long id,int quantity) {
+        SubProduct subProduct = subProductRepository.findById(id)
+                .orElseThrow(()->new NotFoundException(String.format("Product with id %s is not found!", id)));
+        User user = userRepository.findById(getAuthenticate().getId())
+                .orElseThrow(() -> new NotFoundException("User with id:" + getAuthenticate().getId() + " not found!!!"));
+        user.getBasket().put(subProduct, quantity);
+        userRepository.save(user);
+        return SimpleResponse.builder()
+                .httpStatus(HttpStatus.OK)
+                .message("Products have successfully saved!!!")
+                .build();
     }
 }
