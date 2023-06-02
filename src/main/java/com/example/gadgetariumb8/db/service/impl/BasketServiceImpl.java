@@ -43,8 +43,7 @@ public class BasketServiceImpl implements BasketService {
                        p.id                                                                                        productId,
                        sp.id                                                                                       subProductId,
                        p.name                                                                                   AS names,
-                       p.description                                                                            AS description,
-                       ub.basket                                                                                AS quantity,
+                       sp.quantity                                                                              AS quantity,
                        sp.item_number                                                                           AS itemNumber,
                        sp.price                                                                                 AS price,
                        p.rating                                                                                 as rating,
@@ -52,7 +51,7 @@ public class BasketServiceImpl implements BasketService {
                         FROM products psd
                                  JOIN reviews r2 on psd.id = r2.product_id
                         where psd.id = p.id)                                                                    as numberOfReviews,
-                       ub.basket                                                                                as basket,
+                       ub.basket                                                                                as quantityProduct,
                        (SELECT ds.percent
                                from discounts ds
                                where d.date_of_start <= CURRENT_DATE
@@ -61,7 +60,7 @@ public class BasketServiceImpl implements BasketService {
                          JOIN products p ON p.id = sp.product_id
                          JOIN user_basket ub ON sp.id = ub.basket_key
                          JOIN users u ON ub.user_id = u.id
-                         JOIN discounts d on d.id = sp.discount_id
+                         LEFT JOIN discounts d on d.id = sp.discount_id
                 WHERE u.id = ?
                  """;
         log.info("All baskets are successfully got!");
@@ -71,14 +70,13 @@ public class BasketServiceImpl implements BasketService {
                         resultSet.getLong("subProductId"),
                         resultSet.getString("img"),
                         resultSet.getString("names"),
-                        resultSet.getString("description"),
                         resultSet.getDouble("rating"),
                         resultSet.getInt("numberOfReviews"),
                         resultSet.getInt("quantity"),
                         resultSet.getInt("itemNumber"),
                         resultSet.getBigDecimal("price"),
                         resultSet.getInt("percents"),
-                        resultSet.getInt("basket")
+                        resultSet.getInt("quantityProduct")
                 ), getAuthenticate().getId()
         );
     }
