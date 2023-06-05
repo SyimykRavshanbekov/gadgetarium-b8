@@ -95,14 +95,18 @@ public class ProductServiceImpl implements ProductService {
                 (select i.images from sub_product_images i where i.sub_product_id = sp.id limit 1) as image,
                 sp.quantity as quantity, CONCAT(c.name, ' ', p.brand_id, ' ', p.name, ' ', spc.characteristics,' ',
                   sp.colour) as product_info, p.rating as rating, sp.price as price,
-                 CAST(sp.price - ((sp.price * d.percent) / 100) AS INTEGER) as discount
+                  d.percent as discount,
+                  p.created_at as createdAt,
+                  count(r) as countOfReviews
                 FROM products p
                     JOIN sub_products sp ON p.id = sp.product_id
                     JOIN discounts d ON sp.discount_id = d.id
                     JOIN sub_categories sc ON p.sub_category_id = sc.id
                     JOIN categories c ON sc.category_id = c.id
                     LEFT JOIN sub_product_characteristics spc ON sp.id = spc.sub_product_id
+                    JOIN reviews r ON p.id = r.product_id
                     WHERE spc.characteristics_key like 'память'
+                    group by sp.id, c.name, p.name, spc.characteristics, sp.colour, p.rating, d.percent, p.created_at, p.brand_id
                 """;
 
         String countSql = "SELECT COUNT(*) FROM (" + sql + ") as count_query";
@@ -117,8 +121,10 @@ public class ProductServiceImpl implements ProductService {
                 resultSet.getInt("quantity"),
                 resultSet.getString("product_info"),
                 resultSet.getDouble("rating"),
+                resultSet.getInt("countOfReviews"),
                 resultSet.getBigDecimal("price"),
-                resultSet.getInt("discount")
+                resultSet.getInt("discount"),
+                resultSet.getDate("createdAt").toLocalDate()
         ));
         log.info("Products are successfully got!");
         return PaginationResponse.<ProductsResponse>builder()
@@ -200,15 +206,18 @@ public class ProductServiceImpl implements ProductService {
                 SELECT sp.id as subProductId, (select i.images from sub_product_images i where i.sub_product_id = sp.id limit 1) as image,
                  sp.quantity as quantity, CONCAT(c.name, ' ', p.brand_id, ' ', p.name, ' ', spc.characteristics,' ', sp.colour) as product_info,
                  p.rating as rating, sp.price as price,
-                 coalesce(CAST(sp.price - ((sp.price * d.percent) / 100) AS INTEGER),0) as discount
+                  d.percent as discount,
+                  p.created_at as createdAt,
+                  count(r) as countOfReviews
                 FROM products p
                     JOIN sub_products sp ON p.id = sp.product_id
                     LEFT JOIN discounts d ON sp.discount_id = d.id
                     JOIN sub_categories sc ON p.sub_category_id = sc.id
                     JOIN categories c ON sc.category_id = c.id
                     JOIN sub_product_characteristics spc ON sp.id = spc.sub_product_id
+                    JOIN reviews r ON p.id = r.product_id
                 WHERE p.created_at BETWEEN (CURRENT_DATE - INTERVAL '1 week') AND CURRENT_DATE AND spc.characteristics_key like 'память'
-                                
+                group by sp.id, c.name, p.name, spc.characteristics, sp.colour, p.rating, d.percent, p.created_at, p.brand_id
                 """;
         String countSql = "SELECT COUNT(*) FROM (" + sql + ") as count_query";
         int count = jdbcTemplate.queryForObject(countSql, Integer.class);
@@ -222,8 +231,10 @@ public class ProductServiceImpl implements ProductService {
                 resultSet.getInt("quantity"),
                 resultSet.getString("product_info"),
                 resultSet.getDouble("rating"),
+                resultSet.getInt("countOfReviews"),
                 resultSet.getBigDecimal("price"),
-                resultSet.getInt("discount")
+                resultSet.getInt("discount"),
+                resultSet.getDate("createdAt").toLocalDate()
         ));
         log.info("Products are successfully got!");
         return PaginationResponse.<ProductsResponse>builder()
@@ -242,14 +253,18 @@ public class ProductServiceImpl implements ProductService {
                 sp.quantity as quantity,
                 CONCAT(c.name, ' ', sc.name, ' ', p.name, ' ', spc.characteristics,' ', sp.colour) as product_info,
                 p.rating as rating, sp.price as price,
-                coalesce(CAST(sp.price - ((sp.price * d.percent) / 100) AS INTEGER),0) as discount
+                d.percent as discount,
+                p.created_at as createdAt,
+                count(r) as countOfReviews
                 FROM products p
                     JOIN sub_products sp ON p.id = sp.product_id
                     LEFT JOIN discounts d ON sp.discount_id = d.id
                     JOIN sub_categories sc ON p.sub_category_id = sc.id
                     JOIN categories c ON sc.category_id = c.id
                     JOIN sub_product_characteristics spc ON sp.id = spc.sub_product_id
+                    JOIN reviews r ON p.id = r.product_id
                 WHERE p.rating > 4 AND spc.characteristics_key  like 'память'
+                group by sp.id, c.name, sc.name, p.name, spc.characteristics, sp.colour, p.rating, d.percent, p.created_at
                 """;
         String countSql = "SELECT COUNT(*) FROM (" + sql + ") as count_query";
         int count = jdbcTemplate.queryForObject(countSql, Integer.class);
@@ -263,8 +278,12 @@ public class ProductServiceImpl implements ProductService {
                 resultSet.getInt("quantity"),
                 resultSet.getString("product_info"),
                 resultSet.getDouble("rating"),
+                resultSet.getInt("countOfReviews"),
                 resultSet.getBigDecimal("price"),
-                resultSet.getInt("discount")
+                resultSet.getInt("discount"),
+                resultSet.getDate("createdAt").toLocalDate()
+
+
         ));
         log.info("Products are successfully got!");
         return PaginationResponse.<ProductsResponse>builder()
