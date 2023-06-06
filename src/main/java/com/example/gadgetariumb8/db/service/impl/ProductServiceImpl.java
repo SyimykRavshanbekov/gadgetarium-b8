@@ -104,7 +104,7 @@ public class ProductServiceImpl implements ProductService {
                     JOIN sub_categories sc ON p.sub_category_id = sc.id
                     JOIN categories c ON sc.category_id = c.id
                     LEFT JOIN sub_product_characteristics spc ON sp.id = spc.sub_product_id
-                    JOIN reviews r ON p.id = r.product_id
+                    LEFT JOIN reviews r ON p.id = r.product_id
                     WHERE spc.characteristics_key like 'память'
                     group by sp.id, c.name, p.name, spc.characteristics, sp.colour, p.rating, d.percent, p.created_at, p.brand_id
                 """;
@@ -215,7 +215,7 @@ public class ProductServiceImpl implements ProductService {
                     JOIN sub_categories sc ON p.sub_category_id = sc.id
                     JOIN categories c ON sc.category_id = c.id
                     JOIN sub_product_characteristics spc ON sp.id = spc.sub_product_id
-                    JOIN reviews r ON p.id = r.product_id
+                    LEFT JOIN reviews r ON p.id = r.product_id
                 WHERE p.created_at BETWEEN (CURRENT_DATE - INTERVAL '1 week') AND CURRENT_DATE AND spc.characteristics_key like 'память'
                 group by sp.id, c.name, p.name, spc.characteristics, sp.colour, p.rating, d.percent, p.created_at, p.brand_id
                 """;
@@ -262,7 +262,7 @@ public class ProductServiceImpl implements ProductService {
                     JOIN sub_categories sc ON p.sub_category_id = sc.id
                     JOIN categories c ON sc.category_id = c.id
                     JOIN sub_product_characteristics spc ON sp.id = spc.sub_product_id
-                    JOIN reviews r ON p.id = r.product_id
+                    LEFT JOIN reviews r ON p.id = r.product_id
                 WHERE p.rating > 4 AND spc.characteristics_key  like 'память'
                 group by sp.id, c.name, sc.name, p.name, spc.characteristics, sp.colour, p.rating, d.percent, p.created_at
                 """;
