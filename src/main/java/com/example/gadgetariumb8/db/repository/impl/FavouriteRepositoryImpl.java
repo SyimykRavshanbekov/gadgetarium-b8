@@ -47,18 +47,22 @@ public class FavouriteRepositoryImpl implements FavouriteRepository {
         List<ProductsResponse> productsResponses = new ArrayList<>();
         for (SubProduct favorite : getAuthenticate().getFavorites()) {
             String sql = """
-                    SELECT sp.id AS subProductId,
-                        (select i.images from sub_product_images i where i.sub_product_id = sp.id limit 1) as image,
-                         sp.quantity as quantity, CONCAT(c.name, ' ', p.brand_id, ' ', p.name, ' ',spc.characteristics,' ', sp.colour)
-                         as product_info, p.rating as rating, sp.price as price,
-                        CAST(sp.price - ((sp.price * d.percent) / 100) AS INTEGER) as discount
-                    FROM sub_products sp
-                        JOIN products p ON p.id = sp.product_id
-                        LEFT JOIN discounts d ON sp.discount_id = d.id
-                        JOIN sub_categories sc ON p.sub_category_id = sc.id
-                        JOIN categories c ON sc.category_id = c.id
-                        JOIN sub_product_characteristics spc ON sp.id = spc.sub_product_id
-                    WHERE spc.characteristics_key like 'память' and sp.id = ?;
+                  SELECT sp.id AS subProductId,
+             (select i.images from sub_product_images i where i.sub_product_id = sp.id limit 1) as image,
+             sp.quantity as quantity, CONCAT(c.name, ' ', p.brand_id, ' ', p.name, ' ',spc.characteristics,' ', sp.colour)
+             as product_info, p.rating as rating, sp.price as price,
+             d.percent as discount,
+             p.created_at as createdAt,
+             count(r) as countOfReviews
+       FROM sub_products sp
+         JOIN products p ON p.id = sp.product_id
+         LEFT JOIN discounts d ON sp.discount_id = d.id
+         JOIN sub_categories sc ON p.sub_category_id = sc.id
+         JOIN categories c ON sc.category_id = c.id
+         JOIN sub_product_characteristics spc ON sp.id = spc.sub_product_id
+         JOIN reviews r ON p.id = r.product_id
+       WHERE spc.characteristics_key like 'память' and sp.id = ?
+         group by sp.id, c.name, p.name, spc.characteristics, sp.colour, p.rating, d.percent, p.created_at, p.brand_id;
                      """;
 
             productsResponses.addAll(jdbcTemplate.query(sql,
@@ -68,8 +72,10 @@ public class FavouriteRepositoryImpl implements FavouriteRepository {
                             resultSet.getInt("quantity"),
                             resultSet.getString("product_info"),
                             resultSet.getDouble("rating"),
+                            resultSet.getInt("countOfReviews"),
                             resultSet.getBigDecimal("price"),
-                            resultSet.getInt("discount")
+                            resultSet.getInt("discount"),
+                            resultSet.getDate("createdAt").toLocalDate()
                     ), favorite.getId()));
         }
         log.info("Favorite products are successfully got!");

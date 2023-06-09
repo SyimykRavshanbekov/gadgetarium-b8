@@ -59,7 +59,7 @@ public class ProfileServiceImpl implements ProfileService {
     @Override
     public SimpleResponse setImage(ProfileImageRequest request) {
         getAuthenticate().setImage(request.imageUrl());
-        return SimpleResponse.builder().message(String.format("Profile with id %s image updated successfully", getAuthenticate().getId())).build();
+        return SimpleResponse.builder().httpStatus(HttpStatus.OK).message(String.format("Profile with id %s image updated successfully", getAuthenticate().getId())).build();
     }
 
     private User getAuthenticate() {

@@ -21,7 +21,7 @@ import static jakarta.persistence.CascadeType.*;
 public class Product {
     @Id
     @SequenceGenerator(name = "product_gen", sequenceName = "product_seq",
-            allocationSize = 1, initialValue = 6)
+            allocationSize = 1, initialValue = 20)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "product_gen")
     private Long id;
     private int guarantee;

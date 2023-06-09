@@ -37,17 +37,6 @@ public class ProductServiceImpl implements ProductService {
     private final SubProductRepository subProductRepository;
     private final JdbcTemplate jdbcTemplate;
     private final UserRepository userRepository;
-    private final CustomProductRepository customProductRepository;
-
-    private User getAuthenticate() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String login = authentication.getName();
-        log.info("Token has been taken!");
-        return userRepository.findUserInfoByEmail(login).orElseThrow(() -> {
-            log.error("User not found!");
-            return new NotFoundException("User not found!");
-        }).getUser();
-    }
 
     @Override
     public SimpleResponse saveProduct(ProductRequest productRequest) {
@@ -95,14 +84,18 @@ public class ProductServiceImpl implements ProductService {
                 (select i.images from sub_product_images i where i.sub_product_id = sp.id limit 1) as image,
                 sp.quantity as quantity, CONCAT(c.name, ' ', p.brand_id, ' ', p.name, ' ', spc.characteristics,' ',
                   sp.colour) as product_info, p.rating as rating, sp.price as price,
-                 CAST(sp.price - ((sp.price * d.percent) / 100) AS INTEGER) as discount
+                  d.percent as discount,
+                  p.created_at as createdAt,
+                  count(r) as countOfReviews
                 FROM products p
                     JOIN sub_products sp ON p.id = sp.product_id
                     JOIN discounts d ON sp.discount_id = d.id
                     JOIN sub_categories sc ON p.sub_category_id = sc.id
                     JOIN categories c ON sc.category_id = c.id
                     LEFT JOIN sub_product_characteristics spc ON sp.id = spc.sub_product_id
+                    LEFT JOIN reviews r ON p.id = r.product_id
                     WHERE spc.characteristics_key like 'память'
+                    group by sp.id, c.name, p.name, spc.characteristics, sp.colour, p.rating, d.percent, p.created_at, p.brand_id
                 """;
 
         String countSql = "SELECT COUNT(*) FROM (" + sql + ") as count_query";
@@ -117,8 +110,10 @@ public class ProductServiceImpl implements ProductService {
                 resultSet.getInt("quantity"),
                 resultSet.getString("product_info"),
                 resultSet.getDouble("rating"),
+                resultSet.getInt("countOfReviews"),
                 resultSet.getBigDecimal("price"),
-                resultSet.getInt("discount")
+                resultSet.getInt("discount"),
+                resultSet.getDate("createdAt").toLocalDate()
         ));
         log.info("Products are successfully got!");
         return PaginationResponse.<ProductsResponse>builder()
@@ -130,85 +125,24 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<CompareProductResponse> compare() {
-        log.info("Getting all compare products!");
-        String sql = """
-                SELECT (SELECT sci FROM sub_product_images sci where sci.sub_product_id = sp.id LIMIT 1) as image,(p.name) as name
-                     ,p.description as description,sp.price as price ,b.name as brand_name,
-                      (SELECT spc.characteristics from sub_product_characteristics spc where spc.characteristics_key='screen' and spc.sub_product_id = sp.id) as screen,
-                      sp.colour as color,
-                      (SELECT spc.characteristics from sub_product_characteristics spc where spc.characteristics_key='operatingSystem' and spc.sub_product_id = sp.id) as operatingSystem,
-                      (SELECT spc.characteristics from sub_product_characteristics spc where spc.characteristics_key='memory' and spc.sub_product_id = sp.id) as memory,
-                      (SELECT spc.characteristics from sub_product_characteristics spc where spc.characteristics_key='weight' and spc.sub_product_id = sp.id) as weight,
-                      (SELECT spc.characteristics from sub_product_characteristics spc where spc.characteristics_key='simCard' and spc.sub_product_id = sp.id) as simCard
-                              
-                FROM products p JOIN sub_products sp on p.id = sp.product_id
-                    JOIN users_comparisons uc on uc.comparisons_id = sp.id
-                    JOIN users u on uc.user_id = u.id JOIN brands b on p.brand_id = b.id where u.id = ?
-                 """;
-        log.info("Products are successfully got!");
-        return jdbcTemplate.query(sql, (resultSet, i) ->
-                new CompareProductResponse(
-                        resultSet.getString("image"),
-                        resultSet.getString("name"),
-                        resultSet.getString("description"),
-                        resultSet.getBigDecimal("price"),
-                        resultSet.getString("brand_name"),
-                        resultSet.getString("screen"),
-                        resultSet.getString("color"),
-                        resultSet.getString("operatingSystem"),
-                        resultSet.getString("memory"),
-                        resultSet.getString("weight"),
-                        resultSet.getString("simCard")
-                ), getAuthenticate().getId()
-        );
-    }
-
-    @Override
-    public CompareCountResponse countCompare() {
-        User user = getAuthenticate();
-        if (user.getComparisons().size() != 0) {
-            return jdbcTemplate.query(customProductRepository.countCompare(), (result, i) -> {
-                        Map<String, Integer> count = new LinkedHashMap<>();
-                        count.put(result.getString("categoryName"),
-                                result.getInt("countComparisons"));
-                        return new CompareCountResponse(count);
-                    },
-                    user.getId()
-            ).stream().findFirst().orElseThrow(() -> {
-                log.error("Not found!");
-                throw new NotFoundException("Not found");
-            });
-        } else {
-            throw new NotFoundException(String.format("There is no comparison on this User"));
-        }
-    }
-
-    @Override
-    public SimpleResponse cleanCompare() {
-        User user = getAuthenticate();
-        user.getComparisons().clear();
-        userRepository.save(user);
-        log.error(String.format("Clean Compare!"));
-        return SimpleResponse.builder().message(String.format("Clean Compare!")).httpStatus(HttpStatus.OK).build();
-    }
-
-    @Override
     public PaginationResponse<ProductsResponse> getNewProducts(int page, int pageSize) {
         log.info("Getting all new products!");
         String sql = """
                 SELECT sp.id as subProductId, (select i.images from sub_product_images i where i.sub_product_id = sp.id limit 1) as image,
                  sp.quantity as quantity, CONCAT(c.name, ' ', p.brand_id, ' ', p.name, ' ', spc.characteristics,' ', sp.colour) as product_info,
                  p.rating as rating, sp.price as price,
-                 coalesce(CAST(sp.price - ((sp.price * d.percent) / 100) AS INTEGER),0) as discount
+                  d.percent as discount,
+                  p.created_at as createdAt,
+                  count(r) as countOfReviews
                 FROM products p
                     JOIN sub_products sp ON p.id = sp.product_id
                     LEFT JOIN discounts d ON sp.discount_id = d.id
                     JOIN sub_categories sc ON p.sub_category_id = sc.id
                     JOIN categories c ON sc.category_id = c.id
                     JOIN sub_product_characteristics spc ON sp.id = spc.sub_product_id
+                    LEFT JOIN reviews r ON p.id = r.product_id
                 WHERE p.created_at BETWEEN (CURRENT_DATE - INTERVAL '1 week') AND CURRENT_DATE AND spc.characteristics_key like 'память'
-                                
+                group by sp.id, c.name, p.name, spc.characteristics, sp.colour, p.rating, d.percent, p.created_at, p.brand_id
                 """;
         String countSql = "SELECT COUNT(*) FROM (" + sql + ") as count_query";
         int count = jdbcTemplate.queryForObject(countSql, Integer.class);
@@ -222,8 +156,10 @@ public class ProductServiceImpl implements ProductService {
                 resultSet.getInt("quantity"),
                 resultSet.getString("product_info"),
                 resultSet.getDouble("rating"),
+                resultSet.getInt("countOfReviews"),
                 resultSet.getBigDecimal("price"),
-                resultSet.getInt("discount")
+                resultSet.getInt("discount"),
+                resultSet.getDate("createdAt").toLocalDate()
         ));
         log.info("Products are successfully got!");
         return PaginationResponse.<ProductsResponse>builder()
@@ -242,14 +178,18 @@ public class ProductServiceImpl implements ProductService {
                 sp.quantity as quantity,
                 CONCAT(c.name, ' ', sc.name, ' ', p.name, ' ', spc.characteristics,' ', sp.colour) as product_info,
                 p.rating as rating, sp.price as price,
-                coalesce(CAST(sp.price - ((sp.price * d.percent) / 100) AS INTEGER),0) as discount
+                d.percent as discount,
+                p.created_at as createdAt,
+                count(r) as countOfReviews
                 FROM products p
                     JOIN sub_products sp ON p.id = sp.product_id
                     LEFT JOIN discounts d ON sp.discount_id = d.id
                     JOIN sub_categories sc ON p.sub_category_id = sc.id
                     JOIN categories c ON sc.category_id = c.id
                     JOIN sub_product_characteristics spc ON sp.id = spc.sub_product_id
+                    LEFT JOIN reviews r ON p.id = r.product_id
                 WHERE p.rating > 4 AND spc.characteristics_key  like 'память'
+                group by sp.id, c.name, sc.name, p.name, spc.characteristics, sp.colour, p.rating, d.percent, p.created_at
                 """;
         String countSql = "SELECT COUNT(*) FROM (" + sql + ") as count_query";
         int count = jdbcTemplate.queryForObject(countSql, Integer.class);
@@ -263,8 +203,12 @@ public class ProductServiceImpl implements ProductService {
                 resultSet.getInt("quantity"),
                 resultSet.getString("product_info"),
                 resultSet.getDouble("rating"),
+                resultSet.getInt("countOfReviews"),
                 resultSet.getBigDecimal("price"),
-                resultSet.getInt("discount")
+                resultSet.getInt("discount"),
+                resultSet.getDate("createdAt").toLocalDate()
+
+
         ));
         log.info("Products are successfully got!");
         return PaginationResponse.<ProductsResponse>builder()
