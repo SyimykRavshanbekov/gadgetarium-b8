@@ -56,6 +56,13 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "comparisons_id"))
     private List<SubProduct> comparisons;
 
+    public void addComparisons(SubProduct subProduct){
+        if (this.comparisons== null){
+           this.comparisons= new ArrayList<>();
+        }
+        this.comparisons.add(subProduct);
+    }
+
     @ElementCollection
     @Cascade({CascadeType.ALL})
     private Map<SubProduct, Integer> basket;
