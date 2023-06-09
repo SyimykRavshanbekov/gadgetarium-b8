@@ -6,7 +6,6 @@ import com.example.gadgetariumb8.db.service.ProductService;
 import com.example.gadgetariumb8.db.service.SubProductService;
 import com.example.gadgetariumb8.db.service.impl.UserServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.security.PermitAll;
 import lombok.RequiredArgsConstructor;
@@ -81,13 +80,6 @@ public class ProductUserApi {
         return subProductService.lastViews(page, pageSize);
     }
 
-    @GetMapping("/compare-product")
-    @Operation(summary = "To compare the product.", description = "This method to compare product.")
-    @PreAuthorize("hasAuthority('USER')")
-    public List<CompareProductResponse> compareProduct() {
-        return productService.compare();
-    }
-
     @GetMapping("/chosen_one")
     @Operation(summary = "Chosen One User", description = "This method chosen one user profile")
     @PermitAll
@@ -95,17 +87,5 @@ public class ProductUserApi {
         return userService.getAll();
     }
 
-    @GetMapping("/countCompare")
-    @Operation(summary = "To count the Compare.", description = "This method count the Compare")
-    @PermitAll
-    public CompareCountResponse countCompare() {
-        return productService.countCompare();
-    }
 
-    @DeleteMapping
-    @Operation(summary = "To clean the Compare", description = "This method clean table Comparisons")
-    @PermitAll
-    public SimpleResponse cleanCompare() {
-        return productService.cleanCompare();
-    }
 }
