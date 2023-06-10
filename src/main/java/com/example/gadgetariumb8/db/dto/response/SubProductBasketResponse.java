@@ -15,7 +15,6 @@ public class SubProductBasketResponse {
     private Long subProductId;
     private String image;
     private String name;
-    private String description;
     private double rating;
     private int numberOfReviews;
     private int quantity;
