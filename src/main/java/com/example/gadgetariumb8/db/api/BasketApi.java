@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -22,44 +21,30 @@ public class BasketApi {
     private final BasketService basketService;
 
     @GetMapping
-    @Operation(summary = "Get all basket", description = "this method shows the cart")
+    @Operation(summary = "Get all basket", description = "This method to get all products from basket")
     @PreAuthorize("hasAuthority('USER')")
     public List<SubProductBasketResponse> basket() {
         return basketService.getAllBasket();
     }
 
-    @PostMapping("/move_to_favorites")
-    @Operation(summary = "Move to favorites", description = "This method moves to favorites!")
-    @PreAuthorize("hasAuthority('USER')")
-    public SimpleResponse moveToFavorites(@RequestBody ArrayList<Long> longList) {
-        return basketService.moveToFavorite(longList);
-    }
-
     @DeleteMapping("/delete_all")
     @Operation(summary = "Deleted all basket", description = "This method to delete all basket!")
     @PreAuthorize("hasAuthority('USER')")
-    public SimpleResponse deletedToBasket(@RequestBody BasketDeleteRequest basketDeleteRequest) {
+    public SimpleResponse deleteAll(@RequestBody BasketDeleteRequest basketDeleteRequest) {
         return basketService.deleteBasket(basketDeleteRequest.subProductsId());
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Delete basket by ID", description = "This method to deleted basket by ID!")
+    @Operation(summary = "Delete basket by ID", description = "This method to delete basket by ID!")
     @PreAuthorize("hasAuthority('USER')")
-    public SimpleResponse deletedToBasketById(@PathVariable Long id) {
+    public SimpleResponse deleteById(@PathVariable Long id) {
         return basketService.deleteBasketById(id);
     }
 
-    @PostMapping("/move_to_favorites_by_id")
-    @Operation(summary = "Move to favorites by ID", description = "This method moves to favorites by ID!")
-    @PreAuthorize("hasAuthority('USER')")
-    public SimpleResponse moveToFavoritesById(@RequestParam Long id) {
-        return basketService.moveToFavoriteById(id);
-    }
-
     @PostMapping("/save")
-    @Operation(summary = "Save basket", description = "This method save Basket!")
+    @Operation(summary = "Save basket", description = "This method to save Basket!")
     @PreAuthorize("hasAuthority('USER')")
-    public SimpleResponse saveBasket(@RequestParam int quantity,@RequestParam Long subProductId) {
-        return basketService.saveBasket(subProductId,quantity);
+    public SimpleResponse saveBasket(@RequestParam int quantity, @RequestParam Long subProductId) {
+        return basketService.saveBasket(subProductId, quantity);
     }
 }

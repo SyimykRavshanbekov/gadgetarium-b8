@@ -6,6 +6,7 @@ import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -31,17 +32,17 @@ public class User {
     private String phoneNumber;
     private String address;
 
-    @ManyToMany(cascade = ALL)
+    @ManyToMany(cascade = ALL, fetch = FetchType.EAGER)
     @JoinTable(name = "users_favorites",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "favorites_id"))
     private List<SubProduct> favorites;
-    public void addFavourites(SubProduct subProduct){
-        if(favorites==null){
-            favorites = new ArrayList<>();
-        }else {
-            favorites.add(subProduct);
+
+    public void addFavourites(SubProduct subProduct) {
+        if (this.favorites == null) {
+            this.favorites = new ArrayList<>();
         }
+        this.favorites.add(subProduct);
     }
 
     @ManyToMany(cascade = ALL)
@@ -60,12 +61,19 @@ public class User {
     @Cascade({CascadeType.ALL})
     private Map<SubProduct, Integer> basket;
 
+    public void addToBasket(SubProduct subProduct, int quantity) {
+        if (this.basket == null) {
+            this.basket = new HashMap<>();
+        }
+        this.basket.put(subProduct, quantity);
+    }
+
     @OneToMany(cascade = {REFRESH, DETACH, MERGE, PERSIST})
     @JoinColumn(name = "user_id")
     private List<Order> orders;
 
-    public void addOrder(Order order){
-        if (orders == null){
+    public void addOrder(Order order) {
+        if (orders == null) {
             orders = new ArrayList<>();
         }
         orders.add(order);

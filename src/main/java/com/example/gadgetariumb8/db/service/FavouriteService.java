@@ -10,7 +10,7 @@ public interface FavouriteService {
 
     List<ProductsResponse> getAllFavouriteProducts();
 
+    SimpleResponse moveToFavorite(List<Long> longs);
+
     SimpleResponse deleteAll();
-
-
 }

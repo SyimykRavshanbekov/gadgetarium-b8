@@ -93,7 +93,7 @@ public class ProductServiceImpl implements ProductService {
         String sql = """
                 SELECT sp.id as subProductId,
                 (select i.images from sub_product_images i where i.sub_product_id = sp.id limit 1) as image,
-                sp.quantity as quantity, CONCAT(c.name, ' ', p.brand_id, ' ', p.name, ' ', spc.characteristics,' ',
+                sp.quantity as quantity, CONCAT(c.name, ' ', sc.name, ' ', p.name, ' ', spc.characteristics,' ',
                   sp.colour) as product_info, p.rating as rating, sp.price as price,
                   d.percent as discount,
                   p.created_at as createdAt,
@@ -204,7 +204,7 @@ public class ProductServiceImpl implements ProductService {
         log.info("Getting all new products!");
         String sql = """
                 SELECT sp.id as subProductId, (select i.images from sub_product_images i where i.sub_product_id = sp.id limit 1) as image,
-                 sp.quantity as quantity, CONCAT(c.name, ' ', p.brand_id, ' ', p.name, ' ', spc.characteristics,' ', sp.colour) as product_info,
+                 sp.quantity as quantity, CONCAT(c.name, ' ', sc.name, ' ', p.name, ' ', spc.characteristics,' ', sp.colour) as product_info,
                  p.rating as rating, sp.price as price,
                   d.percent as discount,
                   p.created_at as createdAt,
@@ -669,20 +669,20 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<ReviewsResponse> getAllReviewsByProductId(Long productId, int page) {
         String sql4 = """
-            SELECT r.id AS id,
-                   u.image AS userAvatar,
-                   CONCAT(u.first_name, ' ', u.last_name) AS full_name,
-                   r.created_at_time AS created_at,
-                   r.grade AS grade,
-                   r.commentary AS commentary,
-                   r.answer AS answer,
-                   ARRAY(SELECT ri.images FROM review_images ri WHERE ri.review_id = r.id) AS images
-            FROM reviews r
-                     JOIN users u ON u.id = r.user_id
-            WHERE r.product_id = ?
-            ORDER BY r.id DESC
-            LIMIT ?
-            """;
+                SELECT r.id AS id,
+                       u.image AS userAvatar,
+                       CONCAT(u.first_name, ' ', u.last_name) AS full_name,
+                       r.created_at_time AS created_at,
+                       r.grade AS grade,
+                       r.commentary AS commentary,
+                       r.answer AS answer,
+                       ARRAY(SELECT ri.images FROM review_images ri WHERE ri.review_id = r.id) AS images
+                FROM reviews r
+                         JOIN users u ON u.id = r.user_id
+                WHERE r.product_id = ?
+                ORDER BY r.id DESC
+                LIMIT ?
+                """;
         return jdbcTemplate.query(sql4, (resultSet, i) -> {
             Array imagesArray = resultSet.getArray("images");
             String[] images = (String[]) imagesArray.getArray();
