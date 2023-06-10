@@ -95,7 +95,7 @@ public class ProductServiceImpl implements ProductService {
                     LEFT JOIN sub_product_characteristics spc ON sp.id = spc.sub_product_id
                     LEFT JOIN reviews r ON p.id = r.product_id
                     WHERE spc.characteristics_key like 'память'
-                    group by sp.id, c.name, p.name, spc.characteristics, sp.colour, p.rating, d.percent, p.created_at, p.brand_id
+                    GROUP BY subProductId, image, quantity, product_info, rating, price, discount, createdAt
                 """;
 
         String countSql = "SELECT COUNT(*) FROM (" + sql + ") as count_query";
@@ -142,7 +142,7 @@ public class ProductServiceImpl implements ProductService {
                     JOIN sub_product_characteristics spc ON sp.id = spc.sub_product_id
                     LEFT JOIN reviews r ON p.id = r.product_id
                 WHERE p.created_at BETWEEN (CURRENT_DATE - INTERVAL '1 week') AND CURRENT_DATE AND spc.characteristics_key like 'память'
-                group by sp.id, c.name, p.name, spc.characteristics, sp.colour, p.rating, d.percent, p.created_at, p.brand_id
+                GROUP BY subProductId, image, quantity, product_info, rating, price, discount, createdAt
                 """;
         String countSql = "SELECT COUNT(*) FROM (" + sql + ") as count_query";
         int count = jdbcTemplate.queryForObject(countSql, Integer.class);
@@ -189,7 +189,7 @@ public class ProductServiceImpl implements ProductService {
                     JOIN sub_product_characteristics spc ON sp.id = spc.sub_product_id
                     LEFT JOIN reviews r ON p.id = r.product_id
                 WHERE p.rating > 4 AND spc.characteristics_key  like 'память'
-                group by sp.id, c.name, sc.name, p.name, spc.characteristics, sp.colour, p.rating, d.percent, p.created_at
+                GROUP BY subProductId, image, quantity, product_info, rating, price, discount, createdAt
                 """;
         String countSql = "SELECT COUNT(*) FROM (" + sql + ") as count_query";
         int count = jdbcTemplate.queryForObject(countSql, Integer.class);
