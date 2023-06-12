@@ -43,27 +43,22 @@ public class BasketServiceImpl implements BasketService {
     public List<SubProductBasketResponse> getAllBasket() {
         log.info("Getting all basket!");
         String sql = """
-                SELECT (SELECT spi.images FROM sub_product_images spi WHERE spi.sub_product_id = sp.id LIMIT 1) AS img,
-                       p.id                                                                                        productId,
-                       sp.id                                                                                       subProductId,
-                       p.name                                                                                   AS names,
-                       sp.quantity                                                                              AS quantity,
-                       sp.item_number                                                                           AS itemNumber,
-                       sp.price                                                                                 AS price,
-                       p.rating                                                                                 as rating,
-                       (SELECT count(r)
-                        FROM reviews r WHERE r.product_id = p.id)                                               as numberOfReviews,
-                       ub.basket                                                                                as quantityProduct,
-                       (SELECT d.percent
-                               from discounts d
+                SELECT DISTINCT (SELECT spi.images FROM sub_product_images spi WHERE spi.sub_product_id = sp.id LIMIT 1) AS img,
+                       p.id AS productId, sp.id  AS subProductId, p.name AS names, sp.quantity AS quantity,
+                       sp.item_number AS itemNumber, sp.price AS price,p.rating as rating,
+                       (SELECT COUNT(r) FROM reviews r WHERE r.product_id = p.id) as numberOfReviews,
+                       ub.basket as quantityProduct,
+                       (SELECT d.percent from discounts d
                                where d.date_of_start <= CURRENT_DATE
-                                 AND d.date_of_finish >= CURRENT_DATE AND d.id = sp.discount_id)                as percents
+                               AND d.date_of_finish >= CURRENT_DATE AND d.id = sp.discount_id) as percents,
+                       CASE WHEN uf IS NOT NULL THEN true ELSE false END AS isInFavorites     
                 FROM sub_products sp
                          JOIN products p ON p.id = sp.product_id
                          JOIN user_basket ub ON sp.id = ub.basket_key
                          JOIN users u ON ub.user_id = u.id
+                         LEFT JOIN users_favorites uf ON u.id = uf.user_id AND uf.favorites_id = sp.id
                 WHERE u.id = ?
-                 """;
+                """;
         log.info("All baskets are successfully got!");
         return jdbcTemplate.query(sql, (resultSet, i) ->
                 new SubProductBasketResponse(
@@ -77,7 +72,8 @@ public class BasketServiceImpl implements BasketService {
                         resultSet.getInt("itemNumber"),
                         resultSet.getBigDecimal("price"),
                         resultSet.getInt("percents"),
-                        resultSet.getInt("quantityProduct")
+                        resultSet.getInt("quantityProduct"),
+                        resultSet.getBoolean("isInFavorites")
                 ), getAuthenticate().getId()
         );
     }
