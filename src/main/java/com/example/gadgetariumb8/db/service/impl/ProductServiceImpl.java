@@ -81,12 +81,14 @@ public class ProductServiceImpl implements ProductService {
         log.info("Getting all discount products!");
         String sql = """
                 SELECT sp.id as subProductId,
-                (select i.images from sub_product_images i where i.sub_product_id = sp.id limit 1) as image,
-                sp.quantity as quantity, CONCAT(c.name, ' ', sc.name, ' ', p.name, ' ', spc.characteristics,' ',
+                  (select i.images from sub_product_images i where i.sub_product_id = sp.id limit 1) as image,
+                  sp.quantity as quantity, CONCAT(c.name, ' ', sc.name, ' ', p.name, ' ', spc.characteristics,' ',
                   sp.colour) as product_info, p.rating as rating, sp.price as price,
                   d.percent as discount,
                   p.created_at as createdAt,
-                  count(r) as countOfReviews
+                  count(r) as countOfReviews,
+                  CASE WHEN uf IS NOT NULL THEN true ELSE false END as isInFavorites,
+                  CASE WHEN uc IS NOT NULL THEN true ELSE false END as isInComparisons
                 FROM products p
                     JOIN sub_products sp ON p.id = sp.product_id
                     JOIN discounts d ON sp.discount_id = d.id
@@ -94,12 +96,14 @@ public class ProductServiceImpl implements ProductService {
                     JOIN categories c ON sc.category_id = c.id
                     LEFT JOIN sub_product_characteristics spc ON sp.id = spc.sub_product_id
                     LEFT JOIN reviews r ON p.id = r.product_id
+                    LEFT JOIN users_favorites uf ON uf.favorites_id = sp.id AND uf.user_id = ?
+                    LEFT JOIN users_comparisons uc ON uc.comparisons_id = sp.id AND uc.user_id = ?
                     WHERE spc.characteristics_key like 'память'
-                    GROUP BY subProductId, image, quantity, product_info, rating, price, discount, createdAt
+                    GROUP BY subProductId, image, quantity, product_info, rating, price, discount, createdAt, isInFavorites, isInComparisons
                 """;
 
         String countSql = "SELECT COUNT(*) FROM (" + sql + ") as count_query";
-        int count = jdbcTemplate.queryForObject(countSql, Integer.class);
+        int count = jdbcTemplate.queryForObject(countSql, Integer.class, getAuthenticate().getId(), getAuthenticate().getId());
         int totalPage = (int) Math.ceil((double) count / pageSize);
 
         int offset = (page - 1) * pageSize;
@@ -113,8 +117,10 @@ public class ProductServiceImpl implements ProductService {
                 resultSet.getInt("countOfReviews"),
                 resultSet.getBigDecimal("price"),
                 resultSet.getInt("discount"),
-                resultSet.getDate("createdAt").toLocalDate()
-        ));
+                resultSet.getDate("createdAt").toLocalDate(),
+                resultSet.getBoolean("isInFavorites"),
+                resultSet.getBoolean("isInComparisons")
+        ), getAuthenticate().getId(), getAuthenticate().getId());
         log.info("Products are successfully got!");
         return PaginationResponse.<ProductsResponse>builder()
                 .foundProducts(count)
@@ -133,7 +139,9 @@ public class ProductServiceImpl implements ProductService {
                  p.rating as rating, sp.price as price,
                   d.percent as discount,
                   p.created_at as createdAt,
-                  count(r) as countOfReviews
+                  count(r) as countOfReviews,
+                  CASE WHEN uf IS NOT NULL THEN true ELSE false END as isInFavorites,
+                  CASE WHEN uc IS NOT NULL THEN true ELSE false END as isInComparisons
                 FROM products p
                     JOIN sub_products sp ON p.id = sp.product_id
                     LEFT JOIN discounts d ON sp.discount_id = d.id
@@ -141,11 +149,13 @@ public class ProductServiceImpl implements ProductService {
                     JOIN categories c ON sc.category_id = c.id
                     JOIN sub_product_characteristics spc ON sp.id = spc.sub_product_id
                     LEFT JOIN reviews r ON p.id = r.product_id
+                    LEFT JOIN users_favorites uf ON uf.favorites_id = sp.id AND uf.user_id = ?
+                    LEFT JOIN users_comparisons uc ON uc.comparisons_id = sp.id AND uc.user_id = ?
                 WHERE p.created_at BETWEEN (CURRENT_DATE - INTERVAL '1 week') AND CURRENT_DATE AND spc.characteristics_key like 'память'
-                GROUP BY subProductId, image, quantity, product_info, rating, price, discount, createdAt
+                GROUP BY subProductId, image, quantity, product_info, rating, price, discount, createdAt, isInFavorites, isInComparisons
                 """;
         String countSql = "SELECT COUNT(*) FROM (" + sql + ") as count_query";
-        int count = jdbcTemplate.queryForObject(countSql, Integer.class);
+        int count = jdbcTemplate.queryForObject(countSql, Integer.class, getAuthenticate().getId(), getAuthenticate().getId());
         int totalPage = (int) Math.ceil((double) count / pageSize);
 
         int offset = (page - 1) * pageSize;
@@ -159,8 +169,10 @@ public class ProductServiceImpl implements ProductService {
                 resultSet.getInt("countOfReviews"),
                 resultSet.getBigDecimal("price"),
                 resultSet.getInt("discount"),
-                resultSet.getDate("createdAt").toLocalDate()
-        ));
+                resultSet.getDate("createdAt").toLocalDate(),
+                resultSet.getBoolean("isInFavorites"),
+                resultSet.getBoolean("isInComparisons")
+        ), getAuthenticate().getId(), getAuthenticate().getId());
         log.info("Products are successfully got!");
         return PaginationResponse.<ProductsResponse>builder()
                 .foundProducts(count)
@@ -180,7 +192,9 @@ public class ProductServiceImpl implements ProductService {
                 p.rating as rating, sp.price as price,
                 d.percent as discount,
                 p.created_at as createdAt,
-                count(r) as countOfReviews
+                count(r) as countOfReviews,
+                CASE WHEN uf IS NOT NULL THEN true ELSE false END as isInFavorites,
+                CASE WHEN uc IS NOT NULL THEN true ELSE false END as isInComparisons
                 FROM products p
                     JOIN sub_products sp ON p.id = sp.product_id
                     LEFT JOIN discounts d ON sp.discount_id = d.id
@@ -188,11 +202,13 @@ public class ProductServiceImpl implements ProductService {
                     JOIN categories c ON sc.category_id = c.id
                     JOIN sub_product_characteristics spc ON sp.id = spc.sub_product_id
                     LEFT JOIN reviews r ON p.id = r.product_id
+                    LEFT JOIN users_favorites uf ON uf.favorites_id = sp.id AND uf.user_id = ?
+                    LEFT JOIN users_comparisons uc ON uc.comparisons_id = sp.id AND uc.user_id = ?
                 WHERE p.rating > 4 AND spc.characteristics_key  like 'память'
-                GROUP BY subProductId, image, quantity, product_info, rating, price, discount, createdAt
+                GROUP BY subProductId, image, quantity, product_info, rating, price, discount, createdAt, isInFavorites, isInComparisons
                 """;
         String countSql = "SELECT COUNT(*) FROM (" + sql + ") as count_query";
-        int count = jdbcTemplate.queryForObject(countSql, Integer.class);
+        int count = jdbcTemplate.queryForObject(countSql, Integer.class, getAuthenticate().getId(), getAuthenticate().getId());
         int totalPage = (int) Math.ceil((double) count / pageSize);
 
         int offset = (page - 1) * pageSize;
@@ -206,10 +222,10 @@ public class ProductServiceImpl implements ProductService {
                 resultSet.getInt("countOfReviews"),
                 resultSet.getBigDecimal("price"),
                 resultSet.getInt("discount"),
-                resultSet.getDate("createdAt").toLocalDate()
-
-
-        ));
+                resultSet.getDate("createdAt").toLocalDate(),
+                resultSet.getBoolean("isInFavorites"),
+                resultSet.getBoolean("isInComparisons")
+                ), getAuthenticate().getId(), getAuthenticate().getId());
         log.info("Products are successfully got!");
         return PaginationResponse.<ProductsResponse>builder()
                 .foundProducts(count)
@@ -529,12 +545,14 @@ public class ProductServiceImpl implements ProductService {
                        sp.price as price,
                        p.date_of_issue  as date_of_issue,
                        p.description as description,
-                       p.video as video_link
+                       p.video as video_link,
+                       case when uf is null then false else true end as isInFavorites
                 from products p
                          join brands b on b.id = p.brand_id
                          join sub_products sp on p.id = sp.product_id
                          left join reviews r on p.id = r.product_id
                          left join discounts d on d.id = sp.discount_id
+                         left join users_favorites uf on uf.favorites_id = sp.id and uf.user_id = ?
                 where p.id =  ?  and sp.colour =  ?
                 """;
         ProductUserResponse productUserResponse = new ProductUserResponse();
@@ -553,9 +571,11 @@ public class ProductServiceImpl implements ProductService {
                     productUserResponse.setDateOfIssue(resulSet.getDate("date_of_issue").toLocalDate());
                     productUserResponse.setDescription(resulSet.getString("description"));
                     productUserResponse.setVideo(resulSet.getString("video_link"));
+                    productUserResponse.setInFavorites(resulSet.getBoolean("isInFavorites"));
                     return productUserResponse;
                 }
                 , productId
+                , getAuthenticate().getId()
                 , productId
                 , !colour.isBlank() ? colour : colours.get(0)
         );
@@ -707,5 +727,14 @@ public class ProductServiceImpl implements ProductService {
                 .httpStatus(HttpStatus.OK)
                 .message("Sub products with id %s are deleted.".formatted(subProductIds))
                 .build();
+    }
+    private User getAuthenticate() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String login = authentication.getName();
+        log.info("Token has been taken!");
+        return userRepository.findUserInfoByEmail(login).orElseThrow(() -> {
+            log.error("User not found!");
+            return new NotFoundException("User not found!");
+        }).getUser();
     }
 }

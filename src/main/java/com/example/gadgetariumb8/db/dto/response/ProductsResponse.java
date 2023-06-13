@@ -20,4 +20,6 @@ public class ProductsResponse {
     private BigDecimal price;
     private int discount;
     private LocalDate createdAt;
+    private boolean isInFavorites;
+    private boolean isInComparisons;
 }

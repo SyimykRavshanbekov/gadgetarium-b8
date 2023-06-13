@@ -32,5 +32,6 @@ public class ProductUserResponse {
     private Map<String, String> characteristics;
     private String description;
     private String video;
+    private boolean isInFavorites;
 
 }

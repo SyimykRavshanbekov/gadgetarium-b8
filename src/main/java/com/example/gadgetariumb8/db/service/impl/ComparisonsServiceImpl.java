@@ -4,6 +4,7 @@ package com.example.gadgetariumb8.db.service.impl;
 import com.example.gadgetariumb8.db.dto.response.CompareCountResponse;
 import com.example.gadgetariumb8.db.dto.response.CompareProductResponse;
 import com.example.gadgetariumb8.db.dto.response.SimpleResponse;
+import com.example.gadgetariumb8.db.exception.exceptions.BadRequestException;
 import com.example.gadgetariumb8.db.exception.exceptions.NotFoundException;
 import com.example.gadgetariumb8.db.model.SubProduct;
 import com.example.gadgetariumb8.db.model.User;
@@ -45,12 +46,14 @@ public class ComparisonsServiceImpl implements ComparisonsService {
     }
 
     @Override
-    public SimpleResponse saveOrDeleteComparisons(Long id, boolean kurstan) {
-        SubProduct subProduct = subProductRepository.findById(id).orElseThrow(() -> new NotFoundException("This sup product id:" + id + " is not found!!!"));
+    @Transactional
+    public SimpleResponse saveOrDeleteComparisons(Long id, boolean addOrDelete) {
+        SubProduct subProduct = subProductRepository.findById(id).orElseThrow(() -> new NotFoundException("This sub product id:" + id + " is not found!!!"));
         User user = getAuthenticate();
-        if (kurstan) {
+        if (addOrDelete) {
+            if (user.getComparisons().contains(subProduct))
+                throw new BadRequestException("Sub products with id %s is already exists on comparisons".formatted(id));
             user.addComparisons(subProduct);
-            userRepository.save(user);
             return SimpleResponse.builder().httpStatus(HttpStatus.OK).message("Comparisons successfully saved!!").build();
         } else {
             userRepository.deleteComparisonsId(id, user.getId());

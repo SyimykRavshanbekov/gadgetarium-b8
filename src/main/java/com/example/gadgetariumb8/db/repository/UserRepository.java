@@ -16,7 +16,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("select u from User u join u.userInfo ui where ui.email = ?1")
     Optional<User> findUserByEmail(String email);
-    @Query(value = "delete from users_comparisons where comparisons_id= ?1 and user_id= ?2",nativeQuery = true)
+
     @Modifying
-    void deleteComparisonsId(Long subProductId,Long userId);
+    @Query(value = "delete from users_comparisons where comparisons_id= ?1 and user_id= ?2", nativeQuery = true)
+    void deleteComparisonsId(Long subProductId, Long userId);
 }
