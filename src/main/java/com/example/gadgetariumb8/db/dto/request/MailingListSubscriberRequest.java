@@ -4,8 +4,8 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
 public record MailingListSubscriberRequest(
-        @NotBlank(message = "This field should not be empty")
-        @Email(message = "Please write valid email")
+        @NotBlank(message = "Почта не должна быть пустой")
+        @Email(message = "Пожалуйста, напишите действительный адрес электронной почты")
         String userEmail
 ) {
 }

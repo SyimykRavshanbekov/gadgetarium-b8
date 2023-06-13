@@ -10,7 +10,7 @@ import java.util.List;
 @Setter
 public class BannerRequest {
 
-    @NotEmpty(message = "Should not be empty")
-    @Size(min = 1, max = 6, message = "Should contain 1 to 6 elements")
+    @NotEmpty(message = "Не должно быть пустым")
+    @Size(min = 1, max = 6, message = "Должен содержать от 1 до 6 элементов")
     List<String> bannerList;
 }

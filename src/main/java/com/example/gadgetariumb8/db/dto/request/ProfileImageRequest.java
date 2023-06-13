@@ -7,7 +7,7 @@ import lombok.Builder;
 
 @Builder
 public record ProfileImageRequest(
-        @NotNull(message = "Profile image can not be null")
+        @NotNull(message = "Изображение профиля не может быть пустым")
         @ImageUrlValid
         String imageUrl
 ) {

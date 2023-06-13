@@ -29,11 +29,11 @@ public class ReviewServiceImpl implements ReviewService {
         Review review = reviewRepository.findById(id)
                 .orElseThrow(() -> {
                     log.error(String.format("Review with id %s not found", id));
-                    return new NotFoundException(String.format("Review with id %s not found", id));
+                    return new NotFoundException(String.format("Отзыв с id: %s не найден", id));
                 });
         reviewRepository.deleteById(review.getId());
-        log.info(String.format("Review with id %s deleted", id));
-        return SimpleResponse.builder().message(String.format("Review with id %s deleted", id)).httpStatus(HttpStatus.OK).build();
+        log.info(String.format("Reviews with id %s deleted", id));
+        return SimpleResponse.builder().message(String.format("Отзывы с id: %s удален", id)).httpStatus(HttpStatus.OK).build();
     }
 
     @Override
@@ -41,7 +41,7 @@ public class ReviewServiceImpl implements ReviewService {
         Review review = reviewRepository.findById(answerRequest.reviewId())
                 .orElseThrow(() -> {
                     log.error(String.format("Review with id %s does not exists", answerRequest.reviewId()));
-                    return new NotFoundException(String.format("Review with id %s does not exists", answerRequest.reviewId()));
+                    return new NotFoundException(String.format("Отзыв с id: %s не существует", answerRequest.reviewId()));
                 });
         if (review.getAnswer() == null) {
             review.setAnswer(answerRequest.answer());
@@ -49,13 +49,13 @@ public class ReviewServiceImpl implements ReviewService {
             log.info("answer successfully saved");
             return SimpleResponse.builder()
                     .httpStatus(HttpStatus.OK)
-                    .message("answer successfully saved")
+                    .message("Ответ успешно сохранен!")
                     .build();
         } else {
             log.info(String.format("Review with id - %s has already been answered", answerRequest.reviewId()));
             return SimpleResponse.builder()
                     .httpStatus(HttpStatus.BAD_REQUEST)
-                    .message(String.format("Review with id - %s has already been answered", answerRequest.reviewId()))
+                    .message(String.format("Отзыв с id: — %s  уже ответили", answerRequest.reviewId()))
                     .build();
         }
     }
@@ -165,10 +165,7 @@ public class ReviewServiceImpl implements ReviewService {
             return SimpleResponse
                     .builder()
                     .message("""
-                            You entered a wrong word
-                            The request param must accept
-                            the word -(AllReviews, Answered, Unanswered)!!!
-                            """)
+                            Вы ввели неправильное слово Параметр запроса должен принимать слово -( AllReviews, Answered, Unanswered)!!!""")
                     .httpStatus(HttpStatus.BAD_REQUEST)
                     .build();
         }
@@ -184,7 +181,7 @@ public class ReviewServiceImpl implements ReviewService {
         Review review = reviewRepository.findById(id)
                 .orElseThrow(() -> {
                     log.error(String.format("Review with id %s not found", id));
-                    return new NotFoundException(String.format("Review with id %s not found", id));
+                    return new NotFoundException(String.format("Отзыв с id: %s не найден", id));
                 });
         if (!review.getAnswer().isEmpty()) {
             if (!answer.isBlank()) {
@@ -192,20 +189,20 @@ public class ReviewServiceImpl implements ReviewService {
                 reviewRepository.save(review);
                 return SimpleResponse
                         .builder()
-                        .message("Answer successfully updated!")
+                        .message("Ответ успешно обновлен!")
                         .httpStatus(HttpStatus.OK)
                         .build();
             } else {
                 return SimpleResponse
                         .builder()
-                        .message("Response is empty !!!")
+                        .message("Ответ пустой!!!")
                         .httpStatus(HttpStatus.BAD_REQUEST)
                         .build();
             }
         } else {
             return SimpleResponse
                     .builder()
-                    .message("Comment with id no reply !!!")
+                    .message("Комментарий с ID без ответа !!!")
                     .httpStatus(HttpStatus.BAD_REQUEST)
                     .build();
         }

@@ -32,7 +32,7 @@ public class PayPalServiceImpl implements PayPalService {
                 return SimpleResponse
                         .builder()
                         .httpStatus(HttpStatus.OK)
-                        .message("Payment Success")
+                        .message("Успешный платеж!!")
                         .build();
             }
         } catch (PayPalRESTException e) {
@@ -41,7 +41,7 @@ public class PayPalServiceImpl implements PayPalService {
         return SimpleResponse
                 .builder()
                 .httpStatus(HttpStatus.BAD_REQUEST)
-                .message("Payment Failure")
+                .message("Ошибка платежа!!")
                 .build();
     }
 

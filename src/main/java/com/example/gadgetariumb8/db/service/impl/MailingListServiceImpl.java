@@ -41,7 +41,7 @@ public class MailingListServiceImpl implements MailingListService {
 
     @Override
     public SimpleResponse sendEmail(MailingListRequest mail) {
-        log.info("Sending email!");
+        log.info("Отправка электронной почты!");
         List<MallingListSubscriber> subscriberList = subscriberRepository.findAll();
 
         Map<String, Object> model = new HashMap<>();

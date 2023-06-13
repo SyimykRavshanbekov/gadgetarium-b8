@@ -46,12 +46,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public AuthenticationResponse register(RegisterRequest request) {
         if (userInfoRepository.existsByEmail(request.email())) {
-            log.error(String.format("User with email %s is already exists", request.email()));
-            throw new AlreadyExistException(String.format("User with email %s is already exists", request.email()));
+            log.error(String.format("Пользователь с адресом электронной почты %s уже существует", request.email()));
+            throw new AlreadyExistException(String.format("Пользователь с адресом электронной почты %s уже существует", request.email()));
         }
         String split = request.email().split("@")[0];
         if (split.equals(request.password())) {
-            throw new BadRequestException("Create a stronger password");
+            throw new BadRequestException("Создайте более надежный пароль");
         }
         UserInfo userInfo = UserInfo.builder()
                 .email(request.email())
@@ -66,7 +66,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .userInfo(userInfo)
                 .build();
         userRepository.save(user);
-        log.info(String.format("User %s successfully saved!", userInfo.getEmail()));
+        log.info(String.format("Пользователь %s успешно сохранен!", userInfo.getEmail()));
         String token = jwtService.generateToken(userInfo);
 
         return AuthenticationResponse.builder()
@@ -81,12 +81,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         UserInfo userInfo = userInfoRepository.findByEmail(request.email())
                 .orElseThrow(() -> {
-                    log.error(String.format("User with email %s does not exists", request.email()));
-                    throw new BadCredentialException(String.format("User with email %s does not exists", request.email()));
+                    log.error(String.format("Пользователь с адресом электронной почты %s не существует", request.email()));
+                    throw new BadCredentialException(String.format("Пользователь с адресом электронной почты %s не существует", request.email()));
                 });
         if (!passwordEncoder.matches(request.password(), userInfo.getPassword())) {
-            log.error("Password does not match");
-            throw new BadRequestException("Password does not match");
+            log.error("Пароль не подходит");
+            throw new BadRequestException("Пароль не подходит");
         }
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -94,7 +94,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                         request.password()
                 )
         );
-        log.info(String.format("User %s authenticated successfully", userInfo.getEmail()));
+        log.info(String.format("Пользователь %s успешно аутентифицирован", userInfo.getEmail()));
         String token = jwtService.generateToken(userInfo);
 
         return AuthenticationResponse.builder()
@@ -108,8 +108,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public SimpleResponse forgotPassword(String email) {
         UserInfo userInfo = userRepository.findUserInfoByEmail(email)
                 .orElseThrow(() -> {
-                    log.error(String.format("User with email %s does not exists", email));
-                    throw new NotFoundException(String.format("User with email %s does not exists", email));
+                    log.error(String.format("Пользователь с адресом электронной почты %s не существует", email));
+                    throw new NotFoundException(String.format("Пользователь с адресом электронной почты %s не существует", email));
                 });
         String token = UUID.randomUUID().toString();
         userInfo.setResetPasswordToken(token);
@@ -118,17 +118,17 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         String resetPasswordLink = "http://localhost:8080/reset-password?token=" + token;
 
         Context context = new Context();
-        context.setVariable("title", "Password Reset");
-        context.setVariable("message", "Please click link below for password reset!");
+        context.setVariable("title", "Восстановление пароля");
+        context.setVariable("message", "Пожалуйста, нажмите на ссылку ниже для сброса пароля!");
         context.setVariable("token", resetPasswordLink);
-        context.setVariable("tokenTitle", "Reset Password");
+        context.setVariable("tokenTitle", "Восстановление пароля");
 
         String htmlContent = templateEngine.process("reset-password-template.html", context);
 
         emailService.sendEmail(email, subject, htmlContent);
         return SimpleResponse.builder()
                 .httpStatus(HttpStatus.OK)
-                .message("The password reset was sent to your email. Please check your email.")
+                .message("Сброс пароля был отправлен на вашу электронную почту. Пожалуйста, проверьте свою электронную почту.")
                 .build();
     }
 
@@ -136,15 +136,15 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public SimpleResponse resetPassword(String token, String newPassword) {
         UserInfo userInfo = userInfoRepository.findByResetPasswordToken(token)
                 .orElseThrow(() -> {
-                    log.error("User does not exists");
+                    log.error("Пользователь не существует");
                     throw new NotFoundException("User does not exists");});
 
         userInfo.setPassword(passwordEncoder.encode(newPassword));
         userInfo.setResetPasswordToken(null);
-        log.info("User password changed successfully!");
+        log.info("Пароль пользователя успешно изменен!");
         return SimpleResponse.builder()
                 .httpStatus(HttpStatus.OK)
-                .message("User password changed successfully!")
+                .message("Пароль пользователя успешно изменен!")
                 .build();
     }
 }

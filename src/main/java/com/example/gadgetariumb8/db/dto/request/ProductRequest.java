@@ -7,26 +7,26 @@ import java.time.LocalDate;
 import java.util.List;
 
 public record ProductRequest(
-        @NotNull(message = "Sub category must be specified!!!")
+        @NotNull(message = "Подкатегория должна быть указана!!!")
         Long subCategoryId,
-        @NotNull(message = "Brand must be specified!!!")
+        @NotNull(message = "Марка должна быть указана!!!")
         Long brandId,
-        @Min(value = 0, message = "Guarantee should be positive number!!")
-        @NotNull(message = "Guarantee must be specified!!!")
+        @Min(value = 0, message = "Гарантия должна быть положительной!")
+        @NotNull(message = "Гарантия должна быть указана!!!")
         int guarantee,
-        @NotBlank(message = "Name must be specified!!!")
+        @NotBlank(message = "Имя должно быть указано!!!")
         String name,
-        @Past(message = "Date must be in past tense!!")
-        @NotNull(message = "Date of Issue must be specified!!!")
+        @Past(message = "Дата должна быть в прошедшем времени!!")
+        @NotNull(message = "Дата выпуска должна быть указана!!!")
         LocalDate dateOfIssue,
-        @NotBlank(message = "Video must be specified!!!")
+        @NotBlank(message = "Видео должно быть указано!!!")
         String video,
-        @NotBlank(message = "PDF must be specified!!!")
+        @NotBlank(message = "PDF должно быть указано!!!")
         String PDF,
-        @NotBlank(message = "Description must be specified!!!")
+        @NotBlank(message = "Описание должно быть указано!!!")
         String description,
         @Valid
-        @NotEmpty(message = "Sub products doesn't be empty!!!")
+        @NotEmpty(message = "Под продукты не должны быть пустыми!!!")
         List<SubProductRequest> subProducts
 ) {
 }

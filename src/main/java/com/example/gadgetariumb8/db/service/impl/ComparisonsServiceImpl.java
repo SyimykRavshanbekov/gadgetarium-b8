@@ -38,32 +38,32 @@ public class ComparisonsServiceImpl implements ComparisonsService {
     private User getAuthenticate() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String login = authentication.getName();
-        log.info("Token has been taken!");
+        log.info("Токен взят!");
         return userRepository.findUserInfoByEmail(login).orElseThrow(() -> {
-            log.error("User not found!");
-            return new NotFoundException("User not found!");
+            log.error("Пользователь не найден с токеном пожалуйста войдите или зарегистрируйтесь!");
+            return new NotFoundException("Пользователь не найден с токеном пожалуйста войдите или зарегистрируйтесь!!");
         }).getUser();
     }
 
     @Override
     @Transactional
     public SimpleResponse saveOrDeleteComparisons(Long id, boolean addOrDelete) {
-        SubProduct subProduct = subProductRepository.findById(id).orElseThrow(() -> new NotFoundException("This sub product id:" + id + " is not found!!!"));
+        SubProduct subProduct = subProductRepository.findById(id).orElseThrow(() -> new NotFoundException("Этот идентификатор продукта: "+ id +" не найден!"));
         User user = getAuthenticate();
         if (addOrDelete) {
             if (user.getComparisons().contains(subProduct))
-                throw new BadRequestException("Sub products with id %s is already exists on comparisons".formatted(id));
+                throw new BadRequestException("Продукт с идентификатором %s уже существует в сравнении!".formatted(id));
             user.addComparisons(subProduct);
-            return SimpleResponse.builder().httpStatus(HttpStatus.OK).message("Comparisons successfully saved!!").build();
+            return SimpleResponse.builder().httpStatus(HttpStatus.OK).message("Сравнения успешно сохранены!").build();
         } else {
             userRepository.deleteComparisonsId(id, user.getId());
-            return SimpleResponse.builder().httpStatus(HttpStatus.OK).message("Comparisons successfully deleted!!").build();
+            return SimpleResponse.builder().httpStatus(HttpStatus.OK).message("Сравнения успешно удалены!").build();
         }
     }
 
     @Override
     public List<CompareProductResponse> compare() {
-        log.info("Getting all compare products!");
+        log.info("Получение всех продуктов сравнения!");
         String sql = """
                 SELECT (SELECT sci FROM sub_product_images sci where sci.sub_product_id = sp.id LIMIT 1) as image,(p.name) as name
                      ,p.description as description,sp.price as price ,b.name as brand_name,
@@ -78,7 +78,7 @@ public class ComparisonsServiceImpl implements ComparisonsService {
                     JOIN users_comparisons uc on uc.comparisons_id = sp.id
                     JOIN users u on uc.user_id = u.id JOIN brands b on p.brand_id = b.id where u.id = ?
                  """;
-        log.info("Products are successfully got!");
+        log.info("Продукция успешно приобретена!");
         return jdbcTemplate.query(sql, (resultSet, i) ->
                 new CompareProductResponse(
                         resultSet.getString("image"),
@@ -108,11 +108,11 @@ public class ComparisonsServiceImpl implements ComparisonsService {
                     },
                     user.getId()
             ).stream().findFirst().orElseThrow(() -> {
-                log.error("Not found!");
-                throw new NotFoundException("Not found");
+                log.error("Не найдено!");
+                throw new NotFoundException("Не найдено!");
             });
         } else {
-            throw new NotFoundException(String.format("There is no comparison on this User"));
+            throw new NotFoundException(String.format("На этом Пользователе сравнения нет"));
         }
     }
 
@@ -121,7 +121,7 @@ public class ComparisonsServiceImpl implements ComparisonsService {
         User user = getAuthenticate();
         user.getComparisons().clear();
         userRepository.save(user);
-        log.error(String.format("Clean Compare!"));
-        return SimpleResponse.builder().message(String.format("Clean Compare!")).httpStatus(HttpStatus.OK).build();
+        log.error(String.format("Сравнение очищено!"));
+        return SimpleResponse.builder().message(String.format("Сравнение очищено!")).httpStatus(HttpStatus.OK).build();
     }
 }

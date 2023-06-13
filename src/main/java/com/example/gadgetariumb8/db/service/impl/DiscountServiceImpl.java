@@ -30,12 +30,12 @@ public class DiscountServiceImpl implements DiscountService {
                 .map(id -> subProductRepository.findById(id).orElseThrow(
                         () -> {
                             log.error(String.format("Product with id %s is not found!", id));
-                            throw new NotFoundException(String.format("Product with id %s is not found!", id));
+                            throw new NotFoundException(String.format("Продукт с id: %s не найден!!!", id));
                         }))
                 .toList();
         if (discountRequest.dateOfStart().isAfter(discountRequest.dateOfFinish())) {
-            log.error("Date of start should not be after than date of finish!");
-            throw new BadRequestException("Date of start should not be after than date of finish!");
+            log.error("Дата начала не должна быть позже даты окончания!");
+            throw new BadRequestException("Дата начала не должна быть позже даты окончания!");
         }
         Discount discount = new Discount();
         discount.setPercent(discountRequest.percentOfDiscount());
@@ -45,10 +45,10 @@ public class DiscountServiceImpl implements DiscountService {
         for (SubProduct subProduct : subProducts) {
             subProduct.setDiscount(discount);
         }
-        log.info("Discount successfully saved!");
+        log.info("Скидка успешно сохранена!");
         return SimpleResponse.builder()
                 .httpStatus(HttpStatus.OK)
-                .message("Discount successfully saved!")
+                .message("Скидка успешно сохранена!")
                 .build();
     }
 }

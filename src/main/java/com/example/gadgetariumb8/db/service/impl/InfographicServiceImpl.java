@@ -17,7 +17,7 @@ public class InfographicServiceImpl implements InfographicService {
 
     @Override
     public InfographicsResponse getInfographics(String period) {
-        log.info("Getting infographics!");
+        log.info("Получаем инфографику!");
         String sql = """
                 SELECT COALESCE(SUM(CASE WHEN o.delivery_type IS TRUE THEN total_price END), 0) AS redeemed_for_the_amount,
                        COALESCE(COUNT(CASE WHEN o.delivery_type IS TRUE THEN total_price END), 0) AS count_redeemed,
@@ -55,8 +55,8 @@ public class InfographicServiceImpl implements InfographicService {
                 period,
                 period
         ).stream().findFirst().orElseThrow(() -> {
-            log.error("This response Not found!!");
-            throw new NotFoundException("This response Not found!!");
+            log.error("Этот ответ не найден!!");
+            throw new NotFoundException("Этот ответ не найден!!");
         });
     }
 }
