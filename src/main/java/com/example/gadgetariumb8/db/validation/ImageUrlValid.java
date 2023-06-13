@@ -10,7 +10,7 @@ import java.lang.annotation.*;
 @Documented
 public @interface ImageUrlValid {
 
-    String message() default "Invalid image file extension. Allowed file extensions are: {allowedExtensions}";
+    String message() default "Недопустимое расширение файла изображения. Допустимые расширения файлов: {allowedExtensions}";
 
     Class<?>[] groups() default {};
 

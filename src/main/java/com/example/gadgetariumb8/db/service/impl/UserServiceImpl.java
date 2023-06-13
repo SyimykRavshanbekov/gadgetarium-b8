@@ -27,10 +27,10 @@ public class UserServiceImpl implements UserService {
     private User getAuthenticate() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String login = authentication.getName();
-        log.info("Token has been taken!");
+        log.info("Токен взят!");
         return userRepository.findUserInfoByEmail(login).orElseThrow(() -> {
-            log.error("User not found!");
-            return new NotFoundException("User not found!");
+            log.error("Пользователь не найден с токеном пожалуйста войдите или зарегистрируйтесь!");
+            return new NotFoundException("пользователь не найден с токеном пожалуйста войдите или зарегистрируйтесь");
         }).getUser();
     }
 
@@ -50,7 +50,7 @@ public class UserServiceImpl implements UserService {
             userRepository.save(user);
             return chosenOne;
         }catch (NotFoundException notFoundException){
-            throw new NotFoundException(String.format("This user has no favorites!"));
+            throw new NotFoundException(String.format("У этого пользователя нет избранного!"));
         }
     }
 }

@@ -7,13 +7,13 @@ import java.util.List;
 
 public record DiscountRequest(
         List<Long> productsId,
-        @NotNull(message = "Percent doesn't be null")
-        @Positive(message = "Percent must be only positive number")
+        @NotNull(message = "Процент не будет пустым")
+        @Positive(message = "Процент должен быть только положительным числом")
         byte percentOfDiscount,
-        @NotNull(message = "Date of start doesn't be null")
+        @NotNull(message = "Дата начала не может быть нулевой")
         LocalDate dateOfStart,
-        @NotNull(message = "Date of finish doesn't be null")
-        @Future(message = "Date of finish must be in future tense")
+        @NotNull(message = "Дата окончания не может быть нулевой")
+                @Future(message = "Дата окончания должна быть в будущем времени")
         LocalDate dateOfFinish
 ) {
 }

@@ -34,7 +34,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
-import org.thymeleaf.TemplateEngine;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -57,18 +56,18 @@ public class OrderServiceImpl implements OrderService {
     private final SubProductRepository subProductRepository;
     private final UserRepository userRepository;
     private final JavaMailSender javaMailSender;
-    private final TemplateEngine templateEngine;
+
     private final Configuration configuration;
 
     @Override
     public PaginationResponse<OrderResponse> getAllOrders(String keyWord, String status, LocalDate from, LocalDate before, int page, int pageSize) {
         String sql = customOrderRepository.getAllOrder();
-        log.info("Getting all orders.");
+        log.info("Получение всех заказов.");
 
         String dateClause = "";
         if (from != null && before != null) {
             if (from.isAfter(before)) {
-                log.error("The from date must be earlier than the date before");
+                log.error("Дата с должна быть раньше, чем дата до");
                 throw new BadRequestException("The from date must be earlier than the date before");
             } else if (from.isAfter(LocalDate.now()) || before.isAfter(LocalDate.now())) {
                 log.error("The date must be in the past tense");
@@ -118,7 +117,7 @@ public class OrderServiceImpl implements OrderService {
                 resultSet.getBoolean("deliveryType"),
                 resultSet.getString("status")
         ));
-      log.info("Orders are successfully got!");
+        log.info("Orders are successfully got!");
         return PaginationResponse.<OrderResponse>builder()
                 .foundProducts(count)
                 .elements(orders)
@@ -134,7 +133,7 @@ public class OrderServiceImpl implements OrderService {
         int quantity = 0;
         for (Map.Entry<Long, Integer> p : userOrderRequest.productsIdAndQuantity().entrySet()) {
             SubProduct subProduct = subProductRepository.findById(p.getKey()).orElseThrow(
-                    () -> new NotFoundException(String.format("Product with id %s is not found!", p.getKey())));
+                    () -> new NotFoundException(String.format("Продукт с id: %s не найден!!!", p.getKey())));
             subProducts.add(subProduct);
             BigDecimal price;
             if (subProduct.getDiscount() != null && subProduct.getDiscount().getPercent() > 0) {
@@ -216,10 +215,10 @@ public class OrderServiceImpl implements OrderService {
     private User getAuthenticate() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String login = authentication.getName();
-        log.info("Token has been taken!");
+        log.info("Токен взят!");
         return userRepository.findUserInfoByEmail(login).orElseThrow(() -> {
-            log.error("User not found!");
-            return new NotFoundException("User not found!");
+            log.error("Пользователь не найден с токеном пожалуйста войдите или зарегистрируйтесь!");
+            return new NotFoundException("пользователь не найден с токеном пожалуйста войдите или зарегистрируйтесь");
         }).getUser();
     }
 
@@ -227,7 +226,7 @@ public class OrderServiceImpl implements OrderService {
     public SimpleResponse changeStatusOfOrder(Long orderId, String status) {
         Order order = orderRepository.findById(orderId).orElseThrow(() -> {
             log.error(String.format("Order with id - %s is not found!", orderId));
-            throw new NotFoundException(String.format("Order with id - %s is not found!", orderId));
+            throw new NotFoundException(String.format("Заказ с id - %s не найден!", orderId));
         });
         Status newStatus;
         String statusRu;
@@ -257,10 +256,10 @@ public class OrderServiceImpl implements OrderService {
                 statusRu = "Доставлен";
             }
             default -> {
-                log.error("Status doesn't match!");
+                log.error("Статус не соответствует!");
                 return SimpleResponse.builder()
                         .httpStatus(HttpStatus.BAD_REQUEST)
-                        .message("Status doesn't match!")
+                        .message("Статус не соответствует!")
                         .build();
             }
         }
@@ -306,20 +305,20 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public SimpleResponse delete(Long orderId) {
         Order order = orderRepository.findById(orderId).orElseThrow(
-                () -> new NotFoundException("Order with id %s is not found.".formatted(orderId)));
+                () -> new NotFoundException("Заказ с id: %s не найден.".formatted(orderId)));
         if (!order.getStatus().equals(Status.DELIVERED)
                 && !order.getStatus().equals(Status.CANCEL)
                 && !order.getStatus().equals(Status.RECEIVED)
         ) {
             throw new BadRequestException("""
-                    Order with id %s cannot be deleted because it is not completed. Status of order - %s"""
+                    Заказ с id: %s не может быть удален, так как он не выполнен. Статус заказа - %s"""
                     .formatted(orderId, order.getStatus()));
         }
         orderRepository.deleteById(orderId);
 
         return SimpleResponse.builder()
                 .httpStatus(HttpStatus.OK)
-                .message("Order with id %s is deleted.".formatted(orderId))
+                .message("Заказ с id: %s удален.".formatted(orderId))
                 .build();
     }
 }

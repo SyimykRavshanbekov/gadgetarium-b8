@@ -45,7 +45,7 @@ public class FavouriteServiceImpl implements FavouriteService {
         boolean isNotExist = true;
         for (Long id : longs) {
             SubProduct subProduct = subProductRepository.findById(id)
-                    .orElseThrow(() -> new NotFoundException("Sub product with id:" + id + " not found!!!"));
+                    .orElseThrow(() -> new NotFoundException("Подпродукт с id: "+ id + " не найден!!!"));
             for (SubProduct favoriteProducts : user.getFavorites()) {
                 if (subProduct.getId().equals(favoriteProducts.getId())) {
                     isNotExist = false;
@@ -58,7 +58,7 @@ public class FavouriteServiceImpl implements FavouriteService {
             isNotExist = true;
         }
         return SimpleResponse.builder()
-                .message("Products have successfully moved to Favorites").httpStatus(HttpStatus.OK).build();
+                .message("Товары успешно перемещены в Избранное!!").httpStatus(HttpStatus.OK).build();
     }
 
     @Override
@@ -69,10 +69,11 @@ public class FavouriteServiceImpl implements FavouriteService {
     private User getAuthenticate() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String login = authentication.getName();
-        log.info("Token has been taken!");
-        return userRepository.findUserByEmail(login).orElseThrow(() -> {
-            log.error("User not found!");
-            throw new NotFoundException("User not found!");
-        });
+        log.info("Токен взят!");
+        return userRepository.findUserInfoByEmail(login).orElseThrow(() -> {
+            log.error("Пользователь не найден с токеном пожалуйста войдите или зарегистрируйтесь!");
+            return new NotFoundException("пользователь не найден с токеном пожалуйста войдите или зарегистрируйтесь");
+        }).getUser();
     }
+
 }

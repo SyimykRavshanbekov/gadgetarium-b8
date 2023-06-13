@@ -32,16 +32,16 @@ public class BasketServiceImpl implements BasketService {
     private User getAuthenticate() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String login = authentication.getName();
-        log.info("Token has been taken!");
+        log.info("Токен взят!");
         return userRepository.findUserInfoByEmail(login).orElseThrow(() -> {
-            log.error("User not found!");
-            return new NotFoundException("User not found!");
+            log.error("Пользователь не найден с токеном пожалуйста войдите или зарегистрируйтесь!");
+            return new NotFoundException("пользователь не найден с токеном пожалуйста войдите или зарегистрируйтесь");
         }).getUser();
     }
 
     @Override
     public List<SubProductBasketResponse> getAllBasket() {
-        log.info("Getting all basket!");
+        log.info("Получение всей корзины!");
         String sql = """
                 SELECT DISTINCT (SELECT spi.images FROM sub_product_images spi WHERE spi.sub_product_id = sp.id LIMIT 1) AS img,
                        p.id AS productId, sp.id  AS subProductId, p.name AS names, sp.quantity AS quantity,
@@ -59,7 +59,8 @@ public class BasketServiceImpl implements BasketService {
                          LEFT JOIN users_favorites uf ON u.id = uf.user_id AND uf.favorites_id = sp.id
                 WHERE u.id = ?
                 """;
-        log.info("All baskets are successfully got!");
+        log.info("Все корзины успешно получены!");
+        
         return jdbcTemplate.query(sql, (resultSet, i) ->
                 new SubProductBasketResponse(
                         resultSet.getLong("productId"),
@@ -81,14 +82,14 @@ public class BasketServiceImpl implements BasketService {
     @Override
     public SimpleResponse deleteBasket(List<Long> subProductsId) {
         User user = userRepository.findById(getAuthenticate().getId())
-                .orElseThrow(() -> new NotFoundException("User with id:" + getAuthenticate().getId() + " not found!!!"));
+                .orElseThrow(() -> new NotFoundException("Пользователь с id: "+ getAuthenticate().getId() +" не найден!!!"));
         if (subProductsId != null) {
             for (Long subProductId : subProductsId) {
                 jdbcTemplate.update("DELETE FROM user_basket ub where ub.user_id = ? and ub.basket_key = ?", user.getId(), subProductId);
             }
             userRepository.save(user);
             return SimpleResponse.builder()
-                    .message("Products successfully deleted").httpStatus(HttpStatus.OK).build();
+                    .message("Продукты успешно удалены").httpStatus(HttpStatus.OK).build();
         } else {
             return SimpleResponse.builder()
                     .httpStatus(HttpStatus.BAD_REQUEST)
@@ -100,26 +101,26 @@ public class BasketServiceImpl implements BasketService {
     @Override
     public SimpleResponse deleteBasketById(Long id) {
         User user = userRepository.findById(getAuthenticate().getId())
-                .orElseThrow(() -> new NotFoundException("User with id:" + getAuthenticate().getId() + " not found!!!"));
+                .orElseThrow(() -> new NotFoundException(" Пользователь с id: "+ getAuthenticate().getId() +" не найден!!!"));
         jdbcTemplate.update("DELETE FROM user_basket ub where ub.user_id = ? and ub.basket_key = ?", user.getId(), id);
         userRepository.save(user);
         return SimpleResponse.builder()
-                .message("Product successfully deleted").httpStatus(HttpStatus.OK).build();
+                .message("Продукт успешно удален!!").httpStatus(HttpStatus.OK).build();
     }
 
     @Override
     @Transactional
     public SimpleResponse saveBasket(Long subProductId, int quantity) {
         SubProduct subProduct = subProductRepository.findById(subProductId)
-                .orElseThrow(() -> new NotFoundException(String.format("Product with id %s is not found!", subProductId)));
+                .orElseThrow(() -> new NotFoundException(String.format("Продукт с идентификатором %s не найден!", subProductId)));
         User user = getAuthenticate();
         if (user.getBasket().containsKey(subProduct)) {
-            throw new BadRequestException("Sub products with id %s is already exists in basket".formatted(subProductId));
+            throw new BadRequestException("Субпродукты с идентификатором %s уже есть в корзине".formatted(subProductId));
         }
         user.addToBasket(subProduct, quantity);
         return SimpleResponse.builder()
                 .httpStatus(HttpStatus.OK)
-                .message("Products have successfully saved!!!")
+                .message("Товары успешно сохранены!!!")
                 .build();
     }
 }
