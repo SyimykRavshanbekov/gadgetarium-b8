@@ -6,9 +6,8 @@ import lombok.Builder;
 
 @Builder
 public record ResetPasswordRequest(
-        @NotBlank(message = "password should not be empty")
-        @PasswordValid(message = "Password length must be more than 8 symbols," +
-                " and contain least one capital letter!")
+        @NotBlank(message = "Пароль не должен быть пустым")
+        @PasswordValid(message = "Длина пароля должна быть более 8 символов и содержать как минимум одну заглавную букву!")
         String newPassword
 ){
 }

@@ -6,8 +6,8 @@ import lombok.Builder;
 
 @Builder
 public record ForgotPasswordRequest(
-        @NotBlank(message = "Email should not be empty")
-        @Email(message = "Write valid email!")
+        @NotBlank(message = "Почта не должна быть пустой")
+        @Email(message = "Напишите действительный адрес электронной почты!")
         String email
 ) {
 }

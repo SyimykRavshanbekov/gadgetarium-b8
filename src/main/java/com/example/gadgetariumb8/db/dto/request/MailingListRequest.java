@@ -7,16 +7,16 @@ import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 
 public record MailingListRequest(
-        @NotBlank(message = "Image should not be empty!")
+        @NotBlank(message = "Изображение не должно быть пустым!")
         String image,
-        @NotBlank(message = "Name should not be empty!")
+        @NotBlank(message = "Имя не должно быть пустым!")
         String name,
-        @NotBlank(message = "Description should not be empty!")
+        @NotBlank(message = "Описание не должно быть пустым!")
         String description,
-        @NotNull(message = "Date should not be empty!")
+        @NotNull(message = "Дата не должна быть пустой!")
         LocalDate dateOfStart,
-        @Future(message = "Date must be in future tense")
-        @NotNull(message = "Date should not be empty!")
+        @Future(message = "Дата должна быть в будущем времени!")
+        @NotNull(message = "Дата не должна быть пустой!")
         LocalDate dateOfFinish
 ) {
 }

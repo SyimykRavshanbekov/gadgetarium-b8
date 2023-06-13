@@ -26,6 +26,6 @@ public class ContactServiceImpl implements ContactService {
         contact.setMessage(request.message());
         repository.save(contact);
         log.info("Contact is successfully saved!");
-        return SimpleResponse.builder().httpStatus(HttpStatus.OK).message("Contact is successfully saved!").build();
+        return SimpleResponse.builder().httpStatus(HttpStatus.OK).message("Контакт успешно сохранен!").build();
     }
 }

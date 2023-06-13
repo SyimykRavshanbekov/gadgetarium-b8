@@ -33,10 +33,10 @@ public class UserOrderHistoryServiceImpl implements UserOrderHistoryService {
     private User getAuthenticate() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String login = authentication.getName();
-        log.info("Token has been taken!");
+        log.info("Токен взят!");
         return userRepository.findUserInfoByEmail(login).orElseThrow(() -> {
-            log.error("User not found!");
-            return new NotFoundException("User not found!");
+            log.error("Пользователь не найден с токеном пожалуйста войдите или зарегистрируйтесь!");
+            return new NotFoundException("пользователь не найден с токеном пожалуйста войдите или зарегистрируйтесь");
         }).getUser();
     }
 
@@ -76,7 +76,7 @@ public class UserOrderHistoryServiceImpl implements UserOrderHistoryService {
         jdbcTemplate.update("DELETE FROM orders where user_id = ?", user.getId());
         return SimpleResponse.builder()
                 .httpStatus(HttpStatus.OK)
-                .message("User's orders are successfully deleted.")
+                .message("Заказы пользователя успешно удалены.")
                 .build();
     }
 
@@ -88,7 +88,7 @@ public class UserOrderHistoryServiceImpl implements UserOrderHistoryService {
                 .stream()
                 .filter(item -> Objects.equals(item.getId(), order_id))
                 .findAny()
-                .orElseThrow(() -> new NotFoundException("Order with ID " + order_id + " not found!"));
+                .orElseThrow(() -> new NotFoundException("Заказ с id:"+order_id+" не найден!"));
 
         List<SubProduct> subProducts = order.getSubProducts();
         List<ProductsResponse> newProductResponse = new ArrayList<>();

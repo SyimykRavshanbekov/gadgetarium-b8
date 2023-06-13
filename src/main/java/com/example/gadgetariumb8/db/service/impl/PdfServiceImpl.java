@@ -17,7 +17,7 @@ public class PdfServiceImpl implements PdfService {
 
     @Override
     public void downloadPdf(Long subProductId) {
-        SubProduct subProduct = subProductRepository.findById(subProductId).orElseThrow(() -> new NotFoundException("SubProduct with id:" + subProductId + " is does not exist!!"));
+        SubProduct subProduct = subProductRepository.findById(subProductId).orElseThrow(() -> new NotFoundException("Подпродукт с id: "+ subProductId + " не существует!!"));
         Context context = new Context();
         context.setVariable("brand", subProduct.getProduct().getBrand());
         context.setVariable("model", subProduct.getProduct().getName());
@@ -25,7 +25,7 @@ public class PdfServiceImpl implements PdfService {
         context.setVariable("price", subProduct.getPrice());
         context.setVariable("discount", subProduct.getDiscount().getPercent());
         context.setVariable("date_of_issue", subProduct.getProduct().getDateOfIssue());
-        context.setVariable("image", subProduct.getImages().stream().findAny().orElseThrow(() -> new NotFoundException("Find image is null or not found!!")));
+        context.setVariable("image", subProduct.getImages().stream().findAny().orElseThrow(() -> new NotFoundException("Найти изображение недействительно или не найдено!!")));
         String process = templateEngine.process("templates/pdf_template/download-pdf-template.html", context);
         System.out.println(process);
     }
@@ -33,7 +33,7 @@ public class PdfServiceImpl implements PdfService {
     @Override
     public String exportPdf(Long subProductId) {
         return subProductRepository.findById(subProductId)
-                .orElseThrow(() -> new NotFoundException("SubProduct with id:" + subProductId + "is does not exist!!!"))
+                .orElseThrow(() -> new NotFoundException("Подпродукт с id: "+subProductId+" не существует!!!"))
                 .getProduct().getPDF();
     }
 

@@ -42,14 +42,14 @@ public class ProductServiceImpl implements ProductService {
     public SimpleResponse saveProduct(ProductRequest productRequest) {
         SubCategory subCategory = subCategoryRepository.findById(productRequest.subCategoryId())
                 .orElseThrow(() -> {
-                    log.error("Sub category with id:" + productRequest.subCategoryId() + " not found!");
-                    throw new NotFoundException("Sub category with id:" + productRequest.subCategoryId() + " not found!");
+                    log.error("Подкатегория с идентификатором: "+ productRequest.subCategoryId() + " не найдена!");
+                    throw new NotFoundException("Подкатегория с идентификатором: "+ productRequest.subCategoryId() + " не найдена!");
                 });
 
         Brand brand = brandRepository.findById(productRequest.brandId())
                 .orElseThrow(() -> {
-                    log.error("Brand with id:" + productRequest.brandId() + " not found!");
-                    throw new NotFoundException("Brand with id:" + productRequest.brandId() + " not found!");
+                    log.error("Бренд с идентификатором: "+ productRequest.brandId() + " не найден!");
+                    throw new NotFoundException("Бренд с идентификатором: "+ productRequest.brandId() + " не найден!");
                 });
         Product product = new Product();
         product.setSubCategory(subCategory);
@@ -72,13 +72,13 @@ public class ProductServiceImpl implements ProductService {
             product.addSubProduct(subProduct);
             subProductRepository.save(subProduct);
         }
-        log.info("Successfully saved!!");
-        return SimpleResponse.builder().httpStatus(HttpStatus.OK).message("Successfully saved!!").build();
+        log.info("Успешно сохранено!!");
+        return SimpleResponse.builder().httpStatus(HttpStatus.OK).message("Успешно сохранено!!").build();
     }
 
     @Override
     public PaginationResponse<ProductsResponse> getAllDiscountProducts(int page, int pageSize) {
-        log.info("Getting all discount products!");
+        log.info("Получение всех товаров со скидкой!");
         String sql = """
                 SELECT sp.id as subProductId,
                 (select i.images from sub_product_images i where i.sub_product_id = sp.id limit 1) as image,
@@ -115,7 +115,7 @@ public class ProductServiceImpl implements ProductService {
                 resultSet.getInt("discount"),
                 resultSet.getDate("createdAt").toLocalDate()
         ));
-        log.info("Products are successfully got!");
+        log.info("Продукция успешно приобретена!");
         return PaginationResponse.<ProductsResponse>builder()
                 .foundProducts(count)
                 .elements(products)
@@ -126,7 +126,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public PaginationResponse<ProductsResponse> getNewProducts(int page, int pageSize) {
-        log.info("Getting all new products!");
+        log.info("Получение всех новых продуктов!");
         String sql = """
                 SELECT sp.id as subProductId, (select i.images from sub_product_images i where i.sub_product_id = sp.id limit 1) as image,
                  sp.quantity as quantity, CONCAT(c.name, ' ', sc.name, ' ', p.name, ' ', spc.characteristics,' ', sp.colour) as product_info,
@@ -161,7 +161,7 @@ public class ProductServiceImpl implements ProductService {
                 resultSet.getInt("discount"),
                 resultSet.getDate("createdAt").toLocalDate()
         ));
-        log.info("Products are successfully got!");
+        log.info("Продукция успешно получена!");
         return PaginationResponse.<ProductsResponse>builder()
                 .foundProducts(count)
                 .elements(products)
@@ -172,7 +172,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public PaginationResponse<ProductsResponse> getRecommendedProducts(int page, int pageSize) {
-        log.info("Getting all recommended products!");
+        log.info("Получение всех рекомендованных продуктов!");
         String sql = """
                 SELECT sp.id AS subProductId, (select i.images from sub_product_images i where i.sub_product_id = sp.id limit 1) as image,
                 sp.quantity as quantity,
@@ -210,7 +210,7 @@ public class ProductServiceImpl implements ProductService {
 
 
         ));
-        log.info("Products are successfully got!");
+        log.info("Продукция успешно получена!");
         return PaginationResponse.<ProductsResponse>builder()
                 .foundProducts(count)
                 .elements(products)
@@ -221,7 +221,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public PaginationResponse<ProductAdminResponse> getAll(String keyWord, String status, LocalDate from, LocalDate before, String sortBy, int page, int pageSize) {
-        log.info("Getting all products!");
+        log.info("Получение всех продуктов!");
         String sql = """
                 SELECT DISTINCT p.id as product_id,
                             sp.id AS subProductId, (
@@ -322,7 +322,7 @@ public class ProductServiceImpl implements ProductService {
                 resultSet.getInt("percent"),
                 resultSet.getBigDecimal("total_price")
         ));
-        log.info("Products are successfully got!");
+        log.info("Продукция успешно получена!");
         return PaginationResponse.<ProductAdminResponse>builder()
                 .foundProducts(count)
                 .elements(products)
@@ -381,19 +381,19 @@ public class ProductServiceImpl implements ProductService {
                 .stream()
                 .filter(subCat -> Objects.equals(subCat.getId(), subCategoryId.get()))
                 .findAny()
-                .orElseThrow(() -> new NotFoundException("Products with this category and subcategory ID not found!"));
+                .orElseThrow(() -> new NotFoundException("Товары с этой категорией и идентификатором подкатегории не найдены!"));
 
         catalogProductsResponse.addAll(jdbcTemplate.query(sql,
                 new Object[]{subCategory.getId(), pageSize},
                 (resultSet, i) -> rowMapper(resultSet)));
-        log.info("Products are successfully got!");
+        log.info("Продукция успешно получена!");
         return getCatalogResponse(usersFavourites, catalogProductsResponse, quantityColours);
     }
 
     private CatalogResponse getCatalogResponse(List<SubProduct> usersFavourites,
                                                List<CatalogProductsResponse> catalogProductsResponse,
                                                Map<String, Long> quantityColours) {
-        log.info("Getting catalog response!");
+        log.info("Получение ответа каталога!");
         for (CatalogProductsResponse productsResponse : catalogProductsResponse) {
             productsResponse.setIsLiked(usersFavourites.stream()
                     .map(SubProduct::getId)
@@ -409,7 +409,7 @@ public class ProductServiceImpl implements ProductService {
         quantityColours.put("Rose Gold", catalogProductsResponse.stream().filter(item -> Objects.equals(item.getColour(), "Rose Gold")).count());
         quantityColours.put("Silver", catalogProductsResponse.stream().filter(item -> Objects.equals(item.getColour(), "Silver")).count());
         quantityColours.put("Purple", catalogProductsResponse.stream().filter(item -> Objects.equals(item.getColour(), "Purple")).count());
-        log.info("CatalogResponse is successfully got!");
+        log.info("Каталог Ответ успешно получен!");
         return CatalogResponse.builder()
                 .productsResponses(catalogProductsResponse)
                 .colourQuantity(quantityColours)
@@ -470,7 +470,7 @@ public class ProductServiceImpl implements ProductService {
         sql = String.format(sql, joiningForFilterByBrand, conditionForFilterByBrand, filterByPrice,
                 filterByColour, conditionForFilterByMemory, conditionForFilterByRAM, joinTypeOfDiscount,
                 conditionForFilterByMaterial, conditionForFilterByGender, orderBy);
-        log.info("Products are successfully got!");
+        log.info("Продукция успешно получена!");
         return sql;
     }
 
@@ -510,7 +510,7 @@ public class ProductServiceImpl implements ProductService {
 
         if (!colour.isBlank() && !colours.contains(colour)) {
             log.error(String.format("Product with colour - %s is not found!", colour));
-            throw new NotFoundException(String.format("Product with colour - %s is not found!", colour));
+            throw new NotFoundException(String.format("Товар с цветом - %s не найден!", colour));
         }
         String sql = """
                 select sp.id as sub_product_id,
@@ -587,7 +587,7 @@ public class ProductServiceImpl implements ProductService {
                 productId,
                 !colour.isBlank() ? colour : colours.get(0));
         productUserResponse.setImages(images);
-        log.info("Product is a successfully got!");
+        log.info("Продукция успешно получена!");
         return productUserResponse;
     }
 
@@ -629,19 +629,19 @@ public class ProductServiceImpl implements ProductService {
     public SimpleResponse update(Long subProductId, ProductUpdateRequest request) {
         SubProduct oldSubProduct = subProductRepository.findById(subProductId).orElseThrow(() -> {
             log.error("Sub product with id:" + subProductId + " is not found!");
-            throw new NotFoundException("Sub product with id:" + subProductId + " is not found!");
+            throw new NotFoundException("Подпродукт с id: "+subProductId+" не найден!");
         });
 
         SubCategory subCategory = subCategoryRepository.findById(request.subCategoryId())
                 .orElseThrow(() -> {
-                    log.error("Sub category with id:" + request.subCategoryId() + " not found!");
-                    throw new NotFoundException("Sub category with id:" + request.subCategoryId() + " not found!");
+                    log.error("Подкатегория с id: "+ request.subCategoryId() + " не найдена!");
+                    throw new NotFoundException("Подкатегория с id: "+ request.subCategoryId() + " не найдена");
                 });
 
         Brand brand = brandRepository.findById(request.brandId())
                 .orElseThrow(() -> {
                     log.error("Brand with id:" + request.brandId() + " not found!");
-                    throw new NotFoundException("Brand with id:" + request.brandId() + " not found!");
+                    throw new NotFoundException("Бренд с идентификатором: "+ request.brandId() + " не найден!");
                 });
         Product product = oldSubProduct.getProduct();
         product.setSubCategory(subCategory);
@@ -661,12 +661,12 @@ public class ProductServiceImpl implements ProductService {
         oldSubProduct.setPrice(s.price());
         oldSubProduct.setQuantity(s.quantity());
         oldSubProduct.setImages(s.images());
-        log.info(String.format("Product with id %s and sub product with id %s are updated!",
+        log.info(String.format("Продукт с id: %s и подпродукт с id: %s изменены!",
                 product.getId(), oldSubProduct.getId()));
 
         return SimpleResponse.builder()
                 .httpStatus(HttpStatus.OK)
-                .message(String.format("Product with id %s and sub product with id %s are updated!",
+                .message(String.format("Продукт с id: %s и подпродукт с id: %s изменены!!",
                         product.getId(), oldSubProduct.getId()))
                 .build();
     }
@@ -676,7 +676,7 @@ public class ProductServiceImpl implements ProductService {
         for (Long id : subProductIds) {
             if (!subProductRepository.existsById(id)) {
                 log.error("Sub product with id %s is not found!".formatted(subProductIds));
-                throw new NotFoundException("Sub product with id %s is not found!".formatted(subProductIds));
+                throw new NotFoundException("Подпродукт с id: %s не найден!".formatted(subProductIds));
             }
         }
 
@@ -689,7 +689,7 @@ public class ProductServiceImpl implements ProductService {
                             && !order.getStatus().equals(Status.RECEIVED)) {
                         log.error("Sub product with id %s cannot be deleted because it is currently on sale."
                                 .formatted(subProductIds));
-                        throw new BadRequestException("Sub product with id %s cannot be deleted because it is currently on sale."
+                        throw new BadRequestException("Дополнительный продукт с id: %s не может быть удален, поскольку в настоящее время он продается со скидкой."
                                 .formatted(subProductIds));
                     }
                 }
@@ -705,7 +705,7 @@ public class ProductServiceImpl implements ProductService {
 
         return SimpleResponse.builder()
                 .httpStatus(HttpStatus.OK)
-                .message("Sub products with id %s are deleted.".formatted(subProductIds))
+                .message("Подпродукты с id: %s удалены.".formatted(subProductIds))
                 .build();
     }
 }

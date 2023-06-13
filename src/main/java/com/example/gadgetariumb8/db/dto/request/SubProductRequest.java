@@ -7,18 +7,18 @@ import java.util.List;
 import java.util.Map;
 
 public record SubProductRequest(
-        @NotBlank(message = "Color must be specified!!!")
+        @NotBlank(message = "Цвет должен быть указан!!!")
         String colour,
-        @NotEmpty(message = "Characteristics must be specified!!!")
+        @NotEmpty(message = "Характеристики должны быть указаны!!!")
         Map<String, String> characteristics,
-        @NotNull(message = "Price must be specified!!!")
-        @Min(value = 0, message = "Price should be positive number!!")
+        @NotNull(message = "Цена должна быть указана!!!")
+        @Min(value = 0, message = "Цена должна быть положительным числом!!")
         BigDecimal price,
-        @Min(value = 1, message = "The minimum quantity must not be lower 1")
-        @NotNull(message = "Quantity must be specified!!!")
+        @Min(value = 1, message = "Минимальное количество не должно быть меньше 1")
+        @NotNull(message = "Необходимо указать количество!!!")
         int quantity,
-        @Size(min = 2, max = 6, message = "Size must be between 2 and 6")
-        @NotEmpty(message = "Images must be specified!!!")
+        @Size(min = 2, max = 6, message = "Размер должен быть от 2 до 6.")
+        @NotEmpty(message = "Изображения должны быть указаны!!!")
         List<String> images
 ) {
 }

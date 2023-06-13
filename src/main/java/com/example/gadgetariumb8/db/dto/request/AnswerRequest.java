@@ -9,8 +9,8 @@ import org.hibernate.validator.constraints.Length;
  */
 public record AnswerRequest(
         Long reviewId,
-        @NotBlank(message = "Answer should not be empty")
-        @Length(min = 2, max = 300, message = "Answer must be between 2 and 300 characters")
+        @NotBlank(message = "Ответ не должен быть пустым")
+        @Length(min = 2, max = 300, message = "Ответ должен быть от 2 до 300 символов")
         String answer
 ) {
 }

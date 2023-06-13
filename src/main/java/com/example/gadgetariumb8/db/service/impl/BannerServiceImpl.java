@@ -28,24 +28,24 @@ public class BannerServiceImpl implements BannerService {
                 if (!banner.isBlank()) {
                     bannerRepository.save(new Banner(banner));
                 } else {
-                    log.error("One of the elements is empty!");
-                    throw new BadRequestException("One of the elements is empty!");
+                    log.error("Один из элементов пуст!");
+                    throw new BadRequestException("Один из элементов пуст!");
                 }
             } else {
-                log.error("Quantity of banners should not exceed 6!");
-                throw new BadRequestException("Quantity of banners should not exceed 6!");
+                log.error("Количество баннеров не должно превышать 6!");
+                throw new BadRequestException("Количество баннеров не должно превышать 6!");
             }
         }
-        log.info("The banner is well preserved!");
-        return SimpleResponse.builder().message("The banner is well preserved!").httpStatus(HttpStatus.OK).build();
+        log.info("Баннер успешно сохранен!");
+        return SimpleResponse.builder().message("Баннер успешно сохранен!").httpStatus(HttpStatus.OK).build();
     }
 
     @Override
     public SimpleResponse deleteBanners(Long id) {
         bannerRepository.delete(bannerRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("User with id:" + id + " not found!!!")));
+                .orElseThrow(() -> new NotFoundException("Пользователь с id: "+id+" не найден!!!")));
         return SimpleResponse.builder()
-                .message("Banner successfully deleted").httpStatus(HttpStatus.OK).build();
+                .message("Баннер успешно удален!!").httpStatus(HttpStatus.OK).build();
     }
 
     @Override
