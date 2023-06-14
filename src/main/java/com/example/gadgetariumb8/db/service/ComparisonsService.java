@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface ComparisonsService {
 
-    SimpleResponse saveOrDeleteComparisons(Long id, boolean kurstan);
+    SimpleResponse saveOrDeleteComparisons(Long id, boolean addOrDelete);
 
     List<CompareProductResponse> compare();
 

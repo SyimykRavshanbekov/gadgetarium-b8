@@ -21,11 +21,11 @@ import java.util.List;
 public class ComparisonsApi {
     private final ComparisonsService comparisonsService;
 
-    @PostMapping("/save")
-    @Operation(summary = "This method to save comparison.", description = "This method needs a user token.")
+    @PostMapping
+    @Operation(summary = "Add or delete from comparisons", description = "This method to add or delete from comparisons")
     @PreAuthorize("hasAuthority('USER')")
-    public SimpleResponse saveComparisons(@RequestParam Long id, @RequestParam boolean kurstan) {
-        return comparisonsService.saveOrDeleteComparisons(id, kurstan);
+    public SimpleResponse saveComparisons(@RequestParam Long id, @RequestParam boolean addOrDelete) {
+        return comparisonsService.saveOrDeleteComparisons(id, addOrDelete);
     }
 
     @GetMapping("/compare-product")
@@ -37,15 +37,14 @@ public class ComparisonsApi {
 
     @GetMapping("/countCompare")
     @Operation(summary = "To count the Compare.", description = "This method count the Compare")
-    @PermitAll
+    @PreAuthorize("hasAuthority('USER')")
     public CompareCountResponse countCompare() {
         return comparisonsService.countCompare();
-
     }
 
     @DeleteMapping
     @Operation(summary = "To clean the Compare", description = "This method clean table Comparisons")
-    @PermitAll
+    @PreAuthorize("hasAuthority('USER')")
     public SimpleResponse cleanCompare() {
         return comparisonsService.cleanCompare();
     }

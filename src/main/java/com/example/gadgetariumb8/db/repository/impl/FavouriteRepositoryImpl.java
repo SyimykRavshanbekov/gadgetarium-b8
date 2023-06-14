@@ -56,7 +56,9 @@ public class FavouriteRepositoryImpl implements FavouriteRepository {
                       as product_info, p.rating as rating, sp.price as price,
                       d.percent as discount,
                       p.created_at as createdAt,
-                      count(r) as countOfReviews
+                      count(r) as countOfReviews,
+                      true as isInFavorites,
+                      CASE WHEN uc IS NULL THEN false ELSE true END as isInComparisons
                 FROM sub_products sp
                   JOIN products p ON p.id = sp.product_id
                   LEFT JOIN discounts d ON sp.discount_id = d.id
@@ -65,8 +67,9 @@ public class FavouriteRepositoryImpl implements FavouriteRepository {
                   JOIN sub_product_characteristics spc ON sp.id = spc.sub_product_id
                   LEFT JOIN reviews r ON p.id = r.product_id
                   JOIN users_favorites uf ON sp.id = uf.favorites_id
+                  LEFT JOIN users_comparisons uc ON uc.comparisons_id = sp.id AND uc.user_id = ?
                 WHERE spc.characteristics_key like 'память' and uf.user_id = ?
-                  group by subProductId, product_info, rating, price, discount, createdAt;
+                  group by subProductId, product_info, rating, price, discount, createdAt, isInFavorites, isInComparisons;
                 """;
         log.info("Favorite products are successfully got!");
 
@@ -80,8 +83,10 @@ public class FavouriteRepositoryImpl implements FavouriteRepository {
                         resultSet.getInt("countOfReviews"),
                         resultSet.getBigDecimal("price"),
                         resultSet.getInt("discount"),
-                        resultSet.getDate("createdAt").toLocalDate()
-                ), getAuthenticate().getId());
+                        resultSet.getDate("createdAt").toLocalDate(),
+                        resultSet.getBoolean("isInFavorites"),
+                        resultSet.getBoolean("isInComparisons")
+                ), getAuthenticate().getId(), getAuthenticate().getId());
     }
 
     @Override
