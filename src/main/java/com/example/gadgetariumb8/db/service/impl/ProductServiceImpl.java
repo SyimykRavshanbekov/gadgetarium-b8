@@ -121,7 +121,7 @@ public class ProductServiceImpl implements ProductService {
                 resultSet.getBoolean("isInFavorites"),
                 resultSet.getBoolean("isInComparisons")
         ), getAuthenticate().getId(), getAuthenticate().getId());
-        log.info"Продукция успешно приобретена!");
+        log.info("Продукция успешно приобретена!");
         return PaginationResponse.<ProductsResponse>builder()
                 .foundProducts(count)
                 .elements(products)
