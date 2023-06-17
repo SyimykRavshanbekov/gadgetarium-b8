@@ -123,7 +123,7 @@ public class ProductServiceImpl implements ProductService {
         ), getAuthenticate().getId(), getAuthenticate().getId());
         log.info("Продукция успешно приобретена!");
         return PaginationResponse.<ProductsResponse>builder()
-                .foundProducts(count)
+                .countOfElements(count)
                 .elements(products)
                 .currentPage(page)
                 .totalPages(totalPage)
@@ -175,7 +175,7 @@ public class ProductServiceImpl implements ProductService {
         ), getAuthenticate().getId(), getAuthenticate().getId());
         log.info("Продукты успешно получен!");
         return PaginationResponse.<ProductsResponse>builder()
-                .foundProducts(count)
+                .countOfElements(count)
                 .elements(products)
                 .currentPage(page)
                 .totalPages(totalPage)
@@ -228,7 +228,7 @@ public class ProductServiceImpl implements ProductService {
                 ), getAuthenticate().getId(), getAuthenticate().getId());
         log.info("Продукция успешно получена!");
         return PaginationResponse.<ProductsResponse>builder()
-                .foundProducts(count)
+                .countOfElements(count)
                 .elements(products)
                 .currentPage(page)
                 .totalPages(totalPage)
@@ -340,7 +340,7 @@ public class ProductServiceImpl implements ProductService {
         ));
         log.info("Продукция успешно получена!");
         return PaginationResponse.<ProductAdminResponse>builder()
-                .foundProducts(count)
+                .countOfElements(count)
                 .elements(products)
                 .currentPage(page)
                 .totalPages(totalPage)

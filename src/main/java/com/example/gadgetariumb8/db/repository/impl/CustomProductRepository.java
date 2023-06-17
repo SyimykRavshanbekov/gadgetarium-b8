@@ -1,4 +1,4 @@
-package com.example.gadgetariumb8.db.repository;
+package com.example.gadgetariumb8.db.repository.impl;
 
 import org.springframework.stereotype.Repository;
 

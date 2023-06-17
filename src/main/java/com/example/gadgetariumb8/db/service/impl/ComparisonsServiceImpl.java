@@ -8,7 +8,7 @@ import com.example.gadgetariumb8.db.exception.exceptions.BadRequestException;
 import com.example.gadgetariumb8.db.exception.exceptions.NotFoundException;
 import com.example.gadgetariumb8.db.model.SubProduct;
 import com.example.gadgetariumb8.db.model.User;
-import com.example.gadgetariumb8.db.repository.CustomProductRepository;
+import com.example.gadgetariumb8.db.repository.impl.CustomProductRepository;
 import com.example.gadgetariumb8.db.repository.SubProductRepository;
 import com.example.gadgetariumb8.db.repository.UserRepository;
 import com.example.gadgetariumb8.db.service.ComparisonsService;

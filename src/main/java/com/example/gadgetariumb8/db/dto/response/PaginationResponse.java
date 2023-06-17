@@ -6,7 +6,7 @@ import java.util.List;
 
 @Builder
 public record PaginationResponse<T>(
-        int foundProducts,
+        int countOfElements,
         List<T> elements,
         int currentPage,
         int totalPages
