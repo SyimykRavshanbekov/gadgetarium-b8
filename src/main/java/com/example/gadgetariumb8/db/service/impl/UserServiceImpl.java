@@ -50,7 +50,7 @@ public class UserServiceImpl implements UserService {
             userRepository.save(user);
             return chosenOne;
         }catch (NotFoundException notFoundException){
-            throw new NotFoundException(String.format("У этого пользователя нет избранного!"));
+            throw new NotFoundException("У этого пользователя нет избранного!");
         }
     }
 }
