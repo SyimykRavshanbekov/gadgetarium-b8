@@ -17,7 +17,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 
 /**
- * @author kurstan
+ * @author altynbek
  * @created at 02.04.2023 23:34
  */
 @Component
