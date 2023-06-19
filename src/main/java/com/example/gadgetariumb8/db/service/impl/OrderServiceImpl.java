@@ -1,10 +1,7 @@
 package com.example.gadgetariumb8.db.service.impl;
 
 import com.example.gadgetariumb8.db.dto.request.UserOrderRequest;
-import com.example.gadgetariumb8.db.dto.response.OrderResponse;
-import com.example.gadgetariumb8.db.dto.response.PaginationResponse;
-import com.example.gadgetariumb8.db.dto.response.SimpleResponse;
-import com.example.gadgetariumb8.db.dto.response.UserOrderResponse;
+import com.example.gadgetariumb8.db.dto.response.*;
 import com.example.gadgetariumb8.db.exception.exceptions.BadRequestException;
 import com.example.gadgetariumb8.db.exception.exceptions.MessageSendingException;
 import com.example.gadgetariumb8.db.exception.exceptions.NotFoundException;
@@ -256,5 +253,55 @@ public class OrderServiceImpl implements OrderService {
                 .httpStatus(HttpStatus.OK)
                 .message("Заказ с id: %s удален.".formatted(orderId))
                 .build();
+    }
+
+    @Override
+    public OrderInfoResponse getOrderInfo(Long orderId) {
+        String sql = """
+                select o.id,
+                       o.order_number,
+                       o.quantity,
+                       o.total_price,
+                       o.status,
+                       c.phone_number,
+                       c.address,
+                       concat(c.first_name, ' ', c.last_name) as fullName
+                from orders o
+                         join customers c on c.id = o.customer_id
+                where o.id = ?;
+                """;
+
+        OrderInfoResponse orderInfoResponse = jdbcTemplate.query(sql, (resultSet, i) -> new OrderInfoResponse(
+                resultSet.getLong("id"),
+                resultSet.getInt("order_number"),
+                resultSet.getInt("quantity"),
+                resultSet.getBigDecimal("total_price"),
+                resultSet.getString("status"),
+                resultSet.getString("phone_number"),
+                resultSet.getString("address"),
+                resultSet.getString("fullName")
+        ), orderId).stream().findFirst().orElseThrow(() -> new NotFoundException("Order by id %s is not found.".formatted(orderId)));
+        String sql2 = """
+                select concat(b.name, ' ', p.name, ' ', sp.colour) as name,
+                       sp.price,
+                       d.percent,
+                       (d.percent * sp.price/ 100) sumOfDiscount
+                from orders o
+                         join orders_sub_products osp on o.id = osp.order_id
+                         join sub_products sp on sp.id = osp.sub_products_id
+                         join products p on p.id = sp.product_id
+                         join brands b on b.id = p.brand_id
+                         left join discounts d on d.id = sp.discount_id
+                where o.id = ?
+                """;
+
+        List<OrderProductResponse> query = jdbcTemplate.query(sql2, (resultSet, i) -> new OrderProductResponse(
+                resultSet.getString("name"),
+                resultSet.getBigDecimal("price"),
+                resultSet.getInt("percent"),
+                resultSet.getBigDecimal("sumOfDiscount")
+        ), orderId);
+        orderInfoResponse.setProducts(query);
+        return orderInfoResponse;
     }
 }

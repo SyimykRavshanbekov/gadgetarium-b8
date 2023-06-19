@@ -1,5 +1,6 @@
 package com.example.gadgetariumb8.db.api;
 
+import com.example.gadgetariumb8.db.dto.response.OrderInfoResponse;
 import com.example.gadgetariumb8.db.dto.response.OrderResponse;
 import com.example.gadgetariumb8.db.dto.response.PaginationResponse;
 import com.example.gadgetariumb8.db.dto.response.SimpleResponse;
@@ -42,7 +43,15 @@ public class AdminOrderApi {
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete order", description = "This method to delete orders")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public SimpleResponse delete(@PathVariable("id")Long orderId){
+    public SimpleResponse delete(@PathVariable("id") Long orderId) {
         return orderService.delete(orderId);
     }
+
+    @GetMapping("/{id}")
+    @Operation(summary = "Get order by id", description = "This method to get order info by id!!")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public OrderInfoResponse getOrderInfo(@PathVariable("id") Long orderId) {
+        return orderService.getOrderInfo(orderId);
+    }
+
 }
