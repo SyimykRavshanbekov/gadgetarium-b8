@@ -4,11 +4,10 @@ import com.example.gadgetariumb8.db.validation.PasswordValid;
 import jakarta.validation.constraints.NotBlank;
 
 public record ProfilePasswordResetRequest(
-        @NotBlank(message = "password should not be empty")
+        @NotBlank(message = "Пароль не должен быть пустым")
         String currentPassword,
-        @NotBlank(message = "password should not be empty")
-        @PasswordValid(message = "Password length must be more than 8 symbols," +
-                " and contain least one capital letter!")
+        @NotBlank(message = "Новый пароль не должен быть пустым")
+        @PasswordValid(message = "Длина пароля должна быть более 8 символов и содержать как минимум одну заглавную букву!")
         String newPassword
 ) {
 }

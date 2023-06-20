@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 /**
- * @author kurstan
+ * @author altynbek
  * @created at 02.04.2023 23:55
  */
 @Service

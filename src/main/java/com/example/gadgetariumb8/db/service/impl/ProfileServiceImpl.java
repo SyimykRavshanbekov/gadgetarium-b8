@@ -51,24 +51,25 @@ public class ProfileServiceImpl implements ProfileService {
             user.getUserInfo().setPassword(encoder.encode(request.newPassword()));
             userRepository.save(user);
         } else {
-            throw new BadRequestException("Password doesn't matched");
+            throw new BadRequestException("Пароль не подходит");
         }
-        return SimpleResponse.builder().httpStatus(HttpStatus.OK).message("Your password is successfully reset").build();
+        return SimpleResponse.builder().httpStatus(HttpStatus.OK).message("Ваш пароль успешно сброшен").build();
     }
 
     @Override
     public SimpleResponse setImage(ProfileImageRequest request) {
         getAuthenticate().setImage(request.imageUrl());
-        return SimpleResponse.builder().message(String.format("Profile with id %s image updated successfully", getAuthenticate().getId())).build();
+        return SimpleResponse.builder().httpStatus(HttpStatus.OK).message(String.format("Профиль с id: %s изображение успешно обновлено", getAuthenticate().getId())).build();
     }
 
     private User getAuthenticate() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String login = authentication.getName();
-        log.info("Token has been taken!");
-        return userRepository.findUserByEmail(login).orElseThrow(() -> {
-            log.error("User not found!");
-            throw new NotFoundException("User not found!");
-        });
+        log.info("Токен взят!");
+        return userRepository.findUserInfoByEmail(login).orElseThrow(() -> {
+            log.error("Пользователь не найден с токеном пожалуйста войдите или зарегистрируйтесь!");
+            return new NotFoundException("пользователь не найден с токеном пожалуйста войдите или зарегистрируйтесь");
+        }).getUser();
     }
+
 }

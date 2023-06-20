@@ -30,10 +30,10 @@ public class SubProductServiceImpl implements SubProductService {
     private User getAuthenticate() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String login = authentication.getName();
-        log.info("Token has been taken!");
+        log.info("Токен взят!");
         return userRepository.findUserInfoByEmail(login).orElseThrow(() -> {
-            log.error("User not found!");
-            return new NotFoundException("User not found!");
+            log.error("Пользователь не найден с токеном пожалуйста войдите или зарегистрируйтесь!");
+            return new NotFoundException("пользователь не найден с токеном пожалуйста войдите или зарегистрируйтесь");
         }).getUser();
     }
 
@@ -44,7 +44,7 @@ public class SubProductServiceImpl implements SubProductService {
         List<SubProduct> subProductList = subProductRepository.getAllLastReviews(getAuthenticate().getId());
         for (SubProduct subProduct : subProductList) {
             subProductResponseList.add(new SubProductResponse(
-                    subProduct.getImages().stream().findFirst().orElse("Sub product images"),
+                    subProduct.getImages().stream().findFirst().orElse("Изображения субпродуктов"),
                     subProduct.getProduct().getName(),
                     subProduct.getProduct().getBrand().getName(),
                     (subProduct.getProduct().getReviews().stream().mapToDouble(Review::getGrade).sum() / (long) subProduct.getProduct().getReviews().size()),
@@ -52,7 +52,7 @@ public class SubProductServiceImpl implements SubProductService {
                     subProduct.getPrice()
             ));
         }
-        log.info("Last views are successfully got!");
+        log.info("Последние просмотры успешно получены!");
         return PaginationResponse.<SubProductResponse>builder()
                 .elements(subProductResponseList)
                 .totalPages(pageSize)

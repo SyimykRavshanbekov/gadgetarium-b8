@@ -23,7 +23,7 @@ public class BrandServiceImpl implements BrandService {
         brand.setName(request.name());
         brand.setLogo(request.logo());
         brandRepository.save(brand);
-        return new SimpleResponse(HttpStatus.OK,"Brand is successfully saved!");
+        return new SimpleResponse(HttpStatus.OK,"Бренд успешно сохранен!");
     }
 
     @Override

@@ -6,17 +6,17 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
 public record CustomerInfo(
-        @NotBlank(message = "first name should not be empty")
-        @NameValid(message = "first name should be only letters and length must be between 2 and 33 characters!")
+        @NotBlank(message = "Необходимо указать имя.")
+        @NameValid(message = "Имя должно содержать от 2 до 33 символов.")
         String firstName,
-        @NotBlank(message = "last name should not be empty")
-        @NameValid(message = "last name should be only letters and length must be between 2 and 33 characters!")
+        @NotBlank(message = "Необходимо указать фамилию.")
+        @NameValid(message = "Фамилия должна содержать от 2 до 33 символов.")
         String lastName,
-        @NotBlank(message = "email should not be empty")
-        @Email(message = "Write valid email!")
+        @NotBlank(message = "Почта не должна быть пустой")
+        @Email(message = "Напишите действительный адрес электронной почты!")
         String email,
-        @NotBlank(message = "phone number should not be empty")
-        @PhoneNumberValid(message = "Phone number should start with +996, consist of 13 characters and must be valid!")
+        @NotBlank(message = "Номер телефона не должен быть пустым")
+        @PhoneNumberValid(message = "Номер телефона должен начинаться с +996, состоять из 13 символов и должен быть действительным!")
         String phoneNumber,
         String address
 ) {

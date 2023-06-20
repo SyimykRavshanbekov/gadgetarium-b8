@@ -9,5 +9,4 @@ class GadgetariumB8ApplicationTests {
     @Test
     void contextLoads() {
     }
-
 }

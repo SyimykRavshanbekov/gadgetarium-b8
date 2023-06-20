@@ -5,9 +5,9 @@ import lombok.Builder;
 
 @Builder
 public record BrandRequest(
-        @NotBlank(message = "Name must be specified!!!")
+        @NotBlank(message = "Имя должно быть указано!!!")
         String name,
-        @NotBlank(message = "Logo must be specified!!!")
+        @NotBlank(message = "Логотип должен быть указан!!!")
         String logo
 ) {
 }

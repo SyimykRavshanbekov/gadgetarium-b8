@@ -3,6 +3,7 @@ package com.example.gadgetariumb8.db.dto.response;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Builder
 @AllArgsConstructor
@@ -15,6 +16,10 @@ public class ProductsResponse {
     private int quantity;
     private String productInfo;
     private double rating;
+    private int countOfReviews;
     private BigDecimal price;
     private int discount;
+    private LocalDate createdAt;
+    private boolean isInFavorites;
+    private boolean isInComparisons;
 }

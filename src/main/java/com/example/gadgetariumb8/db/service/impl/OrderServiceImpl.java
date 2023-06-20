@@ -1,10 +1,7 @@
 package com.example.gadgetariumb8.db.service.impl;
 
 import com.example.gadgetariumb8.db.dto.request.UserOrderRequest;
-import com.example.gadgetariumb8.db.dto.response.OrderResponse;
-import com.example.gadgetariumb8.db.dto.response.PaginationResponse;
-import com.example.gadgetariumb8.db.dto.response.SimpleResponse;
-import com.example.gadgetariumb8.db.dto.response.UserOrderResponse;
+import com.example.gadgetariumb8.db.dto.response.*;
 import com.example.gadgetariumb8.db.exception.exceptions.BadRequestException;
 import com.example.gadgetariumb8.db.exception.exceptions.MessageSendingException;
 import com.example.gadgetariumb8.db.exception.exceptions.NotFoundException;
@@ -13,10 +10,10 @@ import com.example.gadgetariumb8.db.model.Order;
 import com.example.gadgetariumb8.db.model.SubProduct;
 import com.example.gadgetariumb8.db.model.User;
 import com.example.gadgetariumb8.db.model.enums.Status;
-import com.example.gadgetariumb8.db.repository.CustomOrderRepository;
 import com.example.gadgetariumb8.db.repository.OrderRepository;
 import com.example.gadgetariumb8.db.repository.SubProductRepository;
 import com.example.gadgetariumb8.db.repository.UserRepository;
+import com.example.gadgetariumb8.db.repository.impl.CustomOrderRepository;
 import com.example.gadgetariumb8.db.service.OrderService;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -27,14 +24,12 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
-import org.thymeleaf.TemplateEngine;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -52,79 +47,16 @@ import java.util.Map;
 @Transactional
 public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
-    private final JdbcTemplate jdbcTemplate;
     private final CustomOrderRepository customOrderRepository;
     private final SubProductRepository subProductRepository;
     private final UserRepository userRepository;
     private final JavaMailSender javaMailSender;
-    private final TemplateEngine templateEngine;
+
     private final Configuration configuration;
 
     @Override
     public PaginationResponse<OrderResponse> getAllOrders(String keyWord, String status, LocalDate from, LocalDate before, int page, int pageSize) {
-        String sql = customOrderRepository.getAllOrder();
-        log.info("Getting all orders.");
-
-        String dateClause = "";
-        if (from != null && before != null) {
-            if (from.isAfter(before)) {
-                log.error("The from date must be earlier than the date before");
-                throw new BadRequestException("The from date must be earlier than the date before");
-            } else if (from.isAfter(LocalDate.now()) || before.isAfter(LocalDate.now())) {
-                log.error("The date must be in the past tense");
-                throw new BadRequestException("The date must be in the past tense");
-            }
-            dateClause = customOrderRepository.dateClauseFromBefore();
-        } else if (from != null) {
-            if (from.isAfter(LocalDate.now())) {
-                log.error("The date must be in the past tense");
-                throw new BadRequestException("The date must be in the past tense");
-            }
-            dateClause = customOrderRepository.dateClauseFrom();
-        } else if (before != null) {
-            if (before.isAfter(LocalDate.now())) {
-                log.error("The date must be in the past tense");
-                throw new BadRequestException("The date must be in the past tense");
-            }
-            dateClause = customOrderRepository.dateClauseBefore();
-        }
-        String keyWordCondition = "";
-        List<Object> params = new ArrayList<>();
-        params.add(status);
-        if (keyWord != null) {
-            params.add("%" + keyWord + "%");
-            params.add("%" + keyWord + "%");
-            params.add("%" + keyWord + "%");
-            params.add("%" + keyWord + "%");
-            params.add("%" + keyWord + "%");
-            keyWordCondition = customOrderRepository.keyWordCondition();
-        }
-        sql = String.format(sql, dateClause, keyWordCondition);
-
-        int count = jdbcTemplate.queryForObject(customOrderRepository.countSql(sql), params.toArray(), Integer.class);
-        int totalPage = (int) Math.ceil((double) count / pageSize);
-
-        sql = sql + customOrderRepository.limitOffset();
-        int offset = (page - 1) * pageSize;
-        params.add(pageSize);
-        params.add(offset);
-        List<OrderResponse> orders = jdbcTemplate.query(sql, params.toArray(), (resultSet, i) -> new OrderResponse(
-                resultSet.getLong("id"),
-                resultSet.getString("fio"),
-                resultSet.getString("orderNumber"),
-                LocalDate.parse(resultSet.getString("createdAt")),
-                resultSet.getInt("quantity"),
-                resultSet.getBigDecimal("totalPrice"),
-                resultSet.getBoolean("deliveryType"),
-                resultSet.getString("status")
-        ));
-      log.info("Orders are successfully got!");
-        return PaginationResponse.<OrderResponse>builder()
-                .foundProducts(count)
-                .elements(orders)
-                .currentPage(page)
-                .totalPages(totalPage)
-                .build();
+        return customOrderRepository.getAllOrders(keyWord, status, from, before, page, pageSize);
     }
 
     @Override
@@ -134,7 +66,7 @@ public class OrderServiceImpl implements OrderService {
         int quantity = 0;
         for (Map.Entry<Long, Integer> p : userOrderRequest.productsIdAndQuantity().entrySet()) {
             SubProduct subProduct = subProductRepository.findById(p.getKey()).orElseThrow(
-                    () -> new NotFoundException(String.format("Product with id %s is not found!", p.getKey())));
+                    () -> new NotFoundException(String.format("Продукт с id: %s не найден!!!", p.getKey())));
             subProducts.add(subProduct);
             BigDecimal price;
             if (subProduct.getDiscount() != null && subProduct.getDiscount().getPercent() > 0) {
@@ -216,10 +148,10 @@ public class OrderServiceImpl implements OrderService {
     private User getAuthenticate() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String login = authentication.getName();
-        log.info("Token has been taken!");
+        log.info("Токен взят!");
         return userRepository.findUserInfoByEmail(login).orElseThrow(() -> {
-            log.error("User not found!");
-            return new NotFoundException("User not found!");
+            log.error("Пользователь не найден с токеном пожалуйста войдите или зарегистрируйтесь!");
+            return new NotFoundException("пользователь не найден с токеном пожалуйста войдите или зарегистрируйтесь");
         }).getUser();
     }
 
@@ -227,7 +159,7 @@ public class OrderServiceImpl implements OrderService {
     public SimpleResponse changeStatusOfOrder(Long orderId, String status) {
         Order order = orderRepository.findById(orderId).orElseThrow(() -> {
             log.error(String.format("Order with id - %s is not found!", orderId));
-            throw new NotFoundException(String.format("Order with id - %s is not found!", orderId));
+            throw new NotFoundException(String.format("Заказ с id - %s не найден!", orderId));
         });
         Status newStatus;
         String statusRu;
@@ -257,10 +189,10 @@ public class OrderServiceImpl implements OrderService {
                 statusRu = "Доставлен";
             }
             default -> {
-                log.error("Status doesn't match!");
+                log.error("Статус не соответствует!");
                 return SimpleResponse.builder()
                         .httpStatus(HttpStatus.BAD_REQUEST)
-                        .message("Status doesn't match!")
+                        .message("Статус не соответствует!")
                         .build();
             }
         }
@@ -306,20 +238,70 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public SimpleResponse delete(Long orderId) {
         Order order = orderRepository.findById(orderId).orElseThrow(
-                () -> new NotFoundException("Order with id %s is not found.".formatted(orderId)));
+                () -> new NotFoundException("Заказ с id: %s не найден.".formatted(orderId)));
         if (!order.getStatus().equals(Status.DELIVERED)
                 && !order.getStatus().equals(Status.CANCEL)
                 && !order.getStatus().equals(Status.RECEIVED)
         ) {
             throw new BadRequestException("""
-                    Order with id %s cannot be deleted because it is not completed. Status of order - %s"""
+                    Заказ с id: %s не может быть удален, так как он не выполнен. Статус заказа - %s"""
                     .formatted(orderId, order.getStatus()));
         }
         orderRepository.deleteById(orderId);
 
         return SimpleResponse.builder()
                 .httpStatus(HttpStatus.OK)
-                .message("Order with id %s is deleted.".formatted(orderId))
+                .message("Заказ с id: %s удален.".formatted(orderId))
                 .build();
+    }
+
+    @Override
+    public OrderInfoResponse getOrderInfo(Long orderId) {
+        String sql = """
+                select o.id,
+                       o.order_number,
+                       o.quantity,
+                       o.total_price,
+                       o.status,
+                       c.phone_number,
+                       c.address,
+                       concat(c.first_name, ' ', c.last_name) as fullName
+                from orders o
+                         join customers c on c.id = o.customer_id
+                where o.id = ?;
+                """;
+
+        OrderInfoResponse orderInfoResponse = jdbcTemplate.query(sql, (resultSet, i) -> new OrderInfoResponse(
+                resultSet.getLong("id"),
+                resultSet.getInt("order_number"),
+                resultSet.getInt("quantity"),
+                resultSet.getBigDecimal("total_price"),
+                resultSet.getString("status"),
+                resultSet.getString("phone_number"),
+                resultSet.getString("address"),
+                resultSet.getString("fullName")
+        ), orderId).stream().findFirst().orElseThrow(() -> new NotFoundException("Order by id %s is not found.".formatted(orderId)));
+        String sql2 = """
+                select concat(b.name, ' ', p.name, ' ', sp.colour) as name,
+                       sp.price,
+                       d.percent,
+                       (d.percent * sp.price/ 100) sumOfDiscount
+                from orders o
+                         join orders_sub_products osp on o.id = osp.order_id
+                         join sub_products sp on sp.id = osp.sub_products_id
+                         join products p on p.id = sp.product_id
+                         join brands b on b.id = p.brand_id
+                         left join discounts d on d.id = sp.discount_id
+                where o.id = ?
+                """;
+
+        List<OrderProductResponse> query = jdbcTemplate.query(sql2, (resultSet, i) -> new OrderProductResponse(
+                resultSet.getString("name"),
+                resultSet.getBigDecimal("price"),
+                resultSet.getInt("percent"),
+                resultSet.getBigDecimal("sumOfDiscount")
+        ), orderId);
+        orderInfoResponse.setProducts(query);
+        return orderInfoResponse;
     }
 }

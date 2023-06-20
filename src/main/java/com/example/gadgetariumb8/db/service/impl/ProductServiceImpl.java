@@ -37,30 +37,19 @@ public class ProductServiceImpl implements ProductService {
     private final SubProductRepository subProductRepository;
     private final JdbcTemplate jdbcTemplate;
     private final UserRepository userRepository;
-    private final CustomProductRepository customProductRepository;
-
-    private User getAuthenticate() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String login = authentication.getName();
-        log.info("Token has been taken!");
-        return userRepository.findUserInfoByEmail(login).orElseThrow(() -> {
-            log.error("User not found!");
-            return new NotFoundException("User not found!");
-        }).getUser();
-    }
 
     @Override
     public SimpleResponse saveProduct(ProductRequest productRequest) {
         SubCategory subCategory = subCategoryRepository.findById(productRequest.subCategoryId())
                 .orElseThrow(() -> {
-                    log.error("Sub category with id:" + productRequest.subCategoryId() + " not found!");
-                    throw new NotFoundException("Sub category with id:" + productRequest.subCategoryId() + " not found!");
+                    log.error("Подкатегория с идентификатором: "+ productRequest.subCategoryId() + " не найдена!");
+                    throw new NotFoundException("Подкатегория с идентификатором: "+ productRequest.subCategoryId() + " не найдена!");
                 });
 
         Brand brand = brandRepository.findById(productRequest.brandId())
                 .orElseThrow(() -> {
-                    log.error("Brand with id:" + productRequest.brandId() + " not found!");
-                    throw new NotFoundException("Brand with id:" + productRequest.brandId() + " not found!");
+                    log.error("Бренд с идентификатором: "+ productRequest.brandId() + " не найден!");
+                    throw new NotFoundException("Бренд с идентификатором: "+ productRequest.brandId() + " не найден!");
                 });
         Product product = new Product();
         product.setSubCategory(subCategory);
@@ -83,30 +72,38 @@ public class ProductServiceImpl implements ProductService {
             product.addSubProduct(subProduct);
             subProductRepository.save(subProduct);
         }
-        log.info("Successfully saved!!");
-        return SimpleResponse.builder().httpStatus(HttpStatus.OK).message("Successfully saved!!").build();
+        log.info("Успешно сохранено!!");
+        return SimpleResponse.builder().httpStatus(HttpStatus.OK).message("Успешно сохранено!!").build();
     }
 
     @Override
     public PaginationResponse<ProductsResponse> getAllDiscountProducts(int page, int pageSize) {
-        log.info("Getting all discount products!");
+        log.info("Получение всех товаров со скидкой!");
         String sql = """
                 SELECT sp.id as subProductId,
-                (select i.images from sub_product_images i where i.sub_product_id = sp.id limit 1) as image,
-                sp.quantity as quantity, CONCAT(c.name, ' ', p.brand_id, ' ', p.name, ' ', spc.characteristics,' ',
+                  (select i.images from sub_product_images i where i.sub_product_id = sp.id limit 1) as image,
+                  sp.quantity as quantity, CONCAT(c.name, ' ', sc.name, ' ', p.name, ' ', spc.characteristics,' ',
                   sp.colour) as product_info, p.rating as rating, sp.price as price,
-                 CAST(sp.price - ((sp.price * d.percent) / 100) AS INTEGER) as discount
+                  d.percent as discount,
+                  p.created_at as createdAt,
+                  count(r) as countOfReviews,
+                  CASE WHEN uf IS NOT NULL THEN true ELSE false END as isInFavorites,
+                  CASE WHEN uc IS NOT NULL THEN true ELSE false END as isInComparisons
                 FROM products p
                     JOIN sub_products sp ON p.id = sp.product_id
                     JOIN discounts d ON sp.discount_id = d.id
                     JOIN sub_categories sc ON p.sub_category_id = sc.id
                     JOIN categories c ON sc.category_id = c.id
                     LEFT JOIN sub_product_characteristics spc ON sp.id = spc.sub_product_id
+                    LEFT JOIN reviews r ON p.id = r.product_id
+                    LEFT JOIN users_favorites uf ON uf.favorites_id = sp.id AND uf.user_id = ?
+                    LEFT JOIN users_comparisons uc ON uc.comparisons_id = sp.id AND uc.user_id = ?
                     WHERE spc.characteristics_key like 'память'
+                    GROUP BY subProductId, image, quantity, product_info, rating, price, discount, createdAt, isInFavorites, isInComparisons
                 """;
 
         String countSql = "SELECT COUNT(*) FROM (" + sql + ") as count_query";
-        int count = jdbcTemplate.queryForObject(countSql, Integer.class);
+        int count = jdbcTemplate.queryForObject(countSql, Integer.class, getAuthenticate().getId(), getAuthenticate().getId());
         int totalPage = (int) Math.ceil((double) count / pageSize);
 
         int offset = (page - 1) * pageSize;
@@ -117,12 +114,16 @@ public class ProductServiceImpl implements ProductService {
                 resultSet.getInt("quantity"),
                 resultSet.getString("product_info"),
                 resultSet.getDouble("rating"),
+                resultSet.getInt("countOfReviews"),
                 resultSet.getBigDecimal("price"),
-                resultSet.getInt("discount")
-        ));
-        log.info("Products are successfully got!");
+                resultSet.getInt("discount"),
+                resultSet.getDate("createdAt").toLocalDate(),
+                resultSet.getBoolean("isInFavorites"),
+                resultSet.getBoolean("isInComparisons")
+        ), getAuthenticate().getId(), getAuthenticate().getId());
+        log.info("Продукция успешно приобретена!");
         return PaginationResponse.<ProductsResponse>builder()
-                .foundProducts(count)
+                .countOfElements(count)
                 .elements(products)
                 .currentPage(page)
                 .totalPages(totalPage)
@@ -130,88 +131,31 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<CompareProductResponse> compare() {
-        log.info("Getting all compare products!");
-        String sql = """
-                SELECT (SELECT sci FROM sub_product_images sci where sci.sub_product_id = sp.id LIMIT 1) as image,(p.name) as name
-                     ,p.description as description,sp.price as price ,b.name as brand_name,
-                      (SELECT spc.characteristics from sub_product_characteristics spc where spc.characteristics_key='screen' and spc.sub_product_id = sp.id) as screen,
-                      sp.colour as color,
-                      (SELECT spc.characteristics from sub_product_characteristics spc where spc.characteristics_key='operatingSystem' and spc.sub_product_id = sp.id) as operatingSystem,
-                      (SELECT spc.characteristics from sub_product_characteristics spc where spc.characteristics_key='memory' and spc.sub_product_id = sp.id) as memory,
-                      (SELECT spc.characteristics from sub_product_characteristics spc where spc.characteristics_key='weight' and spc.sub_product_id = sp.id) as weight,
-                      (SELECT spc.characteristics from sub_product_characteristics spc where spc.characteristics_key='simCard' and spc.sub_product_id = sp.id) as simCard
-                              
-                FROM products p JOIN sub_products sp on p.id = sp.product_id
-                    JOIN users_comparisons uc on uc.comparisons_id = sp.id
-                    JOIN users u on uc.user_id = u.id JOIN brands b on p.brand_id = b.id where u.id = ?
-                 """;
-        log.info("Products are successfully got!");
-        return jdbcTemplate.query(sql, (resultSet, i) ->
-                new CompareProductResponse(
-                        resultSet.getString("image"),
-                        resultSet.getString("name"),
-                        resultSet.getString("description"),
-                        resultSet.getBigDecimal("price"),
-                        resultSet.getString("brand_name"),
-                        resultSet.getString("screen"),
-                        resultSet.getString("color"),
-                        resultSet.getString("operatingSystem"),
-                        resultSet.getString("memory"),
-                        resultSet.getString("weight"),
-                        resultSet.getString("simCard")
-                ), getAuthenticate().getId()
-        );
-    }
-
-    @Override
-    public CompareCountResponse countCompare() {
-        User user = getAuthenticate();
-        if (user.getComparisons().size() != 0) {
-            return jdbcTemplate.query(customProductRepository.countCompare(), (result, i) -> {
-                        Map<String, Integer> count = new LinkedHashMap<>();
-                        count.put(result.getString("categoryName"),
-                                result.getInt("countComparisons"));
-                        return new CompareCountResponse(count);
-                    },
-                    user.getId()
-            ).stream().findFirst().orElseThrow(() -> {
-                log.error("Not found!");
-                throw new NotFoundException("Not found");
-            });
-        } else {
-            throw new NotFoundException(String.format("There is no comparison on this User"));
-        }
-    }
-
-    @Override
-    public SimpleResponse cleanCompare() {
-        User user = getAuthenticate();
-        user.getComparisons().clear();
-        userRepository.save(user);
-        log.error(String.format("Clean Compare!"));
-        return SimpleResponse.builder().message(String.format("Clean Compare!")).httpStatus(HttpStatus.OK).build();
-    }
-
-    @Override
     public PaginationResponse<ProductsResponse> getNewProducts(int page, int pageSize) {
-        log.info("Getting all new products!");
+        log.info("Получение всех новых продуктов!");
         String sql = """
                 SELECT sp.id as subProductId, (select i.images from sub_product_images i where i.sub_product_id = sp.id limit 1) as image,
-                 sp.quantity as quantity, CONCAT(c.name, ' ', p.brand_id, ' ', p.name, ' ', spc.characteristics,' ', sp.colour) as product_info,
+                 sp.quantity as quantity, CONCAT(c.name, ' ', sc.name, ' ', p.name, ' ', spc.characteristics,' ', sp.colour) as product_info,
                  p.rating as rating, sp.price as price,
-                 coalesce(CAST(sp.price - ((sp.price * d.percent) / 100) AS INTEGER),0) as discount
+                  d.percent as discount,
+                  p.created_at as createdAt,
+                  count(r) as countOfReviews,
+                  CASE WHEN uf IS NOT NULL THEN true ELSE false END as isInFavorites,
+                  CASE WHEN uc IS NOT NULL THEN true ELSE false END as isInComparisons
                 FROM products p
                     JOIN sub_products sp ON p.id = sp.product_id
                     LEFT JOIN discounts d ON sp.discount_id = d.id
                     JOIN sub_categories sc ON p.sub_category_id = sc.id
                     JOIN categories c ON sc.category_id = c.id
                     JOIN sub_product_characteristics spc ON sp.id = spc.sub_product_id
+                    LEFT JOIN reviews r ON p.id = r.product_id
+                    LEFT JOIN users_favorites uf ON uf.favorites_id = sp.id AND uf.user_id = ?
+                    LEFT JOIN users_comparisons uc ON uc.comparisons_id = sp.id AND uc.user_id = ?
                 WHERE p.created_at BETWEEN (CURRENT_DATE - INTERVAL '1 week') AND CURRENT_DATE AND spc.characteristics_key like 'память'
-                                
+                GROUP BY subProductId, image, quantity, product_info, rating, price, discount, createdAt, isInFavorites, isInComparisons
                 """;
         String countSql = "SELECT COUNT(*) FROM (" + sql + ") as count_query";
-        int count = jdbcTemplate.queryForObject(countSql, Integer.class);
+        int count = jdbcTemplate.queryForObject(countSql, Integer.class, getAuthenticate().getId(), getAuthenticate().getId());
         int totalPage = (int) Math.ceil((double) count / pageSize);
 
         int offset = (page - 1) * pageSize;
@@ -222,12 +166,16 @@ public class ProductServiceImpl implements ProductService {
                 resultSet.getInt("quantity"),
                 resultSet.getString("product_info"),
                 resultSet.getDouble("rating"),
+                resultSet.getInt("countOfReviews"),
                 resultSet.getBigDecimal("price"),
-                resultSet.getInt("discount")
-        ));
-        log.info("Products are successfully got!");
+                resultSet.getInt("discount"),
+                resultSet.getDate("createdAt").toLocalDate(),
+                resultSet.getBoolean("isInFavorites"),
+                resultSet.getBoolean("isInComparisons")
+        ), getAuthenticate().getId(), getAuthenticate().getId());
+        log.info("Продукты успешно получен!");
         return PaginationResponse.<ProductsResponse>builder()
-                .foundProducts(count)
+                .countOfElements(count)
                 .elements(products)
                 .currentPage(page)
                 .totalPages(totalPage)
@@ -236,23 +184,31 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public PaginationResponse<ProductsResponse> getRecommendedProducts(int page, int pageSize) {
-        log.info("Getting all recommended products!");
+        log.info("Получение всех рекомендованных продуктов!");
         String sql = """
                 SELECT sp.id AS subProductId, (select i.images from sub_product_images i where i.sub_product_id = sp.id limit 1) as image,
                 sp.quantity as quantity,
                 CONCAT(c.name, ' ', sc.name, ' ', p.name, ' ', spc.characteristics,' ', sp.colour) as product_info,
                 p.rating as rating, sp.price as price,
-                coalesce(CAST(sp.price - ((sp.price * d.percent) / 100) AS INTEGER),0) as discount
+                d.percent as discount,
+                p.created_at as createdAt,
+                count(r) as countOfReviews,
+                CASE WHEN uf IS NOT NULL THEN true ELSE false END as isInFavorites,
+                CASE WHEN uc IS NOT NULL THEN true ELSE false END as isInComparisons
                 FROM products p
                     JOIN sub_products sp ON p.id = sp.product_id
                     LEFT JOIN discounts d ON sp.discount_id = d.id
                     JOIN sub_categories sc ON p.sub_category_id = sc.id
                     JOIN categories c ON sc.category_id = c.id
                     JOIN sub_product_characteristics spc ON sp.id = spc.sub_product_id
+                    LEFT JOIN reviews r ON p.id = r.product_id
+                    LEFT JOIN users_favorites uf ON uf.favorites_id = sp.id AND uf.user_id = ?
+                    LEFT JOIN users_comparisons uc ON uc.comparisons_id = sp.id AND uc.user_id = ?
                 WHERE p.rating > 4 AND spc.characteristics_key  like 'память'
+                GROUP BY subProductId, image, quantity, product_info, rating, price, discount, createdAt, isInFavorites, isInComparisons
                 """;
         String countSql = "SELECT COUNT(*) FROM (" + sql + ") as count_query";
-        int count = jdbcTemplate.queryForObject(countSql, Integer.class);
+        int count = jdbcTemplate.queryForObject(countSql, Integer.class, getAuthenticate().getId(), getAuthenticate().getId());
         int totalPage = (int) Math.ceil((double) count / pageSize);
 
         int offset = (page - 1) * pageSize;
@@ -263,12 +219,16 @@ public class ProductServiceImpl implements ProductService {
                 resultSet.getInt("quantity"),
                 resultSet.getString("product_info"),
                 resultSet.getDouble("rating"),
+                resultSet.getInt("countOfReviews"),
                 resultSet.getBigDecimal("price"),
-                resultSet.getInt("discount")
-        ));
-        log.info("Products are successfully got!");
+                resultSet.getInt("discount"),
+                resultSet.getDate("createdAt").toLocalDate(),
+                resultSet.getBoolean("isInFavorites"),
+                resultSet.getBoolean("isInComparisons")
+                ), getAuthenticate().getId(), getAuthenticate().getId());
+        log.info("Продукция успешно получена!");
         return PaginationResponse.<ProductsResponse>builder()
-                .foundProducts(count)
+                .countOfElements(count)
                 .elements(products)
                 .currentPage(page)
                 .totalPages(totalPage)
@@ -277,7 +237,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public PaginationResponse<ProductAdminResponse> getAll(String keyWord, String status, LocalDate from, LocalDate before, String sortBy, int page, int pageSize) {
-        log.info("Getting all products!");
+        log.info("Получение всех продуктов!");
         String sql = """
                 SELECT DISTINCT p.id as product_id,
                             sp.id AS subProductId, (
@@ -378,9 +338,9 @@ public class ProductServiceImpl implements ProductService {
                 resultSet.getInt("percent"),
                 resultSet.getBigDecimal("total_price")
         ));
-        log.info("Products are successfully got!");
+        log.info("Продукция успешно получена!");
         return PaginationResponse.<ProductAdminResponse>builder()
-                .foundProducts(count)
+                .countOfElements(count)
                 .elements(products)
                 .currentPage(page)
                 .totalPages(totalPage)
@@ -437,19 +397,19 @@ public class ProductServiceImpl implements ProductService {
                 .stream()
                 .filter(subCat -> Objects.equals(subCat.getId(), subCategoryId.get()))
                 .findAny()
-                .orElseThrow(() -> new NotFoundException("Products with this category and subcategory ID not found!"));
+                .orElseThrow(() -> new NotFoundException("Товары с этой категорией и идентификатором подкатегории не найдены!"));
 
         catalogProductsResponse.addAll(jdbcTemplate.query(sql,
                 new Object[]{subCategory.getId(), pageSize},
                 (resultSet, i) -> rowMapper(resultSet)));
-        log.info("Products are successfully got!");
+        log.info("Продукция успешно получена!");
         return getCatalogResponse(usersFavourites, catalogProductsResponse, quantityColours);
     }
 
     private CatalogResponse getCatalogResponse(List<SubProduct> usersFavourites,
                                                List<CatalogProductsResponse> catalogProductsResponse,
                                                Map<String, Long> quantityColours) {
-        log.info("Getting catalog response!");
+        log.info("Получение ответа каталога!");
         for (CatalogProductsResponse productsResponse : catalogProductsResponse) {
             productsResponse.setIsLiked(usersFavourites.stream()
                     .map(SubProduct::getId)
@@ -465,7 +425,7 @@ public class ProductServiceImpl implements ProductService {
         quantityColours.put("Rose Gold", catalogProductsResponse.stream().filter(item -> Objects.equals(item.getColour(), "Rose Gold")).count());
         quantityColours.put("Silver", catalogProductsResponse.stream().filter(item -> Objects.equals(item.getColour(), "Silver")).count());
         quantityColours.put("Purple", catalogProductsResponse.stream().filter(item -> Objects.equals(item.getColour(), "Purple")).count());
-        log.info("CatalogResponse is successfully got!");
+        log.info("Каталог Ответ успешно получен!");
         return CatalogResponse.builder()
                 .productsResponses(catalogProductsResponse)
                 .colourQuantity(quantityColours)
@@ -526,7 +486,7 @@ public class ProductServiceImpl implements ProductService {
         sql = String.format(sql, joiningForFilterByBrand, conditionForFilterByBrand, filterByPrice,
                 filterByColour, conditionForFilterByMemory, conditionForFilterByRAM, joinTypeOfDiscount,
                 conditionForFilterByMaterial, conditionForFilterByGender, orderBy);
-        log.info("Products are successfully got!");
+        log.info("Продукция успешно получена!");
         return sql;
     }
 
@@ -566,7 +526,7 @@ public class ProductServiceImpl implements ProductService {
 
         if (!colour.isBlank() && !colours.contains(colour)) {
             log.error(String.format("Product with colour - %s is not found!", colour));
-            throw new NotFoundException(String.format("Product with colour - %s is not found!", colour));
+            throw new NotFoundException(String.format("Товар с цветом - %s не найден!", colour));
         }
         String sql = """
                 select sp.id as sub_product_id,
@@ -585,12 +545,14 @@ public class ProductServiceImpl implements ProductService {
                        sp.price as price,
                        p.date_of_issue  as date_of_issue,
                        p.description as description,
-                       p.video as video_link
+                       p.video as video_link,
+                       case when uf is null then false else true end as isInFavorites
                 from products p
                          join brands b on b.id = p.brand_id
                          join sub_products sp on p.id = sp.product_id
                          left join reviews r on p.id = r.product_id
                          left join discounts d on d.id = sp.discount_id
+                         left join users_favorites uf on uf.favorites_id = sp.id and uf.user_id = ?
                 where p.id =  ?  and sp.colour =  ?
                 """;
         ProductUserResponse productUserResponse = new ProductUserResponse();
@@ -609,9 +571,11 @@ public class ProductServiceImpl implements ProductService {
                     productUserResponse.setDateOfIssue(resulSet.getDate("date_of_issue").toLocalDate());
                     productUserResponse.setDescription(resulSet.getString("description"));
                     productUserResponse.setVideo(resulSet.getString("video_link"));
+                    productUserResponse.setInFavorites(resulSet.getBoolean("isInFavorites"));
                     return productUserResponse;
                 }
                 , productId
+                , getAuthenticate().getId()
                 , productId
                 , !colour.isBlank() ? colour : colours.get(0)
         );
@@ -643,27 +607,27 @@ public class ProductServiceImpl implements ProductService {
                 productId,
                 !colour.isBlank() ? colour : colours.get(0));
         productUserResponse.setImages(images);
-        log.info("Product is a successfully got!");
+        log.info("Продукты успешно получен!");
         return productUserResponse;
     }
 
     @Override
     public List<ReviewsResponse> getAllReviewsByProductId(Long productId, int page) {
         String sql4 = """
-            SELECT r.id AS id,
-                   u.image AS userAvatar,
-                   CONCAT(u.first_name, ' ', u.last_name) AS full_name,
-                   r.created_at_time AS created_at,
-                   r.grade AS grade,
-                   r.commentary AS commentary,
-                   r.answer AS answer,
-                   ARRAY(SELECT ri.images FROM review_images ri WHERE ri.review_id = r.id) AS images
-            FROM reviews r
-                     JOIN users u ON u.id = r.user_id
-            WHERE r.product_id = ?
-            ORDER BY r.id DESC
-            LIMIT ?
-            """;
+                SELECT r.id AS id,
+                       u.image AS userAvatar,
+                       CONCAT(u.first_name, ' ', u.last_name) AS full_name,
+                       r.created_at_time AS created_at,
+                       r.grade AS grade,
+                       r.commentary AS commentary,
+                       r.answer AS answer,
+                       ARRAY(SELECT ri.images FROM review_images ri WHERE ri.review_id = r.id) AS images
+                FROM reviews r
+                         JOIN users u ON u.id = r.user_id
+                WHERE r.product_id = ?
+                ORDER BY r.id DESC
+                LIMIT ?
+                """;
         return jdbcTemplate.query(sql4, (resultSet, i) -> {
             Array imagesArray = resultSet.getArray("images");
             String[] images = (String[]) imagesArray.getArray();
@@ -685,19 +649,19 @@ public class ProductServiceImpl implements ProductService {
     public SimpleResponse update(Long subProductId, ProductUpdateRequest request) {
         SubProduct oldSubProduct = subProductRepository.findById(subProductId).orElseThrow(() -> {
             log.error("Sub product with id:" + subProductId + " is not found!");
-            throw new NotFoundException("Sub product with id:" + subProductId + " is not found!");
+            throw new NotFoundException("Подпродукт с id: "+subProductId+" не найден!");
         });
 
         SubCategory subCategory = subCategoryRepository.findById(request.subCategoryId())
                 .orElseThrow(() -> {
-                    log.error("Sub category with id:" + request.subCategoryId() + " not found!");
-                    throw new NotFoundException("Sub category with id:" + request.subCategoryId() + " not found!");
+                    log.error("Подкатегория с id: "+ request.subCategoryId() + " не найдена!");
+                    throw new NotFoundException("Подкатегория с id: "+ request.subCategoryId() + " не найдена");
                 });
 
         Brand brand = brandRepository.findById(request.brandId())
                 .orElseThrow(() -> {
                     log.error("Brand with id:" + request.brandId() + " not found!");
-                    throw new NotFoundException("Brand with id:" + request.brandId() + " not found!");
+                    throw new NotFoundException("Бренд с идентификатором: "+ request.brandId() + " не найден!");
                 });
         Product product = oldSubProduct.getProduct();
         product.setSubCategory(subCategory);
@@ -717,12 +681,12 @@ public class ProductServiceImpl implements ProductService {
         oldSubProduct.setPrice(s.price());
         oldSubProduct.setQuantity(s.quantity());
         oldSubProduct.setImages(s.images());
-        log.info(String.format("Product with id %s and sub product with id %s are updated!",
+        log.info(String.format("Продукт с id: %s и подпродукт с id: %s изменены!",
                 product.getId(), oldSubProduct.getId()));
 
         return SimpleResponse.builder()
                 .httpStatus(HttpStatus.OK)
-                .message(String.format("Product with id %s and sub product with id %s are updated!",
+                .message(String.format("Продукт с id: %s и подпродукт с id: %s изменены!!",
                         product.getId(), oldSubProduct.getId()))
                 .build();
     }
@@ -732,7 +696,7 @@ public class ProductServiceImpl implements ProductService {
         for (Long id : subProductIds) {
             if (!subProductRepository.existsById(id)) {
                 log.error("Sub product with id %s is not found!".formatted(subProductIds));
-                throw new NotFoundException("Sub product with id %s is not found!".formatted(subProductIds));
+                throw new NotFoundException("Подпродукт с id: %s не найден!".formatted(subProductIds));
             }
         }
 
@@ -743,9 +707,9 @@ public class ProductServiceImpl implements ProductService {
                             && !order.getStatus().equals(Status.DELIVERED)
                             && !order.getStatus().equals(Status.CANCEL)
                             && !order.getStatus().equals(Status.RECEIVED)) {
-                        log.error("Sub product with id %s cannot be deleted because it is currently on sale."
+                        log.error("Продукт с id  %s не может быть удален, поскольку он в настоящее время в продаже."
                                 .formatted(subProductIds));
-                        throw new BadRequestException("Sub product with id %s cannot be deleted because it is currently on sale."
+                        throw new BadRequestException("Продукт с id  %s не может быть удален, поскольку он в настоящее время в продаже."
                                 .formatted(subProductIds));
                     }
                 }
@@ -761,7 +725,16 @@ public class ProductServiceImpl implements ProductService {
 
         return SimpleResponse.builder()
                 .httpStatus(HttpStatus.OK)
-                .message("Sub products with id %s are deleted.".formatted(subProductIds))
+                .message("Подпродукты с id: %s удалены.".formatted(subProductIds))
                 .build();
+    }
+    private User getAuthenticate() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String login = authentication.getName();
+        log.info("Token has been taken!");
+        return userRepository.findUserInfoByEmail(login).orElseThrow(() -> {
+            log.error("User not found!");
+            return new NotFoundException("User not found!");
+        }).getUser();
     }
 }

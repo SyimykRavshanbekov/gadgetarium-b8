@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/user/pay_pal")
 @RequiredArgsConstructor
-@Tag(name = "Payment API")
+@Tag(name = "Payment PayPal API")
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class PayPalApi {
 
