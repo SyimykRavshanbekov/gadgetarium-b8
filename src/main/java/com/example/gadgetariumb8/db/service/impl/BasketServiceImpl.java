@@ -43,6 +43,21 @@ public class BasketServiceImpl implements BasketService {
     public List<SubProductBasketResponse> getAllBasket() {
         log.info("Получение всей корзины!");
         String sql = """
+                SELECT (SELECT spi.images FROM sub_product_images spi WHERE spi.sub_product_id = sp.id LIMIT 1) AS img,
+                       p.id                                                                                        productId,
+                       sp.id                                                                                       subProductId,
+                       p.name                                                                                   AS names,
+                       sp.quantity                                                                              AS quantity,
+                       sp.item_number                                                                           AS itemNumber,
+                       sp.price                                                                                 AS price,
+                       p.rating                                                                                 as rating,
+                       (SELECT count(r2)
+                        FROM products psd
+                                 JOIN reviews r2 on psd.id = r2.product_id
+                        where psd.id = p.id)                                                                    as numberOfReviews,
+                       ub.basket                                                                                as quantityProduct,
+                       (SELECT ds.percent
+                               from discounts ds
                 SELECT DISTINCT (SELECT spi.images FROM sub_product_images spi WHERE spi.sub_product_id = sp.id LIMIT 1) AS img,
                        p.id AS productId, sp.id  AS subProductId, p.name AS names, sp.quantity AS quantity,
                        sp.item_number AS itemNumber, sp.price AS price,p.rating as rating,
@@ -56,6 +71,9 @@ public class BasketServiceImpl implements BasketService {
                          JOIN products p ON p.id = sp.product_id
                          JOIN user_basket ub ON sp.id = ub.basket_key
                          JOIN users u ON ub.user_id = u.id
+
+                         LEFT JOIN discounts d on d.id = sp.discount_id
+
                          LEFT JOIN users_favorites uf ON u.id = uf.user_id AND uf.favorites_id = sp.id
                 WHERE u.id = ?
                 """;
