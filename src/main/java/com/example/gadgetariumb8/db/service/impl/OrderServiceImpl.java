@@ -24,6 +24,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.core.Authentication;
@@ -51,7 +52,7 @@ public class OrderServiceImpl implements OrderService {
     private final SubProductRepository subProductRepository;
     private final UserRepository userRepository;
     private final JavaMailSender javaMailSender;
-
+    private final JdbcTemplate jdbcTemplate;
     private final Configuration configuration;
 
     @Override

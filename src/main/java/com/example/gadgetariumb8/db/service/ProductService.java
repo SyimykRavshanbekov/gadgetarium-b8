@@ -3,6 +3,7 @@ package com.example.gadgetariumb8.db.service;
 import com.example.gadgetariumb8.db.dto.request.ProductRequest;
 import com.example.gadgetariumb8.db.dto.request.ProductUpdateRequest;
 import com.example.gadgetariumb8.db.dto.response.*;
+import com.example.gadgetariumb8.db.dto.response.catalog.CatalogResponse;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -20,6 +21,7 @@ public interface ProductService {
                                               String[] brand, String priceFrom, String priceTo,
                                               String[] colour, String[] memory, String[] RAM, String[] watch_material,
                                               String gender, String sortBy, int pageSize);
+
     PaginationResponse<ProductsResponse> getAllDiscountProducts(int page, int pageSize);
 
     PaginationResponse<ProductsResponse> getNewProducts(int page, int pageSize);
