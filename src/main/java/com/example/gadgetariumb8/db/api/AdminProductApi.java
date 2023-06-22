@@ -37,6 +37,13 @@ public class AdminProductApi {
         return productService.saveProduct(productRequest);
     }
 
+    @Operation(summary = "To get colors.", description = "This method to get colors with this code for save products")
+    @GetMapping("/colors")
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    public List<ColorResponse> getColors(){
+        return ColorResponse.getColors();
+    }
+
     @Operation(summary = "Get all products", description = "This method to find all products in admin page")
     @GetMapping
     @PreAuthorize("hasAnyAuthority('ADMIN')")
