@@ -1,6 +1,6 @@
 package com.example.gadgetariumb8.db.service;
 
-import com.example.gadgetariumb8.db.dto.response.CatalogProductsResponse;
+import com.example.gadgetariumb8.db.dto.response.catalog.CatalogProductsResponse;
 
 import java.util.List;
 

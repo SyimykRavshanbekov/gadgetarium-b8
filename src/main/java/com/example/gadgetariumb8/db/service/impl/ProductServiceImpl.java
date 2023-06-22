@@ -4,6 +4,9 @@ import com.example.gadgetariumb8.db.dto.request.ProductRequest;
 import com.example.gadgetariumb8.db.dto.request.ProductUpdateRequest;
 import com.example.gadgetariumb8.db.dto.request.SubProductRequest;
 import com.example.gadgetariumb8.db.dto.response.*;
+import com.example.gadgetariumb8.db.dto.response.catalog.CatalogProductsResponse;
+import com.example.gadgetariumb8.db.dto.response.catalog.CatalogResponse;
+import com.example.gadgetariumb8.db.dto.response.catalog.ColourResponse;
 import com.example.gadgetariumb8.db.exception.exceptions.BadRequestException;
 import com.example.gadgetariumb8.db.exception.exceptions.NotFoundException;
 import com.example.gadgetariumb8.db.model.*;
@@ -37,19 +40,18 @@ public class ProductServiceImpl implements ProductService {
     private final SubProductRepository subProductRepository;
     private final JdbcTemplate jdbcTemplate;
     private final UserRepository userRepository;
-
     @Override
     public SimpleResponse saveProduct(ProductRequest productRequest) {
         SubCategory subCategory = subCategoryRepository.findById(productRequest.subCategoryId())
                 .orElseThrow(() -> {
-                    log.error("Подкатегория с идентификатором: "+ productRequest.subCategoryId() + " не найдена!");
-                    throw new NotFoundException("Подкатегория с идентификатором: "+ productRequest.subCategoryId() + " не найдена!");
+                    log.error("Подкатегория с идентификатором: " + productRequest.subCategoryId() + " не найдена!");
+                    throw new NotFoundException("Подкатегория с идентификатором: " + productRequest.subCategoryId() + " не найдена!");
                 });
 
         Brand brand = brandRepository.findById(productRequest.brandId())
                 .orElseThrow(() -> {
-                    log.error("Бренд с идентификатором: "+ productRequest.brandId() + " не найден!");
-                    throw new NotFoundException("Бренд с идентификатором: "+ productRequest.brandId() + " не найден!");
+                    log.error("Бренд с идентификатором: " + productRequest.brandId() + " не найден!");
+                    throw new NotFoundException("Бренд с идентификатором: " + productRequest.brandId() + " не найден!");
                 });
         Product product = new Product();
         product.setSubCategory(subCategory);
@@ -225,7 +227,7 @@ public class ProductServiceImpl implements ProductService {
                 resultSet.getDate("createdAt").toLocalDate(),
                 resultSet.getBoolean("isInFavorites"),
                 resultSet.getBoolean("isInComparisons")
-                ), getAuthenticate().getId(), getAuthenticate().getId());
+        ), getAuthenticate().getId(), getAuthenticate().getId());
         log.info("Продукция успешно получена!");
         return PaginationResponse.<ProductsResponse>builder()
                 .countOfElements(count)
@@ -363,7 +365,7 @@ public class ProductServiceImpl implements ProductService {
                 new BeanPropertyRowMapper<>(SubCategory.class));
         List<CatalogProductsResponse> catalogProductsResponse = new ArrayList<>();
         String sql = """
-                 SELECT sub.id,sub.colour,sub.price,sub.quantity,prod.name,prod.rating,prod.created_at,COALESCE(dis.percent, 0) AS discount,
+                 SELECT prod.id,sub.colour,sub.price,sub.quantity,prod.name,prod.rating,prod.created_at,COALESCE(dis.percent, 0) AS discount,
                         (SELECT i.images FROM sub_product_images i WHERE i.sub_product_id = sub.id LIMIT 1) AS image,
                         CASE WHEN dis.percent IS NOT NULL THEN ROUND(sub.price - (sub.price * dis.percent / 100))
                              ELSE sub.price END AS new_price,
@@ -371,7 +373,6 @@ public class ProductServiceImpl implements ProductService {
                         (SELECT char.characteristics FROM sub_product_characteristics char LEFT JOIN sub_products sp ON char.sub_product_id = sp.id WHERE char.characteristics_key='память' AND sub_product_id = sub.id LIMIT 1) as memory
                  FROM sub_products sub
                         JOIN products prod ON sub.product_id = prod.id
-                        LEFT JOIN sub_product_characteristics spc on sub.id = spc.sub_product_id
                         %7$s JOIN discounts dis ON sub.discount_id = dis.id
                         %1$s
                  WHERE sub_category_id=? %2$s  %3$s  %4$s  %5$s  %6$s  %8$s %9$s %10$s
@@ -380,7 +381,7 @@ public class ProductServiceImpl implements ProductService {
         sql = filteringAndSorting(sql, brand, priceFrom, priceTo, colour,
                 memory, RAM, watch_material, gender, sortBy);
 
-        Map<String, Long> quantityColours = new HashMap<>();
+        List<ColourResponse> colourResponses = new ArrayList<>();
 
         if (subCategoryId.isEmpty()) {
             for (SubCategory subCategory : subCategories) {
@@ -390,7 +391,7 @@ public class ProductServiceImpl implements ProductService {
                 catalogProductsResponse.addAll(subProducts);
             }
 
-            return getCatalogResponse(usersFavourites, catalogProductsResponse, quantityColours);
+            return getCatalogResponse(usersFavourites, catalogProductsResponse, colourResponses);
         }
 
         SubCategory subCategory = subCategories
@@ -403,32 +404,53 @@ public class ProductServiceImpl implements ProductService {
                 new Object[]{subCategory.getId(), pageSize},
                 (resultSet, i) -> rowMapper(resultSet)));
         log.info("Продукция успешно получена!");
-        return getCatalogResponse(usersFavourites, catalogProductsResponse, quantityColours);
+        return getCatalogResponse(usersFavourites, catalogProductsResponse, colourResponses);
     }
 
     private CatalogResponse getCatalogResponse(List<SubProduct> usersFavourites,
                                                List<CatalogProductsResponse> catalogProductsResponse,
-                                               Map<String, Long> quantityColours) {
+                                               List<ColourResponse> colourResponses) {
         log.info("Получение ответа каталога!");
         for (CatalogProductsResponse productsResponse : catalogProductsResponse) {
             productsResponse.setIsLiked(usersFavourites.stream()
                     .map(SubProduct::getId)
-                    .anyMatch(productsResponse.getSub_product_id()::equals));
+                    .anyMatch(productsResponse.getProduct_id()::equals));
         }
-        quantityColours.put("Black", catalogProductsResponse.stream().filter(item -> Objects.equals(item.getColour(), "Black")).count());
-        quantityColours.put("Blue", catalogProductsResponse.stream().filter(item -> Objects.equals(item.getColour(), "Blue")).count());
-        quantityColours.put("White", catalogProductsResponse.stream().filter(item -> Objects.equals(item.getColour(), "White")).count());
-        quantityColours.put("Red", catalogProductsResponse.stream().filter(item -> Objects.equals(item.getColour(), "Red")).count());
-        quantityColours.put("Gold", catalogProductsResponse.stream().filter(item -> Objects.equals(item.getColour(), "Gold")).count());
-        quantityColours.put("Graphite", catalogProductsResponse.stream().filter(item -> Objects.equals(item.getColour(), "Graphite")).count());
-        quantityColours.put("Green", catalogProductsResponse.stream().filter(item -> Objects.equals(item.getColour(), "Green")).count());
-        quantityColours.put("Rose Gold", catalogProductsResponse.stream().filter(item -> Objects.equals(item.getColour(), "Rose Gold")).count());
-        quantityColours.put("Silver", catalogProductsResponse.stream().filter(item -> Objects.equals(item.getColour(), "Silver")).count());
-        quantityColours.put("Purple", catalogProductsResponse.stream().filter(item -> Objects.equals(item.getColour(), "Purple")).count());
+
+        colourResponses.add(ColourResponse.builder().id(1L).colour("Black").quantity(catalogProductsResponse.stream()
+                .filter(item -> Objects.equals(item.getColour(), "Black")).count()).build());
+
+        colourResponses.add(ColourResponse.builder().id(2L).colour("Blue").quantity(catalogProductsResponse.stream()
+                .filter(item -> Objects.equals(item.getColour(), "Blue")).count()).build());
+
+        colourResponses.add(ColourResponse.builder().id(3L).colour("White").quantity(catalogProductsResponse.stream()
+                .filter(item -> Objects.equals(item.getColour(), "White")).count()).build());
+
+        colourResponses.add(ColourResponse.builder().id(4L).colour("Red").quantity(catalogProductsResponse.stream()
+                .filter(item -> Objects.equals(item.getColour(), "Red")).count()).build());
+
+        colourResponses.add(ColourResponse.builder().id(5L).colour("Gold").quantity(catalogProductsResponse.stream()
+                .filter(item -> Objects.equals(item.getColour(), "Gold")).count()).build());
+
+        colourResponses.add(ColourResponse.builder().id(6L).colour("Graphite").quantity(catalogProductsResponse.stream()
+                .filter(item -> Objects.equals(item.getColour(), "Graphite")).count()).build());
+
+        colourResponses.add(ColourResponse.builder().id(7L).colour("Green").quantity(catalogProductsResponse.stream()
+                .filter(item -> Objects.equals(item.getColour(), "Green")).count()).build());
+
+        colourResponses.add(ColourResponse.builder().id(8L).colour("Rose Gold").quantity(catalogProductsResponse.stream()
+                .filter(item -> Objects.equals(item.getColour(), "Rose Gold")).count()).build());
+
+        colourResponses.add(ColourResponse.builder().id(9L).colour("Silver").quantity(catalogProductsResponse.stream()
+                .filter(item -> Objects.equals(item.getColour(), "Silver")).count()).build());
+
+        colourResponses.add(ColourResponse.builder().id(10L).colour("Purple").quantity(catalogProductsResponse.stream()
+                .filter(item -> Objects.equals(item.getColour(), "Purple")).count()).build());
+
         log.info("Каталог Ответ успешно получен!");
         return CatalogResponse.builder()
                 .productsResponses(catalogProductsResponse)
-                .colourQuantity(quantityColours)
+                .colours(colourResponses)
                 .productQuantity(catalogProductsResponse.size())
                 .build();
     }
@@ -502,7 +524,7 @@ public class ProductServiceImpl implements ProductService {
     public CatalogProductsResponse rowMapper(ResultSet resultSet) throws SQLException {
         log.info("rowMapper is successfully got");
         return CatalogProductsResponse.builder()
-                .sub_product_id(resultSet.getLong("id"))
+                .product_id(resultSet.getLong("id"))
                 .price(resultSet.getBigDecimal("price"))
                 .quantity(resultSet.getInt("quantity"))
                 .fullname(resultSet.getString("name") + " " + resultSet.getObject("memory") + " " + resultSet.getString("colour"))
@@ -649,19 +671,19 @@ public class ProductServiceImpl implements ProductService {
     public SimpleResponse update(Long subProductId, ProductUpdateRequest request) {
         SubProduct oldSubProduct = subProductRepository.findById(subProductId).orElseThrow(() -> {
             log.error("Sub product with id:" + subProductId + " is not found!");
-            throw new NotFoundException("Подпродукт с id: "+subProductId+" не найден!");
+            throw new NotFoundException("Подпродукт с id: " + subProductId + " не найден!");
         });
 
         SubCategory subCategory = subCategoryRepository.findById(request.subCategoryId())
                 .orElseThrow(() -> {
-                    log.error("Подкатегория с id: "+ request.subCategoryId() + " не найдена!");
-                    throw new NotFoundException("Подкатегория с id: "+ request.subCategoryId() + " не найдена");
+                    log.error("Подкатегория с id: " + request.subCategoryId() + " не найдена!");
+                    throw new NotFoundException("Подкатегория с id: " + request.subCategoryId() + " не найдена");
                 });
 
         Brand brand = brandRepository.findById(request.brandId())
                 .orElseThrow(() -> {
                     log.error("Brand with id:" + request.brandId() + " not found!");
-                    throw new NotFoundException("Бренд с идентификатором: "+ request.brandId() + " не найден!");
+                    throw new NotFoundException("Бренд с идентификатором: " + request.brandId() + " не найден!");
                 });
         Product product = oldSubProduct.getProduct();
         product.setSubCategory(subCategory);
@@ -728,6 +750,7 @@ public class ProductServiceImpl implements ProductService {
                 .message("Подпродукты с id: %s удалены.".formatted(subProductIds))
                 .build();
     }
+
     private User getAuthenticate() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String login = authentication.getName();
