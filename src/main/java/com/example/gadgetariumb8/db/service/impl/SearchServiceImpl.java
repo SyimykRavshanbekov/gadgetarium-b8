@@ -1,5 +1,5 @@
 package com.example.gadgetariumb8.db.service.impl;
-import com.example.gadgetariumb8.db.dto.response.CatalogProductsResponse;
+import com.example.gadgetariumb8.db.dto.response.catalog.CatalogProductsResponse;
 import com.example.gadgetariumb8.db.service.SearchService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -17,7 +17,7 @@ public class SearchServiceImpl implements SearchService {
     @Override
     public List<CatalogProductsResponse> searchByKeyword(String keyword) {
         String sql = """
-                 SELECT DISTINCT sub.id,sub.colour,sub.price,sub.quantity,prod.name,prod.rating,prod.created_at,COALESCE(dis.percent, 0) AS discount,
+                 SELECT DISTINCT prod.id,sub.colour,sub.price,sub.quantity,prod.name,prod.rating,prod.created_at,COALESCE(dis.percent, 0) AS discount,
                      (SELECT i.images FROM sub_product_images i WHERE i.sub_product_id = sub.id LIMIT 1) AS image,
                      CASE WHEN dis.percent IS NOT NULL THEN ROUND(sub.price - (sub.price * dis.percent / 100))
                              ELSE sub.price END AS new_price,

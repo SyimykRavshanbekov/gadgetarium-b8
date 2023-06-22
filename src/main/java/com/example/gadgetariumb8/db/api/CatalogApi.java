@@ -1,6 +1,6 @@
 package com.example.gadgetariumb8.db.api;
 
-import com.example.gadgetariumb8.db.dto.response.CatalogResponse;
+import com.example.gadgetariumb8.db.dto.response.catalog.CatalogResponse;
 import com.example.gadgetariumb8.db.service.impl.ProductServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

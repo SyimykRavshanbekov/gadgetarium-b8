@@ -1,9 +1,8 @@
-package com.example.gadgetariumb8.db.dto.response;
+package com.example.gadgetariumb8.db.dto.response.catalog;
 
 import lombok.*;
 
 import java.util.List;
-import java.util.Map;
 
 @Builder
 @Getter
@@ -12,6 +11,6 @@ import java.util.Map;
 @NoArgsConstructor
 public class CatalogResponse {
     private List<CatalogProductsResponse> productsResponses;
-    private Map<String,Long> colourQuantity;
+    private List<ColourResponse> colours;
     private int productQuantity;
 }
