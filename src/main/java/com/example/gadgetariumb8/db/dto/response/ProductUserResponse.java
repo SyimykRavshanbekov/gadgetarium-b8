@@ -19,7 +19,7 @@ public class ProductUserResponse {
     private Long subProductId;
     private String logo;
     private List<String> images;
-    private List<String>colours;
+    private List<String> colours;
     private String name;
     private int quantity;
     private String itemNumber;
