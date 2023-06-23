@@ -65,14 +65,16 @@ public class ComparisonsServiceImpl implements ComparisonsService {
     public List<CompareProductResponse> compare() {
         log.info("Получение всех продуктов сравнения!");
         String sql = """
-                SELECT (SELECT sci FROM sub_product_images sci where sci.sub_product_id = sp.id LIMIT 1) as image,(p.name) as name
-                     ,p.description as description,sp.price as price ,b.name as brand_name,
+                SELECT p.id as productId,
+                       sp.id as subProductId,
+                      (SELECT sci FROM sub_product_images sci where sci.sub_product_id = sp.id LIMIT 1) as image,(p.name) as name,
+                      p.description as description,sp.price as price ,b.name as brand_name,
                       (SELECT spc.characteristics from sub_product_characteristics spc where spc.characteristics_key='screen' and spc.sub_product_id = sp.id) as screen,
                       sp.colour as color,
                       (SELECT spc.characteristics from sub_product_characteristics spc where spc.characteristics_key='operatingSystem' and spc.sub_product_id = sp.id) as operatingSystem,
-                      (SELECT spc.characteristics from sub_product_characteristics spc where spc.characteristics_key='memory' and spc.sub_product_id = sp.id) as memory,
-                      (SELECT spc.characteristics from sub_product_characteristics spc where spc.characteristics_key='weight' and spc.sub_product_id = sp.id) as weight,
-                      (SELECT spc.characteristics from sub_product_characteristics spc where spc.characteristics_key='simCard' and spc.sub_product_id = sp.id) as simCard
+                      (SELECT spc.characteristics from sub_product_characteristics spc where spc.characteristics_key='память' and spc.sub_product_id = sp.id) as memory,
+                      (SELECT spc.characteristics from sub_product_characteristics spc where spc.characteristics_key='RAM' and spc.sub_product_id = sp.id) as RAM,
+                      (SELECT spc.characteristics from sub_product_characteristics spc where spc.characteristics_key='Кол-во SIM-карт' and spc.sub_product_id = sp.id) as simCard
                               
                 FROM products p JOIN sub_products sp on p.id = sp.product_id
                     JOIN users_comparisons uc on uc.comparisons_id = sp.id
@@ -81,6 +83,8 @@ public class ComparisonsServiceImpl implements ComparisonsService {
         log.info("Продукция успешно приобретена!");
         return jdbcTemplate.query(sql, (resultSet, i) ->
                 new CompareProductResponse(
+                        resultSet.getLong("productId"),
+                        resultSet.getLong("subProductId"),
                         resultSet.getString("image"),
                         resultSet.getString("name"),
                         resultSet.getString("description"),
@@ -90,7 +94,7 @@ public class ComparisonsServiceImpl implements ComparisonsService {
                         resultSet.getString("color"),
                         resultSet.getString("operatingSystem"),
                         resultSet.getString("memory"),
-                        resultSet.getString("weight"),
+                        resultSet.getString("RAM"),
                         resultSet.getString("simCard")
                 ), getAuthenticate().getId()
         );
