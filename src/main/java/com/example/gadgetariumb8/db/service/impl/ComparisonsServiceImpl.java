@@ -8,9 +8,9 @@ import com.example.gadgetariumb8.db.exception.exceptions.BadRequestException;
 import com.example.gadgetariumb8.db.exception.exceptions.NotFoundException;
 import com.example.gadgetariumb8.db.model.SubProduct;
 import com.example.gadgetariumb8.db.model.User;
-import com.example.gadgetariumb8.db.repository.impl.CustomProductRepository;
 import com.example.gadgetariumb8.db.repository.SubProductRepository;
 import com.example.gadgetariumb8.db.repository.UserRepository;
+import com.example.gadgetariumb8.db.repository.impl.CustomProductRepository;
 import com.example.gadgetariumb8.db.service.ComparisonsService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -48,7 +48,7 @@ public class ComparisonsServiceImpl implements ComparisonsService {
     @Override
     @Transactional
     public SimpleResponse saveOrDeleteComparisons(Long id, boolean addOrDelete) {
-        SubProduct subProduct = subProductRepository.findById(id).orElseThrow(() -> new NotFoundException("Этот идентификатор продукта: "+ id +" не найден!"));
+        SubProduct subProduct = subProductRepository.findById(id).orElseThrow(() -> new NotFoundException("Этот идентификатор продукта: " + id + " не найден!"));
         User user = getAuthenticate();
         if (addOrDelete) {
             if (user.getComparisons().contains(subProduct))
@@ -62,12 +62,12 @@ public class ComparisonsServiceImpl implements ComparisonsService {
     }
 
     @Override
-    public List<CompareProductResponse> compare() {
+    public List<CompareProductResponse> compare(String categoryName) {
         log.info("Получение всех продуктов сравнения!");
         String sql = """
                 SELECT p.id as productId,
                        sp.id as subProductId,
-                      (SELECT sci FROM sub_product_images sci where sci.sub_product_id = sp.id LIMIT 1) as image,(p.name) as name,
+                      (SELECT sci.images FROM sub_product_images sci where sci.sub_product_id = sp.id LIMIT 1) as image,(p.name) as name,
                       p.description as description,sp.price as price ,b.name as brand_name,
                       (SELECT spc.characteristics from sub_product_characteristics spc where spc.characteristics_key='screen' and spc.sub_product_id = sp.id) as screen,
                       sp.colour as color,
@@ -76,9 +76,14 @@ public class ComparisonsServiceImpl implements ComparisonsService {
                       (SELECT spc.characteristics from sub_product_characteristics spc where spc.characteristics_key='RAM' and spc.sub_product_id = sp.id) as RAM,
                       (SELECT spc.characteristics from sub_product_characteristics spc where spc.characteristics_key='Кол-во SIM-карт' and spc.sub_product_id = sp.id) as simCard
                               
-                FROM products p JOIN sub_products sp on p.id = sp.product_id
+                FROM products p
+                    JOIN sub_products sp on p.id = sp.product_id
                     JOIN users_comparisons uc on uc.comparisons_id = sp.id
-                    JOIN users u on uc.user_id = u.id JOIN brands b on p.brand_id = b.id where u.id = ?
+                    JOIN users u on uc.user_id = u.id
+                    JOIN brands b on p.brand_id = b.id
+                    JOIN sub_categories sc on sc.id = p.sub_category_id
+                    JOIN categories c on c.id = sc.category_id
+                    where u.id = ? and c.name iLIKE ?
                  """;
         log.info("Продукция успешно приобретена!");
         return jdbcTemplate.query(sql, (resultSet, i) ->
@@ -96,7 +101,7 @@ public class ComparisonsServiceImpl implements ComparisonsService {
                         resultSet.getString("memory"),
                         resultSet.getString("RAM"),
                         resultSet.getString("simCard")
-                ), getAuthenticate().getId()
+                ), getAuthenticate().getId(), categoryName
         );
     }
 
@@ -104,19 +109,19 @@ public class ComparisonsServiceImpl implements ComparisonsService {
     public CompareCountResponse countCompare() {
         User user = getAuthenticate();
         if (user.getComparisons().size() != 0) {
-            return jdbcTemplate.query(customProductRepository.countCompare(), (result, i) -> {
-                        Map<String, Integer> count = new LinkedHashMap<>();
-                        count.put(result.getString("categoryName"),
-                                result.getInt("countComparisons"));
-                        return new CompareCountResponse(count);
-                    },
-                    user.getId()
-            ).stream().findFirst().orElseThrow(() -> {
-                log.error("Не найдено!");
-                throw new NotFoundException("Не найдено!");
-            });
+            return jdbcTemplate.query(customProductRepository.countCompare(), (resultSet) -> {
+                Map<String, Integer> count = new LinkedHashMap<>();
+
+                while (resultSet.next()) {
+                    String categoryName = resultSet.getString("categoryName");
+                    int countComparisons = resultSet.getInt("countComparisons");
+                    count.put(categoryName, countComparisons);
+                }
+
+                return new CompareCountResponse(count);
+            }, user.getId());
         } else {
-            throw new NotFoundException(String.format("На этом Пользователе сравнения нет"));
+            throw new NotFoundException("На этом Пользователе сравнения нет");
         }
     }
 
@@ -125,7 +130,7 @@ public class ComparisonsServiceImpl implements ComparisonsService {
         User user = getAuthenticate();
         user.getComparisons().clear();
         userRepository.save(user);
-        log.error(String.format("Сравнение очищено!"));
-        return SimpleResponse.builder().message(String.format("Сравнение очищено!")).httpStatus(HttpStatus.OK).build();
+        log.error("Сравнение очищено!");
+        return SimpleResponse.builder().message("Сравнение очищено!").httpStatus(HttpStatus.OK).build();
     }
 }

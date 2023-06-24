@@ -31,8 +31,8 @@ public class ComparisonsApi {
     @GetMapping("/compare-product")
     @Operation(summary = "To compare the product.", description = "This method to compare product.")
     @PreAuthorize("hasAuthority('USER')")
-    public List<CompareProductResponse> compareProduct() {
-        return comparisonsService.compare();
+    public List<CompareProductResponse> compareProduct(@RequestParam String categoryName) {
+        return comparisonsService.compare(categoryName);
     }
 
     @GetMapping("/countCompare")

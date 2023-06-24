@@ -24,7 +24,7 @@ insert into categories(id,name)
 values (1,'Смартфон'),
        (2,'Планшет'),
        (3,'Ноутбук'),
-       (4,'Смарт Часы');
+       (4,'Смарт-часы');
 
 insert into sub_categories(id,name,category_id)
 values (1,'Apple',1),

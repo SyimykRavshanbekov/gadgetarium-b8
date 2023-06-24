@@ -10,7 +10,7 @@ public interface ComparisonsService {
 
     SimpleResponse saveOrDeleteComparisons(Long id, boolean addOrDelete);
 
-    List<CompareProductResponse> compare();
+    List<CompareProductResponse> compare(String categoryName);
 
     CompareCountResponse countCompare();
 
