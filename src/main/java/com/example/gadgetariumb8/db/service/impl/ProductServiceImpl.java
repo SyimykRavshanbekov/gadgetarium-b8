@@ -255,7 +255,7 @@ public class ProductServiceImpl implements ProductService {
                 LEFT JOIN sub_product_characteristics spc ON spc.sub_product_id = sp.id
                 %s JOIN discounts d ON d.id = sp.discount_id
                 WHERE spc.characteristics_key  like 'память' %s %s
-                %s
+                %s ORDER BY sp.id DESC
                 """;
         String sqlStatus = switch (status) {
             case "в продаже" -> "JOIN orders_sub_products o ON o.sub_products_id = sp.id";
@@ -414,10 +414,10 @@ public class ProductServiceImpl implements ProductService {
         for (CatalogProductsResponse productsResponse : catalogProductsResponse) {
             productsResponse.setIsLiked(usersFavourites.stream()
                     .map(SubProduct::getId)
-                    .anyMatch(productsResponse.getProduct_id()::equals));
+                    .anyMatch(productsResponse.getSub_product_id()::equals));
             productsResponse.setIsCompared(getAuthenticate().getComparisons().stream()
                     .map(SubProduct::getId)
-                    .anyMatch(productsResponse.getProduct_id()::equals));
+                    .anyMatch(productsResponse.getSub_product_id()::equals));
         }
 
         colourResponses.add(ColourResponse.builder().id(1L).colour("black").quantity(catalogProductsResponse.stream()

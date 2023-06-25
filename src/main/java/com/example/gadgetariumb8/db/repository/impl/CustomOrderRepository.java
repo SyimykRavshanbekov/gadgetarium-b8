@@ -26,6 +26,7 @@ public class CustomOrderRepository {
                       o.date as createdAt, o.quantity as quantity, o.total_price as totalPrice,o.delivery_type as deliveryType,
                       o.status as status from orders o join customers c on o.customer_id = c.id where o.status = ?
                       %s %s
+                      ORDER BY o.id DESC
                 """;
         log.info("Получение всех заказов.");
 
