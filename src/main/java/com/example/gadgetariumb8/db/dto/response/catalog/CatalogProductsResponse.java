@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public class CatalogProductsResponse{
         private Long product_id;
+        private Long sub_product_id;
         private int discount;
         private int quantity;
         private String fullname;
@@ -22,4 +23,5 @@ public class CatalogProductsResponse{
         private BigDecimal new_price;
         private Boolean isNew;
         private Boolean isLiked;
+        private Boolean isCompared;
 }

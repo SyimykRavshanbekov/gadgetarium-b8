@@ -365,7 +365,7 @@ public class ProductServiceImpl implements ProductService {
                 new BeanPropertyRowMapper<>(SubCategory.class));
         List<CatalogProductsResponse> catalogProductsResponse = new ArrayList<>();
         String sql = """
-                 SELECT prod.id,sub.colour,sub.price,sub.quantity,prod.name,prod.rating,prod.created_at,COALESCE(dis.percent, 0) AS discount,
+                 SELECT prod.id, sub.id as subId, sub.colour,sub.price,sub.quantity,prod.name,prod.rating,prod.created_at,COALESCE(dis.percent, 0) AS discount,
                         (SELECT i.images FROM sub_product_images i WHERE i.sub_product_id = sub.id LIMIT 1) AS image,
                         CASE WHEN dis.percent IS NOT NULL THEN ROUND(sub.price - (sub.price * dis.percent / 100))
                              ELSE sub.price END AS new_price,
@@ -415,37 +415,40 @@ public class ProductServiceImpl implements ProductService {
             productsResponse.setIsLiked(usersFavourites.stream()
                     .map(SubProduct::getId)
                     .anyMatch(productsResponse.getProduct_id()::equals));
+            productsResponse.setIsCompared(getAuthenticate().getComparisons().stream()
+                    .map(SubProduct::getId)
+                    .anyMatch(productsResponse.getProduct_id()::equals));
         }
 
-        colourResponses.add(ColourResponse.builder().id(1L).colour("Black").quantity(catalogProductsResponse.stream()
-                .filter(item -> Objects.equals(item.getColour(), "Black")).count()).build());
+        colourResponses.add(ColourResponse.builder().id(1L).colour("black").quantity(catalogProductsResponse.stream()
+                .filter(item -> Objects.equals(item.getColour(), "black")).count()).build());
 
-        colourResponses.add(ColourResponse.builder().id(2L).colour("Blue").quantity(catalogProductsResponse.stream()
-                .filter(item -> Objects.equals(item.getColour(), "Blue")).count()).build());
+        colourResponses.add(ColourResponse.builder().id(2L).colour("blue").quantity(catalogProductsResponse.stream()
+                .filter(item -> Objects.equals(item.getColour(), "blue")).count()).build());
 
-        colourResponses.add(ColourResponse.builder().id(3L).colour("White").quantity(catalogProductsResponse.stream()
-                .filter(item -> Objects.equals(item.getColour(), "White")).count()).build());
+        colourResponses.add(ColourResponse.builder().id(3L).colour("white").quantity(catalogProductsResponse.stream()
+                .filter(item -> Objects.equals(item.getColour(), "white")).count()).build());
 
-        colourResponses.add(ColourResponse.builder().id(4L).colour("Red").quantity(catalogProductsResponse.stream()
-                .filter(item -> Objects.equals(item.getColour(), "Red")).count()).build());
+        colourResponses.add(ColourResponse.builder().id(4L).colour("red").quantity(catalogProductsResponse.stream()
+                .filter(item -> Objects.equals(item.getColour(), "red")).count()).build());
 
-        colourResponses.add(ColourResponse.builder().id(5L).colour("Gold").quantity(catalogProductsResponse.stream()
-                .filter(item -> Objects.equals(item.getColour(), "Gold")).count()).build());
+        colourResponses.add(ColourResponse.builder().id(5L).colour("gold").quantity(catalogProductsResponse.stream()
+                .filter(item -> Objects.equals(item.getColour(), "gold")).count()).build());
 
-        colourResponses.add(ColourResponse.builder().id(6L).colour("Graphite").quantity(catalogProductsResponse.stream()
-                .filter(item -> Objects.equals(item.getColour(), "Graphite")).count()).build());
+        colourResponses.add(ColourResponse.builder().id(6L).colour("graphite").quantity(catalogProductsResponse.stream()
+                .filter(item -> Objects.equals(item.getColour(), "graphite")).count()).build());
 
-        colourResponses.add(ColourResponse.builder().id(7L).colour("Green").quantity(catalogProductsResponse.stream()
-                .filter(item -> Objects.equals(item.getColour(), "Green")).count()).build());
+        colourResponses.add(ColourResponse.builder().id(7L).colour("green").quantity(catalogProductsResponse.stream()
+                .filter(item -> Objects.equals(item.getColour(), "green")).count()).build());
 
-        colourResponses.add(ColourResponse.builder().id(8L).colour("Rose Gold").quantity(catalogProductsResponse.stream()
-                .filter(item -> Objects.equals(item.getColour(), "Rose Gold")).count()).build());
+        colourResponses.add(ColourResponse.builder().id(8L).colour("gold").quantity(catalogProductsResponse.stream()
+                .filter(item -> Objects.equals(item.getColour(), "gold")).count()).build());
 
-        colourResponses.add(ColourResponse.builder().id(9L).colour("Silver").quantity(catalogProductsResponse.stream()
-                .filter(item -> Objects.equals(item.getColour(), "Silver")).count()).build());
+        colourResponses.add(ColourResponse.builder().id(9L).colour("silver").quantity(catalogProductsResponse.stream()
+                .filter(item -> Objects.equals(item.getColour(), "silver")).count()).build());
 
-        colourResponses.add(ColourResponse.builder().id(10L).colour("Purple").quantity(catalogProductsResponse.stream()
-                .filter(item -> Objects.equals(item.getColour(), "Purple")).count()).build());
+        colourResponses.add(ColourResponse.builder().id(10L).colour("purple").quantity(catalogProductsResponse.stream()
+                .filter(item -> Objects.equals(item.getColour(), "purple")).count()).build());
 
         log.info("Каталог Ответ успешно получен!");
         return CatalogResponse.builder()
@@ -525,6 +528,7 @@ public class ProductServiceImpl implements ProductService {
         log.info("rowMapper is successfully got");
         return CatalogProductsResponse.builder()
                 .product_id(resultSet.getLong("id"))
+                .sub_product_id(resultSet.getLong("subId"))
                 .price(resultSet.getBigDecimal("price"))
                 .quantity(resultSet.getInt("quantity"))
                 .fullname(resultSet.getString("name") + " " + resultSet.getObject("memory") + " " + resultSet.getString("colour"))
