@@ -40,6 +40,7 @@ public class ProductServiceImpl implements ProductService {
     private final SubProductRepository subProductRepository;
     private final JdbcTemplate jdbcTemplate;
     private final UserRepository userRepository;
+
     @Override
     public SimpleResponse saveProduct(ProductRequest productRequest) {
         SubCategory subCategory = subCategoryRepository.findById(productRequest.subCategoryId())
@@ -375,6 +376,7 @@ public class ProductServiceImpl implements ProductService {
                         JOIN products prod ON sub.product_id = prod.id
                         %7$s JOIN discounts dis ON sub.discount_id = dis.id
                         %1$s
+                        %11$s
                  WHERE sub_category_id=? %2$s  %3$s  %4$s  %5$s  %6$s  %8$s %9$s %10$s
                  LIMIT ?
                 """;
@@ -475,15 +477,23 @@ public class ProductServiceImpl implements ProductService {
             filterByColour = String.format("AND sub.colour IN(%s)", colours);
         }
         String conditionForFilterByMemory = "";
+        String joiningCharacteristics = "";
         String conditionForFilterByRAM = "";
         String conditionForFilterByMaterial = "";
         String conditionForFilterByGender = "";
-        if (memory != null) {
+        if (memory != null && RAM != null) {
             String memories = stringify(memory);
-            conditionForFilterByMemory = String.format("AND spc.characteristics IN (%s) AND spc.characteristics_key='память'", memories);
-        }
-        if (RAM != null) {
             String rams = stringify(RAM);
+            joiningCharacteristics = "LEFT JOIN sub_product_characteristics spc ON sub.id = spc.sub_product_id";
+            conditionForFilterByMemory = String.format("AND spc.characteristics IN (%s) AND spc.characteristics_key='память'", memories);
+            conditionForFilterByRAM = String.format("AND spc.characteristics IN (%s) AND spc.characteristics_key='Оперативная память'", rams);
+        } else if (memory != null) {
+            String memories = stringify(memory);
+            joiningCharacteristics = "LEFT JOIN sub_product_characteristics spc ON sub.id = spc.sub_product_id";
+            conditionForFilterByMemory = String.format("AND spc.characteristics IN (%s) AND spc.characteristics_key='память'", memories);
+        } else if (RAM != null) {
+            String rams = stringify(RAM);
+            joiningCharacteristics = "LEFT JOIN sub_product_characteristics spc ON sub.id = spc.sub_product_id";
             conditionForFilterByRAM = String.format("AND spc.characteristics IN (%s) AND spc.characteristics_key='Оперативная память'", rams);
         }
         if (watch_material != null) {
@@ -510,7 +520,7 @@ public class ProductServiceImpl implements ProductService {
         }
         sql = String.format(sql, joiningForFilterByBrand, conditionForFilterByBrand, filterByPrice,
                 filterByColour, conditionForFilterByMemory, conditionForFilterByRAM, joinTypeOfDiscount,
-                conditionForFilterByMaterial, conditionForFilterByGender, orderBy);
+                conditionForFilterByMaterial, conditionForFilterByGender, orderBy, joiningCharacteristics);
         log.info("Продукция успешно получена!");
         return sql;
     }
