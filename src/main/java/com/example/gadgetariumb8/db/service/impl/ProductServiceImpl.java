@@ -484,7 +484,7 @@ public class ProductServiceImpl implements ProductService {
         }
         if (RAM != null) {
             String rams = stringify(RAM);
-            conditionForFilterByRAM = String.format("AND spc.characteristics IN (%s) AND spc.characteristics_key='Оперативная память'", rams);
+            conditionForFilterByRAM = String.format("AND spc.characteristics IN (%s) AND spc.characteristics_key='RAM'", rams);
         }
         if (watch_material != null) {
             String watch_materials = stringify(watch_material);

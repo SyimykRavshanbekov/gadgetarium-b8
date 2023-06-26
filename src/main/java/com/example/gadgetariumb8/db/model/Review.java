@@ -24,6 +24,7 @@ public class Review {
     allocationSize = 1, initialValue = 6)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "review_gen")
     private Long id;
+    @Column(length = 10000)
     private String commentary;
     private int grade;
     private String answer;
