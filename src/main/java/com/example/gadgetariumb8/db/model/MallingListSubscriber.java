@@ -13,7 +13,7 @@ import lombok.*;
 public class MallingListSubscriber {
     @Id
     @SequenceGenerator(name = "malling_list_subscriber_gen", sequenceName = "malling_list_subscriber_seq",
-            allocationSize = 1, initialValue = 6)
+            allocationSize = 1, initialValue = 10)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "malling_list_subscriber_gen")
     private Long id;
     private String userEmail;

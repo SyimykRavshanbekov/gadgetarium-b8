@@ -8,6 +8,12 @@ VALUES (1,'Гражданская 119','Азимбек','https://images.unsplash
        (2,'Чуй 243','Алтын','https://gadgetariumbucket.s3.eu-central-1.amazonaws.com/1687720276534msg1245913207-27323.jpg','Шакиров','+996770098908',2),
        (3, 'Gorkiy 123', 'Kurstan', 'https://gadgetariumbucket.s3.eu-central-1.amazonaws.com/1687720530651msg1245913207-27324.jpg','Erkinbaev',' +996220222333', 3);
 
+insert into banners(id, banner)
+values (1, 'https://www.nylon.com.sg/wp-content/uploads/2018/10/apple-ipad-pro-macbook-air-banner.jpg'),
+       (2, 'https://www.ixbt.com/img/n1/news/2021/4/1/ipad-pro-wallpaper_large-scaled_large.png'),
+       (3, 'https://cdn.shopify.com/s/files/1/1364/2765/articles/apple_watch_series_1-4_apple_watch_accessory_features_and_differences_banner.png?v=1558601134'),
+       (4, 'https://www.apple.com/in/iphone-14-pro/images/key-features/features/dynamic-island/dd_dynamic_island__b44bx9hr74ty_large.jpg');
+
 insert into brands(id,logo,name)
 values (1,'https://logos-world.net/wp-content/uploads/2020/04/Apple-Logo.png','Apple'),
        (2,'https://logos-world.net/wp-content/uploads/2020/04/Samsung-Logo.png','Samsung'),
@@ -64,7 +70,7 @@ insert into discounts(id,date_of_finish,date_of_start,percent)
 values (1,'2023-09-01','2023-03-01',15),
        (2,'2023-08-01','2023-04-01',5),
        (3,'2023-07-01','2023-02-01',25),
-       (4,'2023-06-30','2023-05-01',10),
+       (4,'2023-06-30','2023-05-01',70),
        (5,'2023-06-29','2023-01-01',5);
 
 insert into malling_list (id,date_of_finish,date_of_start,description,image,name)

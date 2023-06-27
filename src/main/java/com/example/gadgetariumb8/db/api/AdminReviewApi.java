@@ -1,6 +1,7 @@
 package com.example.gadgetariumb8.db.api;
 
 import com.example.gadgetariumb8.db.dto.request.AnswerRequest;
+import com.example.gadgetariumb8.db.dto.response.AdminReviewsResponse;
 import com.example.gadgetariumb8.db.dto.response.FeedbackInfographic;
 import com.example.gadgetariumb8.db.dto.response.SimpleResponse;
 import com.example.gadgetariumb8.db.service.ReviewService;
@@ -23,7 +24,7 @@ public class AdminReviewApi {
     @GetMapping
     @Operation(summary = "All Review", description = "This method is needed to display all review. " +
                                                      " The request param must accept the word -(AllReviews, Answered, Unanswered)")
-    public Object getAll(@RequestParam String param) {
+    public AdminReviewsResponse getAll(@RequestParam String param) {
         return reviewService.getAllReview(param);
     }
 

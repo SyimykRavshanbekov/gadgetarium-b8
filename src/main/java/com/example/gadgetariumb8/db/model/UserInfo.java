@@ -22,7 +22,7 @@ import static jakarta.persistence.CascadeType.ALL;
 public class UserInfo implements UserDetails {
     @Id
     @SequenceGenerator(name = "user_info_gen", sequenceName = "user_info_seq",
-            allocationSize = 1, initialValue = 3)
+            allocationSize = 1, initialValue = 10)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_info_gen")
     private Long id;
     private String email;

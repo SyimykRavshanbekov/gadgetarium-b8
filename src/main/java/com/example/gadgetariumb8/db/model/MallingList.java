@@ -13,7 +13,7 @@ import java.time.LocalDate;
 public class MallingList {
     @Id
     @SequenceGenerator(name = "malling_list_gen", sequenceName = "malling_list_seq",
-            allocationSize = 1, initialValue = 5)
+            allocationSize = 1, initialValue = 10)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "malling_list_gen")
     private Long id;
     @Column(length = 1000000)

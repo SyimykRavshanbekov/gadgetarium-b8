@@ -34,6 +34,8 @@ import java.util.*;
 @RequiredArgsConstructor
 @Transactional
 public class ProductServiceImpl implements ProductService {
+    private final ReviewRepository reviewRepository;
+    private final ProductRepository productRepository;
     private final OrderRepository orderRepository;
     private final SubCategoryRepository subCategoryRepository;
     private final BrandRepository brandRepository;
@@ -256,7 +258,7 @@ public class ProductServiceImpl implements ProductService {
                 LEFT JOIN sub_product_characteristics spc ON spc.sub_product_id = sp.id
                 %s JOIN discounts d ON d.id = sp.discount_id
                 WHERE spc.characteristics_key  like 'память' %s %s
-                %s ORDER BY sp.id DESC
+                %s %s
                 """;
         String sqlStatus = switch (status) {
             case "в продаже" -> "JOIN orders_sub_products o ON o.sub_products_id = sp.id";
@@ -305,6 +307,7 @@ public class ProductServiceImpl implements ProductService {
                     OR spc.characteristics iLIKE ?)
                     """;
         }
+        String orderById = "ORDER BY sp.id DESC";
         String joinType = "LEFT";
         String orderBy = "";
         if (sortBy != null) {
@@ -314,12 +317,18 @@ public class ProductServiceImpl implements ProductService {
                 case "До 50%" -> orderBy = "AND d.percent < 50";
                 case "Свыше 50%" -> orderBy = "AND d.percent >= 50";
                 case "Рекомендуемые" -> orderBy = "AND p.rating >= 4";
-                case "По увеличению цены" -> orderBy = "ORDER BY total_price";
-                case "По уменьшению цены" -> orderBy = "ORDER BY total_price DESC";
+                case "По увеличению цены" -> {
+                    orderById = "";
+                    orderBy = "ORDER BY total_price";
+                }
+                case "По уменьшению цены" -> {
+                    orderById = "";
+                    orderBy = "ORDER BY total_price DESC";
+                }
             }
         }
 
-        sql = String.format(sql, sqlStatus, joinType, keywordCondition, dateClause, orderBy);
+        sql = String.format(sql, sqlStatus, joinType, keywordCondition, dateClause, orderBy, orderById);
 
         String countSql = "SELECT COUNT(*) FROM (" + sql + ") AS count_query";
         int count = jdbcTemplate.queryForObject(countSql, params.toArray(), Integer.class);
@@ -732,7 +741,7 @@ public class ProductServiceImpl implements ProductService {
         for (Long id : subProductIds) {
             if (!subProductRepository.existsById(id)) {
                 log.error("Sub product with id %s is not found!".formatted(subProductIds));
-                throw new NotFoundException("Подпродукт с id: %s не найден!".formatted(subProductIds));
+                throw new NotFoundException("Продукт с id: %s не найден!".formatted(subProductIds));
             }
         }
 
@@ -750,6 +759,10 @@ public class ProductServiceImpl implements ProductService {
                     }
                 }
             }
+            Product product = subProductRepository.findById(subProductId)
+                    .orElseThrow(
+                            () -> new NotFoundException("Продукт с id: %s не найден!".formatted(subProductId)))
+                    .getProduct();
 
             subProductRepository.deleteFromOrders(subProductId);
             subProductRepository.deleteFromBaskets(subProductId);
@@ -757,6 +770,15 @@ public class ProductServiceImpl implements ProductService {
             subProductRepository.deleteFromFavorites(subProductId);
             subProductRepository.deleteFromLastViews(subProductId);
             subProductRepository.deleteSubProduct(subProductId);
+            if (product.getSubProducts().isEmpty()){
+                if (product.getReviews() != null) {
+                    for (Review review : product.getReviews()) {
+                        reviewRepository.deleteReviewImgByReviewId(review.getId());
+                    }
+                }
+                reviewRepository.deleteByProductId(product.getId());
+                productRepository.deleteProductById(product.getId());
+            }
         }
 
         return SimpleResponse.builder()

@@ -21,7 +21,7 @@ import static jakarta.persistence.CascadeType.*;
 public class Review {
     @Id
     @SequenceGenerator(name = "review_gen", sequenceName = "review_seq",
-    allocationSize = 1, initialValue = 6)
+    allocationSize = 1, initialValue = 40)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "review_gen")
     private Long id;
     @Column(length = 10000)

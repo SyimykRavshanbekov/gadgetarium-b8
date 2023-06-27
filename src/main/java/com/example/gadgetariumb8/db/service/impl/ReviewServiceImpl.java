@@ -61,114 +61,68 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public Object getAllReview(String param) {
-        log.info("Getting all reviews");
-        String sql = null;
-        String countSql = "SELECT count(r) as count FROM reviews r WHERE r.answer IS NULL";
-        switch (param) {
-            case "Unanswered" -> sql = """
-                    SELECT DISTINCT r.id                                                                         AS id,
-                                    (select s.images
-                                     from sub_product_images s
-                                              JOIN sub_products sps on sps.id = s.sub_product_id
-                                     where sps.product_id = p.id
-                                     limit 1) as product_image,
-                                    (SELECT s.item_number FROM sub_products s where s.product_id = p.id limit 1) AS item_number,
-                                    r.commentary                                                                 AS commentary,
-                                    r.grade                                                                      AS grade,
-                                    r.answer                                                                     AS answer,
-                                    ri                                                                           AS images,
-                                    CONCAT(u.first_name, ' ', u.last_name)                                       AS user_name,
-                                    ui.email                                                                     AS email,
-                                    u.image                                                                      AS user_image,
-                                    r.created_at_time AS dates,
-                                    p.name            AS product_name
-                    FROM reviews r
-                             JOIN products p ON p.id = r.product_id
-                             JOIN sub_products sp ON r.product_id = sp.product_id
-                             JOIN review_images ri ON r.id = ri.review_id
-                             JOIN users u ON u.id = r.user_id
-                             JOIN users_info ui ON ui.id = r.user_id where r.answer IS NULL
-                     """;
-            case "Answered" -> sql = """
-                    SELECT DISTINCT r.id                                                                         AS id,
-                                    (select s.images
-                                     from sub_product_images s
-                                              JOIN sub_products sps on sps.id = s.sub_product_id
-                                     where sps.product_id = p.id
-                                     limit 1) as product_image,
-                                    (SELECT s.item_number FROM sub_products s where s.product_id = p.id limit 1) AS item_number,
-                                    r.commentary                                                                 AS commentary,
-                                    r.grade                                                                      AS grade,
-                                    r.answer                                                                     AS answer,
-                                    ri                                                                           AS images,
-                                    CONCAT(u.first_name, ' ', u.last_name)                                       AS user_name,
-                                    ui.email                                                                     AS email,
-                                    u.image                                                                      AS user_image,
-                                    r.created_at_time AS dates,
-                                    p.name            AS product_name
-                    FROM reviews r
-                             JOIN products p ON p.id = r.product_id
-                             JOIN sub_products sp ON r.product_id = sp.product_id
-                             JOIN review_images ri ON r.id = ri.review_id
-                             JOIN users u ON u.id = r.user_id
-                             JOIN users_info ui ON ui.id = r.user_id WHERE r.answer IS NOT NULL
-                    """;
-            case "AllReviews" -> sql = """
-                   SELECT DISTINCT r.id                                                                         AS id,
-                                   (select s.images
-                                    from sub_product_images s
-                                             JOIN sub_products sps on sps.id = s.sub_product_id
-                                    where sps.product_id = p.id
-                                    limit 1) as product_image,
-                                   (SELECT s.item_number FROM sub_products s where s.product_id = p.id limit 1) AS item_number,
-                                   r.commentary                                                                 AS commentary,
-                                   r.grade                                                                      AS grade,
-                                   r.answer                                                                     AS answer,
-                                   ri                                                                           AS images,
-                                   CONCAT(u.first_name, ' ', u.last_name)                                       AS user_name,
-                                   ui.email                                                                     AS email,
-                                   u.image                                                                      AS user_image,
-                                   r.created_at_time AS dates,
-                                   p.name            AS product_name
-                   FROM reviews r
-                            JOIN products p ON p.id = r.product_id
-                            JOIN sub_products sp ON r.product_id = sp.product_id
-                            JOIN review_images ri ON r.id = ri.review_id
-                            JOIN users u ON u.id = r.user_id
-                            JOIN users_info ui ON ui.id = r.user_id
-                    """;
-        }
-        if (sql != null) {
-            log.info("All reviews are got!");
-            return new AdminReviewsResponse(
-                    jdbcTemplate.query(sql, (resultSet, i)
-                                    -> new ReviewResponse(
-                                    resultSet.getLong("id"),
-                                    resultSet.getString("product_image"),
-                                    resultSet.getInt("item_number"),
-                                    resultSet.getString("commentary"),
-                                    resultSet.getInt("grade"),
-                                    resultSet.getString("answer"),
-                                    reviewRepository.getAllImage(resultSet.getLong("id")),
-                                    resultSet.getString("user_name"),
-                                    resultSet.getString("email"),
-                                    resultSet.getString("user_image"),
-                                    resultSet.getString("dates"),
-                                    resultSet.getString("product_name")
+    public AdminReviewsResponse getAllReview(String param) {
+        String query = """
+                SELECT r.id                                                         AS id,
+                      (select spi.images
+                         from sub_product_images spi
+                         join sub_products sp on spi.sub_product_id = sp.id
+                         join products prod on sp.product_id = prod.id
+                         where prod.id = p.id
+                         limit 1
+                      )                                                             AS product_image,
+                      (select sp.item_number from sub_products sp
+                          join products prod on sp.product_id = prod.id
+                          where prod.id = p.id
+                          limit 1
+                      )                                                             AS item_number,
+                      r.commentary                                                  AS commentary,
+                      r.grade                                                       AS grade,
+                      r.answer                                                      AS answer,
+                      CONCAT(u.first_name, ' ', u.last_name)                        AS user_name,
+                      ui.email                                                      AS email,
+                      u.image                                                       AS user_image,
+                      r.created_at_time                                             AS dates,
+                      p.name                                                        AS product_name
+                FROM reviews r
+                      JOIN products p ON p.id = r.product_id
+                      JOIN users u ON u.id = r.user_id
+                      JOIN users_info ui ON ui.id = u.user_info_id %s
+                      ORDER BY r.id DESC
+                """;
 
-                            )
-                    ),
-                    jdbcTemplate.queryForObject(countSql, Integer.class)
-            );
-        } else {
-            return SimpleResponse
-                    .builder()
-                    .message("""
-                            Вы ввели неправильное слово Параметр запроса должен принимать слово -( AllReviews, Answered, Unanswered)!!!""")
-                    .httpStatus(HttpStatus.BAD_REQUEST)
-                    .build();
-        }
+        String statusCondition = switch (param) {
+            case "Unanswered" -> " where r.answer IS NULL";
+            case "Answered" -> " where r.answer IS NOT NULL";
+            default -> "";
+        };
+
+        query = query.formatted(statusCondition);
+        String countSql = "SELECT count(r) as count FROM reviews r WHERE r.answer IS NULL";
+
+        log.info("Getting all reviews");
+
+        AdminReviewsResponse response = new AdminReviewsResponse(
+                jdbcTemplate.query(query, (resultSet, i)
+                                -> new ReviewResponse(
+                                resultSet.getLong("id"),
+                                resultSet.getString("product_image"),
+                                resultSet.getInt("item_number"),
+                                resultSet.getString("commentary"),
+                                resultSet.getInt("grade"),
+                                resultSet.getString("answer"),
+                                reviewRepository.getAllImage(resultSet.getLong("id")),
+                                resultSet.getString("user_name"),
+                                resultSet.getString("email"),
+                                resultSet.getString("user_image"),
+                                resultSet.getString("dates"),
+                                resultSet.getString("product_name")
+
+                        )
+                ),
+                jdbcTemplate.queryForObject(countSql, Integer.class)
+        );
+        return response;
     }
 
     @Override
