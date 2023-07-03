@@ -37,6 +37,7 @@ public class ProfileServiceImpl implements ProfileService {
         user.setAddress(request.address());
         userRepository.save(user);
         return new ProfileResponse(
+                user.getImage(),
                 user.getFirstName(),
                 user.getLastName(),
                 user.getPhoneNumber(),
@@ -72,4 +73,16 @@ public class ProfileServiceImpl implements ProfileService {
         }).getUser();
     }
 
+    @Override
+    public ProfileResponse getProfile() {
+        User user = getAuthenticate();
+        return ProfileResponse.builder()
+                .image(user.getImage())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .phoneNumber(user.getPhoneNumber())
+                .email(user.getUserInfo().getEmail())
+                .address(user.getAddress())
+                .build();
+    }
 }

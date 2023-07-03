@@ -19,6 +19,13 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class ProfileApi {
     private final ProfileService profileService;
+
+    @GetMapping
+    @PreAuthorize("hasAuthority('USER')")
+    public ProfileResponse getProfile(){
+        return profileService.getProfile();
+    }
+
     @PutMapping
     @PreAuthorize("hasAnyAuthority('USER','ADMIN')")
     public ProfileResponse updateUserDetails(@RequestBody @Valid ProfileRequest request) {
