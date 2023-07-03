@@ -5,9 +5,11 @@ import com.example.gadgetariumb8.db.dto.request.ProfilePasswordResetRequest;
 import com.example.gadgetariumb8.db.dto.request.ProfileRequest;
 import com.example.gadgetariumb8.db.dto.response.ProfileResponse;
 import com.example.gadgetariumb8.db.dto.response.SimpleResponse;
+import com.example.gadgetariumb8.db.exception.exceptions.AlreadyExistException;
 import com.example.gadgetariumb8.db.exception.exceptions.BadRequestException;
 import com.example.gadgetariumb8.db.exception.exceptions.NotFoundException;
 import com.example.gadgetariumb8.db.model.User;
+import com.example.gadgetariumb8.db.repository.UserInfoRepository;
 import com.example.gadgetariumb8.db.repository.UserRepository;
 import com.example.gadgetariumb8.db.service.ProfileService;
 import jakarta.transaction.Transactional;
@@ -24,12 +26,16 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Transactional
 public class ProfileServiceImpl implements ProfileService {
+    private final UserInfoRepository userInfoRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder encoder;
 
     @Override
     public ProfileResponse updateUserDetails(ProfileRequest request) {
         User user = getAuthenticate();
+        if (userInfoRepository.existsByEmailAndIdNot(request.email(), user.getUserInfo().getId())) {
+            throw new AlreadyExistException("Пользователь с таким логином уже существует");
+        }
         user.setFirstName(request.firstName());
         user.setLastName(request.lastName());
         user.setPhoneNumber(request.phoneNumber());
@@ -76,13 +82,12 @@ public class ProfileServiceImpl implements ProfileService {
     @Override
     public ProfileResponse getProfile() {
         User user = getAuthenticate();
-        return ProfileResponse.builder()
-                .image(user.getImage())
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
-                .phoneNumber(user.getPhoneNumber())
-                .email(user.getUserInfo().getEmail())
-                .address(user.getAddress())
-                .build();
+        return new ProfileResponse(
+                user.getImage(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getPhoneNumber(),
+                user.getUserInfo().getEmail(),
+                user.getAddress());
     }
 }
