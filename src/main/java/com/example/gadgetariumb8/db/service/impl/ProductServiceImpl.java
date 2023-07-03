@@ -522,10 +522,10 @@ public class ProductServiceImpl implements ProductService {
                 case "Новинки" ->
                         orderBy = "AND prod.created_at >= NOW() - INTERVAL '7 days' ORDER BY prod.created_at DESC";
                 case "Все акции" -> joinTypeOfDiscount = "";
-                case "До 50%" -> orderBy = "AND d.percent < 50";
-                case "Свыше 50%" -> orderBy = "AND d.percent >= 50";
+                case "До 50%" -> orderBy = "AND dis.percent < 50";
+                case "Свыше 50%" -> orderBy = "AND dis.percent >= 50";
                 case "Рекомендуемые" -> orderBy = "AND prod.rating >= 4";
-                case "По увеличению цены" -> orderBy = "ORDER BY sub.price";
+                case "По увеличению цены" -> orderBy = " ORDER BY sub.price";
                 case "По уменьшению цены" -> orderBy = "ORDER BY sub.price DESC";
             }
         }
