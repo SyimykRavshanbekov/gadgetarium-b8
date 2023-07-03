@@ -8,6 +8,8 @@ import lombok.Builder;
 public record ForgotPasswordRequest(
         @NotBlank(message = "Почта не должна быть пустой")
         @Email(message = "Напишите действительный адрес электронной почты!")
-        String email
+        String email,
+        @NotBlank(message = "Ссылка не должна быть пустой")
+        String linkResetPassword
 ) {
 }

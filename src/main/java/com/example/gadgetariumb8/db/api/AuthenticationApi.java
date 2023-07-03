@@ -40,7 +40,7 @@ public class AuthenticationApi {
     @PostMapping("/forgot-password")
     public ResponseEntity<SimpleResponse> processForgotPasswordForm(@RequestBody @Valid ForgotPasswordRequest request) throws MessagingException {
         return ResponseEntity.ok(authenticationService.
-                forgotPassword(request.email()));
+                forgotPassword(request));
     }
 
     @Operation(summary = "Reset password", description = "This method changes the old password to new password.")

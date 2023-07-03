@@ -1,6 +1,7 @@
 package com.example.gadgetariumb8.db.service.impl;
 
 import com.example.gadgetariumb8.db.config.jwt.JwtService;
+import com.example.gadgetariumb8.db.dto.request.ForgotPasswordRequest;
 import com.example.gadgetariumb8.db.dto.response.SimpleResponse;
 import com.example.gadgetariumb8.db.exception.exceptions.AlreadyExistException;
 import com.example.gadgetariumb8.db.exception.exceptions.BadCredentialException;
@@ -105,17 +106,18 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public SimpleResponse forgotPassword(String email) {
-        UserInfo userInfo = userRepository.findUserInfoByEmail(email)
+    public SimpleResponse forgotPassword(ForgotPasswordRequest request) {
+        log.info("Updating reset password token for email: {}",request.email());
+        UserInfo userInfo = userRepository.findUserInfoByEmail(request.email())
                 .orElseThrow(() -> {
-                    log.error(String.format("Пользователь с адресом электронной почты %s не существует", email));
-                    throw new NotFoundException(String.format("Пользователь с адресом электронной почты %s не существует", email));
+                    log.error(String.format("Пользователь с адресом электронной почты %s не существует", request.email()));
+                    throw new NotFoundException(String.format("Пользователь с адресом электронной почты %s не существует", request.email()));
                 });
         String token = UUID.randomUUID().toString();
         userInfo.setResetPasswordToken(token);
 
         String subject = "Password Reset Request";
-        String resetPasswordLink = "http://localhost:8080/reset-password?token=" + token;
+        String resetPasswordLink = request.linkResetPassword() + "/" + token;
 
         Context context = new Context();
         context.setVariable("title", "Восстановление пароля");
@@ -125,7 +127,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         String htmlContent = templateEngine.process("reset-password-template.html", context);
 
-        emailService.sendEmail(email, subject, htmlContent);
+        emailService.sendEmail(request.email(), subject, htmlContent);
+        log.info("Password reset email sent to: {}",request.email());
         return SimpleResponse.builder()
                 .httpStatus(HttpStatus.OK)
                 .message("Сброс пароля был отправлен на вашу электронную почту. Пожалуйста, проверьте свою электронную почту.")
@@ -137,11 +140,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         UserInfo userInfo = userInfoRepository.findByResetPasswordToken(token)
                 .orElseThrow(() -> {
                     log.error("Пользователь не существует");
-                    throw new NotFoundException("User does not exists");});
+                    throw new NotFoundException("User does not exists");
+                });
 
         userInfo.setPassword(passwordEncoder.encode(newPassword));
         userInfo.setResetPasswordToken(null);
         log.info("Пароль пользователя успешно изменен!");
+        log.info("User password updated successfully for user: {}", userInfo.getId());
         return SimpleResponse.builder()
                 .httpStatus(HttpStatus.OK)
                 .message("Пароль пользователя успешно изменен!")
