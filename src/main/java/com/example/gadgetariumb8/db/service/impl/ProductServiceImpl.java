@@ -507,9 +507,11 @@ public class ProductServiceImpl implements ProductService {
         }
         if (watch_material != null) {
             String watch_materials = stringify(watch_material);
+            joiningCharacteristics = "LEFT JOIN sub_product_characteristics spc ON sub.id = spc.sub_product_id";
             conditionForFilterByMaterial = String.format("AND spc.characteristics IN (%s) AND spc.characteristics_key='Материал корпуса'", watch_materials);
         }
         if (gender != null) {
+            joiningCharacteristics = "LEFT JOIN sub_product_characteristics spc ON sub.id = spc.sub_product_id";
             conditionForFilterByGender = String.format("AND spc.characteristics='%s' AND spc.characteristics_key='Пол'", gender);
         }
 
