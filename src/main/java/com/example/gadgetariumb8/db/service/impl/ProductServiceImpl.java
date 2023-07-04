@@ -23,6 +23,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.security.SecureRandom;
 import java.sql.Array;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -67,6 +68,10 @@ public class ProductServiceImpl implements ProductService {
         product.setPDF(productRequest.PDF());
         product.setDescription(productRequest.description());
         for (SubProductRequest s : productRequest.subProducts()) {
+
+            SecureRandom random = new SecureRandom();
+            int randomNumber = random.nextInt(1000000, 9999999);
+
             SubProduct subProduct = new SubProduct();
             subProduct.addCharacteristics(s.characteristics());
             subProduct.setColour(s.colour());
@@ -74,6 +79,7 @@ public class ProductServiceImpl implements ProductService {
             subProduct.setQuantity(s.quantity());
             subProduct.setImages(s.images());
             subProduct.setProduct(product);
+            subProduct.setItemNumber(randomNumber);
             product.addSubProduct(subProduct);
             subProductRepository.save(subProduct);
         }
