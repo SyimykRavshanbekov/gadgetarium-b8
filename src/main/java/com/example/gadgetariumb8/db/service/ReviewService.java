@@ -1,6 +1,7 @@
 package com.example.gadgetariumb8.db.service;
 
 import com.example.gadgetariumb8.db.dto.request.AnswerRequest;
+import com.example.gadgetariumb8.db.dto.request.FeedbackRequest;
 import com.example.gadgetariumb8.db.dto.response.AdminReviewsResponse;
 import com.example.gadgetariumb8.db.dto.response.FeedbackInfographic;
 import com.example.gadgetariumb8.db.dto.response.FeedbackResponse;
@@ -19,4 +20,6 @@ public interface ReviewService {
     SimpleResponse updateFeedback(Long id, String feedback);
 
     FeedbackInfographic getFeedbackInfographic();
+
+    SimpleResponse post(FeedbackRequest feedbackRequest);
 }
