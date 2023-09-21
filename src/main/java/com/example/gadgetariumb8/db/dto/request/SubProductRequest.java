@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 public record SubProductRequest(
-        @NotBlank(message = "Цвет должен быть указан!!!")
+                @NotBlank(message = "Цвет должен быть указан!!!")
         String colour,
         @NotEmpty(message = "Характеристики должны быть указаны!!!")
         Map<String, String> characteristics,
@@ -17,7 +17,8 @@ public record SubProductRequest(
         @Min(value = 1, message = "Минимальное количество не должно быть меньше 1")
         @NotNull(message = "Необходимо указать количество!!!")
         int quantity,
-        @Size(min = 2, max = 6, message = "Размер должен быть от 2 до 6.")
+        @Size(min = 2, max = 6,
+                message = "Размер должен быть от 2 до 6.")
         @NotEmpty(message = "Изображения должны быть указаны!!!")
         List<String> images
 ) {

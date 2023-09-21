@@ -89,7 +89,7 @@ values (1,'https://psref.lenovo.com/syspool/Sys/PDF/Legion/Legion_Pro_7_16IRX8/L
         12,'Galaxy S23 Ultra',5,'https://youtu.be/wmgj8izYOKw',2,2),
 
        (3,'https://psref.lenovo.com/syspool/Sys/PDF/Legion/Legion_Pro_7_16IRX8/Legion_Pro_7_16IRX8_Spec.pdf','2023-06-25','2022-10-20',
-        'Благодаря ядрам с революционной производительностью и эффективностью процессоры Intel® Core™ 12-го поколения обеспечивают бесперебойную потоковую передачу, редактирование, игры и запись, предоставляя мощность там, где она больше всего нужна. Поддержка Intel® Thread Director и Intel® WiFi 6E обеспечивает бесперебойную работу.',
+         'Благодаря ядрам с революционной производительностью и эффективностью процессоры Intel® Core™ 12-го поколения обеспечивают бесперебойную потоковую передачу, редактирование, игры и запись, предоставляя мощность там, где она больше всего нужна. Поддержка Intel® Thread Director и Intel® WiFi 6E обеспечивает бесперебойную работу.',
         8,'Legion Pro 7i Gen 8 Intel (16″) with RTX 4090',4.5,'https://youtu.be/c7xe-gDOmBU',9,24),
 
        (4,'https://psref.lenovo.com/syspool/Sys/PDF/Legion/Legion_Pro_7_16IRX8/Legion_Pro_7_16IRX8_Spec.pdf','2023-03-29','2020-09-15',
