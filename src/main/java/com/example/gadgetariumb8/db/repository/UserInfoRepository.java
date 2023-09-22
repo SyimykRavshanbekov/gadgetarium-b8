@@ -15,5 +15,7 @@ public interface UserInfoRepository extends JpaRepository<UserInfo, Long> {
 
     Optional<UserInfo> findByResetPasswordToken(String token);
 
+    boolean existsByEmailAndIdNot(String email, Long id);
+
 }
 

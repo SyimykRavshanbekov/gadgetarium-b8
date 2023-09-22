@@ -8,7 +8,11 @@ import com.example.gadgetariumb8.db.dto.response.SimpleResponse;
 
 public interface ProfileService {
     ProfileResponse updateUserDetails(ProfileRequest request);
+
     SimpleResponse resetPassword(ProfilePasswordResetRequest request);
+
     SimpleResponse setImage(ProfileImageRequest request);
+
+    ProfileResponse getProfile();
 }
 

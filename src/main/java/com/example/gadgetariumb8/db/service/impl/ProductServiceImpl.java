@@ -23,6 +23,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.security.SecureRandom;
 import java.sql.Array;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -67,6 +68,10 @@ public class ProductServiceImpl implements ProductService {
         product.setPDF(productRequest.PDF());
         product.setDescription(productRequest.description());
         for (SubProductRequest s : productRequest.subProducts()) {
+
+            SecureRandom random = new SecureRandom();
+            int randomNumber = random.nextInt(1000000, 9999999);
+
             SubProduct subProduct = new SubProduct();
             subProduct.addCharacteristics(s.characteristics());
             subProduct.setColour(s.colour());
@@ -74,6 +79,7 @@ public class ProductServiceImpl implements ProductService {
             subProduct.setQuantity(s.quantity());
             subProduct.setImages(s.images());
             subProduct.setProduct(product);
+            subProduct.setItemNumber(randomNumber);
             product.addSubProduct(subProduct);
             subProductRepository.save(subProduct);
         }
@@ -507,9 +513,11 @@ public class ProductServiceImpl implements ProductService {
         }
         if (watch_material != null) {
             String watch_materials = stringify(watch_material);
+            joiningCharacteristics = "LEFT JOIN sub_product_characteristics spc ON sub.id = spc.sub_product_id";
             conditionForFilterByMaterial = String.format("AND spc.characteristics IN (%s) AND spc.characteristics_key='Материал корпуса'", watch_materials);
         }
         if (gender != null) {
+            joiningCharacteristics = "LEFT JOIN sub_product_characteristics spc ON sub.id = spc.sub_product_id";
             conditionForFilterByGender = String.format("AND spc.characteristics='%s' AND spc.characteristics_key='Пол'", gender);
         }
 
@@ -520,10 +528,10 @@ public class ProductServiceImpl implements ProductService {
                 case "Новинки" ->
                         orderBy = "AND prod.created_at >= NOW() - INTERVAL '7 days' ORDER BY prod.created_at DESC";
                 case "Все акции" -> joinTypeOfDiscount = "";
-                case "До 50%" -> orderBy = "AND d.percent < 50";
-                case "Свыше 50%" -> orderBy = "AND d.percent >= 50";
+                case "До 50%" -> orderBy = "AND dis.percent < 50";
+                case "Свыше 50%" -> orderBy = "AND dis.percent >= 50";
                 case "Рекомендуемые" -> orderBy = "AND prod.rating >= 4";
-                case "По увеличению цены" -> orderBy = "ORDER BY sub.price";
+                case "По увеличению цены" -> orderBy = " ORDER BY sub.price";
                 case "По уменьшению цены" -> orderBy = "ORDER BY sub.price DESC";
             }
         }

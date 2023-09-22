@@ -1,25 +1,40 @@
 package com.example.gadgetariumb8.db.service.impl;
 
 import com.example.gadgetariumb8.db.dto.request.AnswerRequest;
+import com.example.gadgetariumb8.db.dto.request.FeedbackRequest;
 import com.example.gadgetariumb8.db.dto.response.*;
+import com.example.gadgetariumb8.db.exception.exceptions.BadRequestException;
 import com.example.gadgetariumb8.db.exception.exceptions.NotFoundException;
+import com.example.gadgetariumb8.db.model.Order;
 import com.example.gadgetariumb8.db.model.Review;
+import com.example.gadgetariumb8.db.model.SubProduct;
+import com.example.gadgetariumb8.db.model.User;
+import com.example.gadgetariumb8.db.model.enums.Status;
+import com.example.gadgetariumb8.db.repository.ProductRepository;
 import com.example.gadgetariumb8.db.repository.ReviewRepository;
 import com.example.gadgetariumb8.db.repository.ReviewsRepository;
+import com.example.gadgetariumb8.db.repository.UserRepository;
 import com.example.gadgetariumb8.db.service.ReviewService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.Date;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
 @Slf4j
 public class ReviewServiceImpl implements ReviewService {
-
+    private final ProductRepository productRepository;
+    private final UserRepository userRepository;
     private final ReviewRepository reviewRepository;
     private final ReviewsRepository reviewsRepository;
     private final JdbcTemplate jdbcTemplate;
@@ -165,5 +180,64 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public FeedbackInfographic getFeedbackInfographic() {
         return reviewsRepository.getFeedbackInfographic();
+    }
+
+    @Override
+    public SimpleResponse post(FeedbackRequest feedbackRequest) {
+        User user = getAuthenticate();
+        List<Review> reviews = reviewRepository.findAll();
+        for (Review review : reviews) {
+            if (review.getUser().getId().equals(user.getId()) && review.getProduct().getId().equals(feedbackRequest.productId())) {
+                throw new BadRequestException("Вы уже оставили отзыв на этот продукт");
+            }
+        }
+
+        boolean hasPurchasedProduct = false;
+        for (Order order : user.getOrders()) {
+            for (SubProduct subProduct1 : order.getSubProducts()){
+                if (subProduct1.getProduct().getId().equals(feedbackRequest.productId())) {
+                    hasPurchasedProduct = true;
+                    break;
+                }
+            }
+        }
+
+        if (!hasPurchasedProduct) {
+            throw new BadRequestException("Чтобы оставить отзыв, купите продукт");
+        }
+
+        for (Order order : user.getOrders()) {
+            for (SubProduct subProduct : order.getSubProducts()) {
+                if (subProduct.getProduct().getId().equals(feedbackRequest.productId())) {
+                    if (order.getStatus() != Status.DELIVERED && order.getStatus() != Status.RECEIVED) {
+                        throw new BadRequestException("Чтобы оставить отзыв, продукт должен быть доставлен или получен");
+                    }
+                }
+            }
+        }
+
+        Review review = new Review();
+        review.setGrade(feedbackRequest.grade());
+        review.setCommentary(feedbackRequest.comment());
+        review.setCreatedAtTime(LocalDateTime.now());
+        review.setUser(getAuthenticate());
+        review.setProduct(productRepository.findById(feedbackRequest.productId()).orElseThrow(() -> new NotFoundException("Product not found!")));
+        review.addImages(feedbackRequest.images());
+        reviewRepository.save(review);
+
+        return SimpleResponse.builder()
+                .httpStatus(HttpStatus.OK)
+                .message("Ваш отзыв был успешно отправлен!")
+                .build();
+    }
+
+    private User getAuthenticate() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String login = authentication.getName();
+        log.info("Токен взят!");
+        return userRepository.findUserInfoByEmail(login).orElseThrow(() -> {
+            log.error("Пользователь не найден с токеном пожалуйста войдите или зарегистрируйтесь!");
+            return new NotFoundException("пользователь не найден с токеном пожалуйста войдите или зарегистрируйтесь");
+        }).getUser();
     }
 }

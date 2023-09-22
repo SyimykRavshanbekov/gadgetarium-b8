@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -28,10 +30,17 @@ public class Review {
     private String commentary;
     private int grade;
     private String answer;
-    private Date createdAtTime;
+    private LocalDateTime createdAtTime;
 
     @ElementCollection
     private List<String> images;
+
+    public void addImages(List<String> images){
+        if (this.images == null){
+            this.images = new ArrayList<>();
+        }
+        this.images.addAll(images);
+    }
 
     @ManyToOne(cascade = {REFRESH, PERSIST, MERGE, DETACH}, fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
